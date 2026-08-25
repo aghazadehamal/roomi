@@ -1,0 +1,57 @@
+---
+description: Import-graph file placement; role folders; no feature-root barrels
+alwaysApply: true
+---
+
+# Placement
+
+Place files by **who imports them**, not by domain labels. Grep real importers (barrel re-exports do not count).
+
+| Importers | Put the file |
+|-----------|----------------|
+| Exactly one | Inside that importer's folder |
+| Two or more | Lowest shared parent of those paths |
+| Unsure | Keep closer (single importer) until proven shared |
+
+After a refactor, if a parent file has one consumer left, **move it down** in the same change.
+
+# Layers (KirayeChat — not FSD)
+
+```
+src/app/              # Next routes only (page, layout). Not Vite providers/router.
+src/features/{name}/  # listings | chat | auth | profile — domain lives here
+src/components/ui/    # shadcn only
+src/lib/supabase/     # clients + generated DB types
+```
+
+- `src/app` imports features. Features **never** import from `src/app`.
+- Do **not** add `src/pages/`, `src/entities/`, or `src/shared/`.
+- Keep `src/lib/supabase` and `src/components/ui` (do not rename to `helpers/` / `shared/ui`).
+
+# Role folders (only if there is real code)
+
+Fixed names inside a feature or unit: `ui` | `helpers` | `hooks` | `model` | `api`
+
+- Folder = **what it does** (`listingCard`, `deleteModal`), not `listingsListingCard`.
+- No empty role folders. No 7th top-level role (`utils`, `components`, `modals`, `services`, `types/`).
+- Data: `queries.ts` / `actions.ts` at feature root when **two+** routes or units use them; if only one unit uses a query, nest it under that unit.
+- No `mock/` unless a test/fixture file actually exists.
+
+# Units and barrels
+
+- UI unit: `ui/{camelCase}/index.tsx` + `type.ts` (props/local types). No loose `ListingCard.tsx` at feature root.
+- **No** `features/{name}/index.ts`, **no** `src/app/index.ts`.
+- Role barrel OK: `ui/index.ts` re-exports units only (no logic). Import `@/features/listings/ui` or the unit path.
+- Types in `type.ts` next to the only consumer. Shared shapes: `model/` at lowest shared parent. DB rows: `src/lib/supabase/types.ts` only.
+
+```
+src/features/listings/
+├── queries.ts
+├── actions.ts
+├── schema.ts
+└── ui/
+    ├── index.ts
+    ├── listingCard/index.tsx + type.ts
+    ├── listingFeed/
+    └── listingForm/
+```

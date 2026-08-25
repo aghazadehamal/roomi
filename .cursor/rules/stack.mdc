@@ -1,0 +1,33 @@
+---
+description: KirayeChat stack, folders, and implementation boundaries
+alwaysApply: true
+---
+
+# Stack
+
+- Next.js App Router + TypeScript (`src/`). Deploy: Vercel.
+- Supabase: Auth, Postgres, Storage, Realtime. No Express/Nest/Firebase.
+- UI: Tailwind + shadcn/ui. No CSS-in-JS.
+- Validation: Zod. Forms: React Hook Form.
+- Types for DB: `supabase gen types`. Do not hand-write table row types.
+
+# Folders
+
+See `placement.mdc` for import-graph placement. Top level:
+
+```
+src/app/                 # Next routes only (page, layout, loading)
+src/features/listings/   # ui/ units + queries/actions
+src/features/chat/
+src/features/auth/
+src/features/profile/
+src/components/ui/       # shadcn only
+src/lib/supabase/        # browser client, server client, middleware
+supabase/migrations/     # SQL only
+```
+
+- Feature code stays in `src/features/<name>`. Do not dump domain logic in `src/app`.
+- Inside a feature: `ui/{unit}/index.tsx`, not loose components at the feature root.
+- Server Components by default. `"use client"` only for chat, filters, forms.
+- Mutations: Server Actions in the same feature folder. No random `/api` unless webhook/cron.
+- Listing expiry: Supabase scheduled function or cron route. Do not expire only in the UI.

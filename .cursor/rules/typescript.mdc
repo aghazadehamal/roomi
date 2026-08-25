@@ -1,0 +1,14 @@
+---
+description: TypeScript and React conventions for KirayeChat
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# TypeScript
+
+- Strict TypeScript. No `any`. Use `unknown` and narrow.
+- Named exports. UI units: `ui/{camelCase}/index.tsx`; props and local types in sibling `type.ts`.
+- Server data: `async` functions in `src/features/<name>/queries.ts` or `actions.ts`.
+- Client data: Supabase Realtime only inside `src/features/chat`.
+- Handle errors; do not swallow. User-facing copy in Azerbaijani.
+- Tailwind only via className. No inline style unless a dynamic pixel value is required.

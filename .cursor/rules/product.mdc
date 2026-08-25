@@ -1,0 +1,17 @@
+---
+description: KirayeChat product invariants (listings, chat, monetization)
+alwaysApply: true
+---
+
+# Product
+
+- Guests can browse listings. Auth required to create a listing or send a message.
+- Never show phone, WhatsApp, or Instagram on listings or profiles.
+- Chat is 1:1 and tied to a listing (`conversations.listing_id`). No global chat.
+- Unique conversation per `(listing_id, guest_id)`. Cannot message own listing.
+- Replies in an existing conversation are always allowed. Daily cap applies only to *new* conversations (free: 5/day).
+- Max 1 `active` listing per user. Expiry: 21 days; remind then set `archived` (do not hard-delete). Keep chats when listing archives.
+- Listing types: `home_offer` | `room_offer` | `home_seek` | `roommate_seek`. Home feed vs seek feed are separate tabs.
+- Public location: city + district only. No street on guest view.
+- Paid later: extra listings, unlimited new chats, boost. Do not paywall viewing listings.
+- Block and report before any other moderation UI.
