@@ -1,5 +1,5 @@
 ---
-description: TypeScript and React conventions for KirayeChat
+description: TypeScript and React conventions for Roomi
 globs: src/**/*.{ts,tsx}
 alwaysApply: false
 ---

@@ -15,7 +15,7 @@ Place files by **who imports them**, not by domain labels. Grep real importers (
 
 After a refactor, if a parent file has one consumer left, **move it down** in the same change.
 
-# Layers (KirayeChat — not FSD)
+# Layers (Roomi — not FSD)
 
 ```
 src/app/              # Next routes only (page, layout). Not Vite providers/router.

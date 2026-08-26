@@ -1,0 +1,147 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+type ProfileRow = {
+  id: string
+  name: string
+  avatar_url: string | null
+  city: string
+  role_intent: string
+  created_at: string
+}
+
+type ListingRow = {
+  id: string
+  user_id: string
+  type: string
+  title: string
+  body: string
+  city: string
+  district: string
+  price: number
+  rooms: number
+  gender_pref: string
+  status: string
+  published_at: string
+  expires_at: string
+  created_at: string
+}
+
+type ListingPhotoRow = {
+  id: string
+  listing_id: string
+  url: string
+  sort_order: number
+}
+
+type ConversationRow = {
+  id: string
+  listing_id: string
+  listing_owner_id: string
+  guest_id: string
+  created_at: string
+  guest_last_read_at: string | null
+  owner_last_read_at: string | null
+}
+
+type MessageRow = {
+  id: string
+  conversation_id: string
+  sender_id: string
+  body: string
+  created_at: string
+}
+
+export type Database = {
+  public: {
+    Tables: {
+      profiles: {
+        Row: ProfileRow
+        Insert: {
+          id: string
+          name?: string
+          avatar_url?: string | null
+          city?: string
+          role_intent?: string
+          created_at?: string
+        }
+        Update: Partial<ProfileRow>
+        Relationships: []
+      }
+      listings: {
+        Row: ListingRow
+        Insert: {
+          id?: string
+          user_id: string
+          type: string
+          title: string
+          body: string
+          city: string
+          district: string
+          price: number
+          rooms: number
+          gender_pref?: string
+          status?: string
+          published_at?: string
+          expires_at: string
+          created_at?: string
+        }
+        Update: Partial<ListingRow>
+        Relationships: []
+      }
+      listing_photos: {
+        Row: ListingPhotoRow
+        Insert: {
+          id?: string
+          listing_id: string
+          url: string
+          sort_order?: number
+        }
+        Update: Partial<ListingPhotoRow>
+        Relationships: []
+      }
+      conversations: {
+        Row: ConversationRow
+        Insert: {
+          id?: string
+          listing_id: string
+          listing_owner_id: string
+          guest_id: string
+          created_at?: string
+        }
+        Update: Partial<ConversationRow>
+        Relationships: []
+      }
+      messages: {
+        Row: MessageRow
+        Insert: {
+          id?: string
+          conversation_id: string
+          sender_id: string
+          body: string
+          created_at?: string
+        }
+        Update: Partial<MessageRow>
+        Relationships: []
+      }
+    }
+    Views: Record<string, never>
+    Functions: {
+      archive_expired_listings: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      sync_own_profile_name: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+    }
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
+  }
+}

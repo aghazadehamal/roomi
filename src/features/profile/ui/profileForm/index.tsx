@@ -1,0 +1,62 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { updateProfile } from "@/features/profile/actions";
+import { profileFormSchema, type ProfileFormValues } from "@/features/profile/schema";
+
+import type { ProfileFormProps } from "./type";
+
+export function ProfileForm({ defaultName }: ProfileFormProps) {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: { name: defaultName },
+  });
+
+  async function onSubmit(values: ProfileFormValues) {
+    setError(null);
+    setSaved(false);
+    const result = await updateProfile(values);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    setSaved(true);
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3">
+      <label className="flex flex-col gap-2">
+        <span className="text-sm font-medium">Ad</span>
+        <Input
+          {...form.register("name")}
+          autoComplete="name"
+          autoFocus={defaultName.length === 0}
+          placeholder="Məs: Aysel"
+        />
+      </label>
+      {form.formState.errors.name ? (
+        <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
+      ) : null}
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {saved ? <p className="text-sm text-primary">Ad yadda saxlandı.</p> : null}
+      <Button
+        type="submit"
+        size="lg"
+        className="w-fit"
+        disabled={form.formState.isSubmitting}
+      >
+        {form.formState.isSubmitting ? "Yadda saxlanır…" : "Yadda saxla"}
+      </Button>
+    </form>
+  );
+}
