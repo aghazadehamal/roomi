@@ -1,4 +1,4 @@
-# Roomi — deploy (Vercel + Supabase)
+# Roomum — deploy (Vercel + Supabase)
 
 Başqa istifadəçilər `https://….vercel.app` linkindən aça bilər. Backend ayrıca deploy olunmur: Supabase artıq buluddadır.
 
@@ -25,9 +25,11 @@ git push -u origin main
 | Ad | Dəyər |
 |----|--------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API → Project URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable / anon açar (`eyJ…`) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Eyni anon açar (ehtiyat; biri kifayətdir) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | **Legacy anon** JWT (`eyJ…`) — eyni açar |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | **Legacy anon** JWT (`eyJ…`) — eyni açar |
 | `CRON_SECRET` | Uzun təsadüfi string (məs. `openssl rand -hex 24`) |
+
+> `sb_publishable_…` ilə qonaq feed boş qala bilər. API Keys → **Legacy anon public** (`eyJ…`) kopyala.
 
 5. **Deploy**.
 
@@ -60,6 +62,7 @@ Sıra ilə **Run** (əvvəl run etməmisənsə):
 8. `…000007_profile_name.sql`
 9. `…000008_backfill_profile_names.sql`
 10. `…000009_sync_own_profile_name.sql`
+11. `…000010_guest_listings_select.sql` ← qonaq feed üçün
 
 Storage: `listing-photos` bucket + migration-dakı policy-lər.
 
@@ -95,6 +98,7 @@ Gözlənilən: `{"archived":0}` və ya arxivlənən say.
 |---------|------|
 | Login localhost-a atır | Site URL / Redirect URLs prod domain |
 | `Invalid API key` | Legacy **anon** (`eyJ…`) açarını env-ə qoy |
+| Qonaq elan görmür, girişli görür | 1) SQL: `…000010_guest_listings_select.sql` Run 2) Vercel env-ə Legacy anon `eyJ…` 3) Redeploy |
 | Şəkil yüklənmir | Storage bucket + policy |
 | Cron 401 | `CRON_SECRET` Vercel env + Redeploy |
 | Cron 500 arxiv | `20260825000006_archive_expired.sql` Run et |

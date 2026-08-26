@@ -50,9 +50,16 @@ export function MessagesNav({ initialUnread }: MessagesNavProps) {
   }, []);
 
   return (
-    <Link href="/messages" className={cn(buttonVariants({ variant: "ghost" }), "relative")}>
+    <Link
+      href="/messages"
+      aria-label={unread > 0 ? `Mesajlar (${unread} oxunmamış)` : "Mesajlar"}
+      className={cn(
+        buttonVariants({ variant: "ghost", size: "icon" }),
+        "relative size-10 sm:h-11 sm:w-auto sm:gap-2 sm:px-4",
+      )}
+    >
       <MessageCircle className="size-5" aria-hidden />
-      Mesajlar
+      <span className="hidden sm:inline">Mesajlar</span>
       {unread > 0 ? (
         <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs font-medium text-primary-foreground">
           {unread > 9 ? "9+" : unread}

@@ -18,7 +18,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Roomi",
+  title: "Roomum",
   description: "Kirayə və otaq yoldaşı elanları",
 };
 

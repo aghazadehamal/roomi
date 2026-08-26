@@ -4,7 +4,7 @@ import type { ProfileViewProps } from "./type";
 
 function joinedLabel(iso: string): string {
   const year = new Date(iso).getFullYear();
-  return Number.isFinite(year) ? `${year}-dən Roomi-də` : "";
+  return Number.isFinite(year) ? `${year}-dən Roomum-da` : "";
 }
 
 export function ProfileView({ profile, isOwn, extra }: ProfileViewProps) {

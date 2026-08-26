@@ -21,10 +21,14 @@ export function SignOutButton() {
     <button
       type="button"
       onClick={onSignOut}
-      className={cn(buttonVariants({ variant: "outline" }))}
+      aria-label="Çıxış"
+      className={cn(
+        buttonVariants({ variant: "outline", size: "icon" }),
+        "size-10 sm:h-11 sm:w-auto sm:gap-2 sm:px-4",
+      )}
     >
       <LogOut className="size-5" aria-hidden />
-      Çıxış
+      <span className="hidden sm:inline">Çıxış</span>
     </button>
   );
 }

@@ -1,5 +1,5 @@
 ---
-description: TypeScript and React conventions for Roomi
+description: TypeScript and React conventions for Roomum
 globs: src/**/*.{ts,tsx}
 alwaysApply: false
 ---

@@ -86,7 +86,12 @@ export async function listListings(
 
   const { data, error } = await query.order("published_at", { ascending: false });
 
-  if (error || !data) {
+  if (error) {
+    console.error("listListings failed", error.message);
+    return [];
+  }
+
+  if (!data) {
     return [];
   }
 

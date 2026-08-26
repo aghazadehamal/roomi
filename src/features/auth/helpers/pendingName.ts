@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-const COOKIE = "roomi_pending_name";
+const COOKIE = "roomum_pending_name";
 
 export async function setPendingProfileName(name: string): Promise<void> {
   const trimmed = name.trim();
