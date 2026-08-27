@@ -1,13 +1,15 @@
-import { BedDouble, MapPin, UserRound, Wallet } from "lucide-react";
+import { BedDouble, Building2, MapPin, UserRound, Wallet } from "lucide-react";
 
 import {
   GENDER_PREF_LABELS,
+  HOUSING_KIND_LABELS,
   LISTING_TYPE_LABELS,
   ListingType,
   SEEK_TYPES,
   listingPriceText,
   listingRoomsText,
   listingShowsGender,
+  listingShowsHousingKind,
   listingShowsPhotos,
   listingShowsRooms,
 } from "@/features/listings/model";
@@ -34,6 +36,14 @@ function listingFacts(listing: ListingDetailViewProps["listing"]): Fact[] {
           : `${listing.city}, ${listing.district}`,
     },
   ];
+
+  if (listingShowsHousingKind(listing.type)) {
+    facts.push({
+      icon: Building2,
+      label: "Ev növü",
+      value: HOUSING_KIND_LABELS[listing.housingKind],
+    });
+  }
 
   if (isSeek || listing.priceAzn <= 0) {
     facts.push({

@@ -26,6 +26,7 @@ type ListingRow = {
   price: number
   rooms: number
   gender_pref: string
+  housing_kind: string
   status: string
   published_at: string
   expires_at: string
@@ -86,6 +87,7 @@ export type Database = {
           price: number
           rooms: number
           gender_pref?: string
+          housing_kind?: string
           status?: string
           published_at?: string
           expires_at: string

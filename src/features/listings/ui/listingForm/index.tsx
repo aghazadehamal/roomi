@@ -17,11 +17,13 @@ import {
 } from "@/features/listings/helpers/newListing";
 import {
   FeedTab,
+  HOUSING_KIND_LABELS,
   LISTING_TYPE_LABELS,
   ListingType,
   OFFER_TYPES,
   SEEK_TYPES,
   listingShowsGender,
+  listingShowsHousingKind,
   listingShowsPhotos,
   listingShowsRooms,
 } from "@/features/listings/model";
@@ -76,6 +78,7 @@ export function ListingForm({
       price: 500,
       rooms: 2,
       genderPref: "any",
+      housingKind: "apartment",
     },
   });
 
@@ -150,6 +153,14 @@ export function ListingForm({
                 form.setValue("rooms", 1);
               } else if (type !== ListingType.HomeSeek && form.getValues("rooms") <= 0) {
                 form.setValue("rooms", 2);
+              }
+              if (!listingShowsHousingKind(type)) {
+                form.setValue("housingKind", "any");
+              } else if (
+                type !== ListingType.HomeSeek &&
+                form.getValues("housingKind") === "any"
+              ) {
+                form.setValue("housingKind", "apartment");
               }
               if (!SEEK_TYPES.includes(type)) {
                 if (form.getValues("district") === ANY_DISTRICT) {
@@ -275,6 +286,25 @@ export function ListingForm({
           </label>
         ) : (
           <input type="hidden" {...form.register("genderPref")} />
+        )}
+        {listingShowsHousingKind(selectedType) ? (
+          <label className="flex flex-col gap-2 text-sm font-medium">
+            Ev növü
+            <select className={selectClass} {...form.register("housingKind")}>
+              {selectedType === ListingType.HomeSeek ? (
+                <option value="any">{HOUSING_KIND_LABELS.any}</option>
+              ) : null}
+              <option value="apartment">{HOUSING_KIND_LABELS.apartment}</option>
+              <option value="house">{HOUSING_KIND_LABELS.house}</option>
+            </select>
+            {form.formState.errors.housingKind ? (
+              <span className="font-normal text-destructive">
+                {form.formState.errors.housingKind.message}
+              </span>
+            ) : null}
+          </label>
+        ) : (
+          <input type="hidden" {...form.register("housingKind")} />
         )}
       </div>
 

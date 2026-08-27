@@ -104,6 +104,21 @@ export function ListingFilters({ tab, filters, action }: ListingFiltersProps) {
           <option value="3">3 otaq</option>
           <option value="4">4+ otaq</option>
         </select>
+        <select
+          className={selectClass}
+          value={filters.housingKind ?? ""}
+          aria-label="Ev növü"
+          onChange={(event) => {
+            const value = event.target.value;
+            update({
+              housingKind: value === "apartment" || value === "house" ? value : null,
+            });
+          }}
+        >
+          <option value="">Ev: hamısı</option>
+          <option value="apartment">Bina evi</option>
+          <option value="house">Həyət evi</option>
+        </select>
         {listingFeedFiltersActive(filters) ? (
           <Link
             href={listingFeedHref(tab, emptyListingFeedFilters())}

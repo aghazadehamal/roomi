@@ -30,6 +30,10 @@ function isGenderPref(value: string): value is ListingDetail["genderPref"] {
   return value === "any" || value === "female" || value === "male";
 }
 
+function isHousingKind(value: string): value is ListingDetail["housingKind"] {
+  return value === "apartment" || value === "house" || value === "any";
+}
+
 async function photosByListing(
   listingIds: string[],
 ): Promise<Map<string, { id: string; url: string }[]>> {
@@ -62,7 +66,7 @@ export async function listListings(
   const supabase = await createClient();
   let query = supabase
     .from("listings")
-    .select("id, title, price, city, district, rooms, type, expires_at")
+    .select("id, title, price, city, district, rooms, type, housing_kind, expires_at")
     .eq("status", "active")
     .in("type", types)
     .eq("city", "Bakı");
@@ -84,6 +88,10 @@ export async function listListings(
     );
   }
 
+  if (filters.housingKind) {
+    query = query.in("housing_kind", [filters.housingKind, "any"]);
+  }
+
   const { data, error } = await query.order("published_at", { ascending: false });
 
   if (error) {
@@ -98,7 +106,7 @@ export async function listListings(
   const photos = await photosByListing(data.map((row) => row.id));
 
   return data.flatMap((row) => {
-    if (!isListingType(row.type)) {
+    if (!isListingType(row.type) || !isHousingKind(row.housing_kind)) {
       return [];
     }
 
@@ -113,6 +121,7 @@ export async function listListings(
         district: row.district,
         rooms: row.rooms,
         type: row.type,
+        housingKind: row.housing_kind,
         daysLeft: daysLeft(row.expires_at),
         photoUrl: listingPhotos[0]?.url ?? null,
       },
@@ -125,7 +134,7 @@ export async function getListing(id: string): Promise<ListingDetail | null> {
   const { data, error } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, body, price, city, district, rooms, type, gender_pref, expires_at, status",
+      "id, user_id, title, body, price, city, district, rooms, type, gender_pref, housing_kind, expires_at, status",
     )
     .eq("id", id)
     .maybeSingle();
@@ -135,6 +144,7 @@ export async function getListing(id: string): Promise<ListingDetail | null> {
     !data ||
     !isListingType(data.type) ||
     !isGenderPref(data.gender_pref) ||
+    !isHousingKind(data.housing_kind) ||
     !isListingStatus(data.status)
   ) {
     return null;
@@ -154,6 +164,7 @@ export async function getListing(id: string): Promise<ListingDetail | null> {
     district: data.district,
     rooms: data.rooms,
     type: data.type,
+    housingKind: data.housing_kind,
     genderPref: data.gender_pref,
     daysLeft: data.status === "active" ? daysLeft(data.expires_at) : 0,
     photoUrl: photoUrls[0] ?? null,
@@ -169,7 +180,7 @@ export async function listActiveListingsByUser(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id, title, price, city, district, rooms, type, expires_at")
+    .select("id, title, price, city, district, rooms, type, housing_kind, expires_at")
     .eq("user_id", userId)
     .eq("status", "active")
     .order("published_at", { ascending: false });
@@ -181,7 +192,7 @@ export async function listActiveListingsByUser(
   const photos = await photosByListing(data.map((row) => row.id));
 
   return data.flatMap((row) => {
-    if (!isListingType(row.type)) {
+    if (!isListingType(row.type) || !isHousingKind(row.housing_kind)) {
       return [];
     }
 
@@ -196,6 +207,7 @@ export async function listActiveListingsByUser(
         district: row.district,
         rooms: row.rooms,
         type: row.type,
+        housingKind: row.housing_kind,
         daysLeft: daysLeft(row.expires_at),
         photoUrl: listingPhotos[0]?.url ?? null,
       },
@@ -212,7 +224,7 @@ export async function listOwnListings(): Promise<OwnListing[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id, title, price, city, district, rooms, type, expires_at, status")
+    .select("id, title, price, city, district, rooms, type, housing_kind, expires_at, status")
     .eq("user_id", user.id)
     .order("published_at", { ascending: false });
 
@@ -223,7 +235,11 @@ export async function listOwnListings(): Promise<OwnListing[]> {
   const photos = await photosByListing(data.map((row) => row.id));
 
   return data.flatMap((row) => {
-    if (!isListingType(row.type) || !isListingStatus(row.status)) {
+    if (
+      !isListingType(row.type) ||
+      !isListingStatus(row.status) ||
+      !isHousingKind(row.housing_kind)
+    ) {
       return [];
     }
 
@@ -238,6 +254,7 @@ export async function listOwnListings(): Promise<OwnListing[]> {
         district: row.district,
         rooms: row.rooms,
         type: row.type,
+        housingKind: row.housing_kind,
         daysLeft: row.status === "active" ? daysLeft(row.expires_at) : 0,
         photoUrl: listingPhotos[0]?.url ?? null,
         status: row.status,

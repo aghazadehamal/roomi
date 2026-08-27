@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/features/auth/queries";
 import { feedTabForListingType } from "@/features/listings/helpers/newListing";
-import type { ListingDetail } from "@/features/listings/model";
+import { ListingType, type ListingDetail } from "@/features/listings/model";
 import { getListing } from "@/features/listings/queries";
 import { ANY_DISTRICT, BAKU_DISTRICTS, type ListingFormValues } from "@/features/listings/schema";
 import { ListingForm } from "@/features/listings/ui";
@@ -20,6 +20,14 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
     ? (listing.district as ListingFormValues["district"])
     : "Yasamal";
 
+  const housingKind =
+    listing.type === ListingType.RoommateSeek
+      ? "any"
+      : listing.housingKind === "any" &&
+          (listing.type === ListingType.HomeOffer || listing.type === ListingType.RoomOffer)
+        ? "apartment"
+        : listing.housingKind;
+
   return {
     type: listing.type,
     title: listing.title,
@@ -29,6 +37,7 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
     price: listing.priceAzn,
     rooms: listing.rooms,
     genderPref: listing.genderPref,
+    housingKind,
   };
 }
 

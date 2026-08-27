@@ -51,10 +51,30 @@ export const listingFormSchema = z
     price: z.number().int().min(0).max(100_000),
     rooms: z.number().int().min(0).max(20),
     genderPref: z.enum(["any", "female", "male"]),
+    housingKind: z.enum(["apartment", "house", "any"]),
   })
   .superRefine((data, ctx) => {
     const seek =
       data.type === ListingType.HomeSeek || data.type === ListingType.RoommateSeek;
+    const offer =
+      data.type === ListingType.HomeOffer || data.type === ListingType.RoomOffer;
+
+    if (data.type === ListingType.RoommateSeek && data.housingKind !== "any") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["housingKind"],
+        message: "Otaq yoldaşı elanında ev növü lazım deyil.",
+      });
+    }
+
+    if (offer && data.housingKind === "any") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["housingKind"],
+        message: "Ev növünü seç: bina və ya həyət.",
+      });
+    }
+
     if (seek) {
       return;
     }

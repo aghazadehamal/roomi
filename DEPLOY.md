@@ -63,6 +63,7 @@ Sıra ilə **Run** (əvvəl run etməmisənsə):
 9. `…000008_backfill_profile_names.sql`
 10. `…000009_sync_own_profile_name.sql`
 11. `…000010_guest_listings_select.sql` ← qonaq feed üçün
+12. `…000011_listing_housing_kind.sql` ← bina / həyət evi
 
 Storage: `listing-photos` bucket + migration-dakı policy-lər.
 

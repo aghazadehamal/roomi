@@ -42,6 +42,7 @@ export async function createListing(input: unknown): Promise<CreateListingResult
       price: parsed.data.price,
       rooms: parsed.data.rooms,
       gender_pref: parsed.data.genderPref,
+      housing_kind: parsed.data.housingKind,
       status: "active",
       expires_at: expiresAt,
     })
@@ -117,6 +118,7 @@ export async function updateListing(
       price: parsed.data.price,
       rooms: parsed.data.rooms,
       gender_pref: parsed.data.genderPref,
+      housing_kind: parsed.data.housingKind,
     })
     .eq("id", listing.id)
     .eq("user_id", ensured.user.id);

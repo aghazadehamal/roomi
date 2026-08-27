@@ -4,17 +4,23 @@ import { BAKU_DISTRICTS } from "@/features/listings/schema";
 export const PRICE_FILTER_OPTIONS = [300, 500, 800, 1000, 1500, 2000] as const;
 
 export function emptyListingFeedFilters(): ListingFeedFilters {
-  return { district: null, maxPrice: null, rooms: null };
+  return { district: null, maxPrice: null, rooms: null, housingKind: null };
 }
 
 export function listingFeedFiltersActive(filters: ListingFeedFilters): boolean {
-  return filters.district !== null || filters.maxPrice !== null || filters.rooms !== null;
+  return (
+    filters.district !== null ||
+    filters.maxPrice !== null ||
+    filters.rooms !== null ||
+    filters.housingKind !== null
+  );
 }
 
 export function parseListingFeedFilters(params: {
   district?: string | string[];
   maxPrice?: string | string[];
   rooms?: string | string[];
+  housingKind?: string | string[];
 }): ListingFeedFilters {
   const districtValue = firstParam(params.district);
   const district =
@@ -31,7 +37,13 @@ export function parseListingFeedFilters(params: {
   const roomsValue = Number(firstParam(params.rooms));
   const rooms = roomsValue >= 1 && roomsValue <= 4 ? roomsValue : null;
 
-  return { district, maxPrice, rooms };
+  const housingKindValue = firstParam(params.housingKind);
+  const housingKind =
+    housingKindValue === "apartment" || housingKindValue === "house"
+      ? housingKindValue
+      : null;
+
+  return { district, maxPrice, rooms, housingKind };
 }
 
 export function listingFeedHref(tab: FeedTab, filters: ListingFeedFilters): string {
@@ -47,6 +59,9 @@ export function listingFeedHref(tab: FeedTab, filters: ListingFeedFilters): stri
   }
   if (filters.rooms !== null) {
     params.set("rooms", String(filters.rooms));
+  }
+  if (filters.housingKind) {
+    params.set("housingKind", filters.housingKind);
   }
   const query = params.toString();
   return query ? `/?${query}` : "/";

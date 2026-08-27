@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { ArrowUpRight, BedDouble, MapPin, Wallet } from "lucide-react";
+import { ArrowUpRight, BedDouble, Building2, MapPin, Wallet } from "lucide-react";
 
 import {
+  HOUSING_KIND_LABELS,
   LISTING_TYPE_LABELS,
   SEEK_TYPES,
   listingPriceText,
   listingRoomsText,
+  listingShowsHousingKind,
   listingShowsPhotos,
   listingShowsRooms,
 } from "@/features/listings/model";
@@ -31,6 +33,14 @@ function listingFacts(listing: ListingCardProps["listing"]): Fact[] {
           : listing.district,
     },
   ];
+
+  if (listingShowsHousingKind(listing.type)) {
+    facts.push({
+      icon: Building2,
+      label: "Ev",
+      value: HOUSING_KIND_LABELS[listing.housingKind],
+    });
+  }
 
   if (isSeek) {
     facts.push({

@@ -9,6 +9,7 @@ type HomePageProps = {
     district?: string;
     maxPrice?: string;
     rooms?: string;
+    housingKind?: string;
   }>;
 };
 

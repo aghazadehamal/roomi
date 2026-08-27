@@ -10,6 +10,8 @@ export enum ListingType {
   RoommateSeek = "roommate_seek",
 }
 
+export type HousingKind = "apartment" | "house" | "any";
+
 export type ListingSummary = {
   id: string;
   title: string;
@@ -18,6 +20,7 @@ export type ListingSummary = {
   district: string;
   rooms: number;
   type: ListingType;
+  housingKind: HousingKind;
   daysLeft: number;
   photoUrl: string | null;
 };
@@ -39,6 +42,7 @@ export type ListingFeedFilters = {
   district: string | null;
   maxPrice: number | null;
   rooms: number | null;
+  housingKind: "apartment" | "house" | null;
 };
 
 export const LISTING_TYPE_LABELS: Record<ListingType, string> = {
@@ -52,6 +56,12 @@ export const GENDER_PREF_LABELS: Record<ListingDetail["genderPref"], string> = {
   any: "Fərqi yoxdur",
   female: "Yalnız qadın",
   male: "Yalnız kişi",
+};
+
+export const HOUSING_KIND_LABELS: Record<HousingKind, string> = {
+  apartment: "Bina evi",
+  house: "Həyət evi",
+  any: "Fərqi yoxdur",
 };
 
 export const OFFER_TYPES: ListingType[] = [
@@ -70,6 +80,10 @@ export function listingShowsRooms(type: ListingType): boolean {
 
 export function listingShowsGender(type: ListingType): boolean {
   return type !== ListingType.HomeSeek;
+}
+
+export function listingShowsHousingKind(type: ListingType): boolean {
+  return type !== ListingType.RoommateSeek;
 }
 
 export function listingShowsPhotos(type: ListingType): boolean {
