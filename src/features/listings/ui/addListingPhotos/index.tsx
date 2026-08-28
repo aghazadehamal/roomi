@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { deleteListingPhoto } from "@/features/listings/actions";
@@ -16,7 +17,6 @@ export function AddListingPhotos({ listingId, photos }: AddListingPhotosProps) {
   const router = useRouter();
   const remaining = MAX_LISTING_PHOTOS - photos.length;
   const [files, setFiles] = useState<File[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -24,14 +24,14 @@ export function AddListingPhotos({ listingId, photos }: AddListingPhotosProps) {
     if (files.length === 0) {
       return;
     }
-    setError(null);
     setPending(true);
     const result = await uploadListingPhotos(listingId, files, photos.length);
     setPending(false);
     if ("error" in result) {
-      setError(result.error);
+      toast.error(result.error);
       return;
     }
+    toast.success("Şəkillər yükləndi");
     setFiles([]);
     router.refresh();
   }
@@ -41,14 +41,14 @@ export function AddListingPhotos({ listingId, photos }: AddListingPhotosProps) {
     if (!confirmed) {
       return;
     }
-    setError(null);
     setDeletingId(photoId);
     const result = await deleteListingPhoto(listingId, photoId);
     setDeletingId(null);
     if (!result.ok) {
-      setError(result.error);
+      toast.error(result.error);
       return;
     }
+    toast.success("Şəkil silindi");
     router.refresh();
   }
 
@@ -83,7 +83,6 @@ export function AddListingPhotos({ listingId, photos }: AddListingPhotosProps) {
       ) : (
         <p className="text-sm text-muted-foreground">Ən çox {MAX_LISTING_PHOTOS} şəkil olar.</p>
       )}
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
       {remaining > 0 ? (
         <Button
           type="button"

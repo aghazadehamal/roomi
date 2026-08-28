@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,22 +14,18 @@ import type { ProfileFormProps } from "./type";
 
 export function ProfileForm({ defaultName }: ProfileFormProps) {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: { name: defaultName },
   });
 
   async function onSubmit(values: ProfileFormValues) {
-    setError(null);
-    setSaved(false);
     const result = await updateProfile(values);
     if (!result.ok) {
-      setError(result.error);
+      toast.error(result.error);
       return;
     }
-    setSaved(true);
+    toast.success("Ad yadda saxlandı");
     router.refresh();
   }
 
@@ -47,8 +43,6 @@ export function ProfileForm({ defaultName }: ProfileFormProps) {
       {form.formState.errors.name ? (
         <p className="text-sm text-destructive">{form.formState.errors.name.message}</p>
       ) : null}
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      {saved ? <p className="text-sm text-primary">Ad yadda saxlandı.</p> : null}
       <Button
         type="submit"
         size="lg"

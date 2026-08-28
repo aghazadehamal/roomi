@@ -1,4 +1,4 @@
-# Roomum — deploy (Vercel + Supabase)
+# kirayesin.az — deploy (Vercel + Supabase)
 
 Başqa istifadəçilər `https://….vercel.app` linkindən aça bilər. Backend ayrıca deploy olunmur: Supabase artıq buluddadır.
 

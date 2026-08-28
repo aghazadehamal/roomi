@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { archiveListing } from "@/features/listings/actions";
@@ -10,7 +11,6 @@ import type { ArchiveListingButtonProps } from "./type";
 
 export function ArchiveListingButton({ listingId }: ArchiveListingButtonProps) {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   async function onArchive() {
@@ -21,14 +21,14 @@ export function ArchiveListingButton({ listingId }: ArchiveListingButtonProps) {
       return;
     }
 
-    setError(null);
     setPending(true);
     const result = await archiveListing(listingId);
     if (!result.ok) {
-      setError(result.error);
+      toast.error(result.error);
       setPending(false);
       return;
     }
+    toast.success("Elan arxivə salındı");
     router.push("/");
     router.refresh();
   }
@@ -47,7 +47,6 @@ export function ArchiveListingButton({ listingId }: ArchiveListingButtonProps) {
       >
         {pending ? "Arxivə salınır…" : "Elanı arxivə sal"}
       </Button>
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );
 }

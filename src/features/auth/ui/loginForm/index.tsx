@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,14 +15,10 @@ export function LoginForm({ nextPath }: LoginFormProps) {
   const router = useRouter();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [name, setName] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
-    setInfo(null);
     setPending(true);
 
     const formData = new FormData(event.currentTarget);
@@ -54,23 +51,24 @@ export function LoginForm({ nextPath }: LoginFormProps) {
         payload.needsEmailConfirm === true;
 
       if (payloadError) {
-        setError(authErrorMessage({ message: payloadError }));
+        toast.error(authErrorMessage({ message: payloadError }));
         setPending(false);
         return;
       }
 
       if (needsEmailConfirm) {
-        setInfo("Emailə təsdiq linki göndərdik. Məktubu aç, sonra giriş et.");
+        toast.info("Emailə təsdiq linki göndərdik. Məktubu aç, sonra giriş et.");
         setPending(false);
         return;
       }
 
+      toast.success(mode === "signup" ? "Hesab yaradıldı" : "Daxil oldun");
       router.push(next);
       router.refresh();
     } catch (caught) {
       const message =
         caught instanceof Error ? caught.message : "Əməliyyat alınmadı.";
-      setError(authErrorMessage({ message }));
+      toast.error(authErrorMessage({ message }));
       setPending(false);
     }
   }
@@ -86,8 +84,6 @@ export function LoginForm({ nextPath }: LoginFormProps) {
           )}
           onClick={() => {
             setMode("signin");
-            setError(null);
-            setInfo(null);
           }}
         >
           Giriş
@@ -100,8 +96,6 @@ export function LoginForm({ nextPath }: LoginFormProps) {
           )}
           onClick={() => {
             setMode("signup");
-            setError(null);
-            setInfo(null);
           }}
         >
           Qeydiyyat
@@ -126,8 +120,6 @@ export function LoginForm({ nextPath }: LoginFormProps) {
         required
         minLength={6}
       />
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      {info ? <p className="text-sm text-primary">{info}</p> : null}
       <Button type="submit" size="lg" className="mt-1 w-full" disabled={pending}>
         {mode === "signup" ? "Hesab yarat" : "Daxil ol"}
       </Button>

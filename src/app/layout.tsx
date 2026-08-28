@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Nunito } from "next/font/google";
 
 import { SiteHeader } from "@/app/siteHeader";
+import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
 
@@ -18,7 +19,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Roomum",
+  title: "kirayesin.az",
   description: "Kirayə və otaq yoldaşı elanları",
 };
 
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 py-8 md:px-10 md:py-12">
           {children}
         </main>
+        <Toaster />
       </body>
     </html>
   );

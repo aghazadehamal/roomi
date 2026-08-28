@@ -35,7 +35,7 @@ export async function SiteHeader() {
             </svg>
           </span>
           <span className="font-heading truncate text-xl tracking-tight sm:text-2xl">
-            Roomum
+            kirayesin.az
           </span>
         </Link>
         <nav className="flex shrink-0 items-center gap-1 sm:gap-2">

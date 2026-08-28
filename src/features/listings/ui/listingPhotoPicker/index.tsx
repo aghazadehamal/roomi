@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId } from "react";
+import { toast } from "sonner";
 
 import { listingPhotoError } from "@/features/listings/helpers/listingPhoto";
 import { cn } from "@/lib/utils";
@@ -9,7 +10,6 @@ import type { ListingPhotoPickerProps } from "./type";
 
 export function ListingPhotoPicker({ files, maxCount, onChange }: ListingPhotoPickerProps) {
   const inputId = useId();
-  const [error, setError] = useState<string | null>(null);
   const remaining = maxCount - files.length;
 
   function addFiles(list: FileList | null) {
@@ -21,13 +21,12 @@ export function ListingPhotoPicker({ files, maxCount, onChange }: ListingPhotoPi
     for (const file of Array.from(list).slice(0, remaining)) {
       const invalid = listingPhotoError(file);
       if (invalid) {
-        setError(invalid);
+        toast.error(invalid);
         onChange(next);
         return;
       }
       next.push(file);
     }
-    setError(null);
     onChange(next);
   }
 
@@ -47,7 +46,6 @@ export function ListingPhotoPicker({ files, maxCount, onChange }: ListingPhotoPi
               className="absolute top-1 right-1 rounded-full bg-card/90 px-2 text-xs"
               onClick={() => {
                 onChange(files.filter((_, fileIndex) => fileIndex !== index));
-                setError(null);
               }}
             >
               ×
@@ -79,7 +77,6 @@ export function ListingPhotoPicker({ files, maxCount, onChange }: ListingPhotoPi
       <p className="text-sm text-muted-foreground">
         Ən çox {maxCount} şəkil, hər biri 5 MB-a qədər (JPG, PNG, WebP).
       </p>
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
   );
 }

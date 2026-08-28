@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,7 +53,6 @@ export function ChatThread({
 }: ChatThreadProps) {
   const router = useRouter();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
-  const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -118,13 +118,12 @@ export function ChatThread({
       return;
     }
 
-    setError(null);
     setPending(true);
     const result = await sendMessage({ conversationId, body });
     setPending(false);
 
     if (!result.ok) {
-      setError(result.error);
+      toast.error(result.error);
       return;
     }
 
@@ -196,7 +195,6 @@ export function ChatThread({
           Göndər
         </Button>
       </form>
-      {error ? <p className="mt-2 text-sm text-destructive">{error}</p> : null}
     </div>
   );
 }

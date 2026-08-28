@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
@@ -13,6 +14,7 @@ export function SignOutButton() {
   async function onSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
+    toast.success("Çıxış etdin");
     router.push("/");
     router.refresh();
   }

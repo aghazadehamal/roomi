@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,7 +66,6 @@ export function ListingForm({
     tabProp ??
     feedTabForListingType(defaultValues?.type ?? ListingType.HomeOffer);
   const types = tab === FeedTab.Seek ? SEEK_TYPES : OFFER_TYPES;
-  const [error, setError] = useState<string | null>(null);
   const [photos, setPhotos] = useState<File[]>([]);
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(listingFormSchema),
@@ -106,23 +106,23 @@ export function ListingForm({
   const anyRooms = selectedType === ListingType.HomeSeek && rooms <= 0;
 
   async function onSubmit(values: ListingFormValues) {
-    setError(null);
     const result = listingId
       ? await updateListing(listingId, values)
       : await createListing(values);
     if (!result.ok) {
-      setError(result.error);
+      toast.error(result.error);
       return;
     }
     if (!listingId && photos.length > 0 && listingShowsPhotos(values.type)) {
       const uploaded = await uploadListingPhotos(result.id, photos, 0);
       if ("error" in uploaded) {
-        setError(uploaded.error);
+        toast.error(uploaded.error);
         router.push(`/listings/${result.id}`);
         router.refresh();
         return;
       }
     }
+    toast.success(listingId ? "Elan yeniləndi" : "Elan yerləşdirildi");
     router.push(`/listings/${result.id}`);
     router.refresh();
   }
@@ -322,8 +322,6 @@ export function ListingForm({
           Şəkilləri elanın səhifəsindən əlavə edə bilərsən.
         </p>
       ) : null}
-
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
       <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>
         {form.formState.isSubmitting
