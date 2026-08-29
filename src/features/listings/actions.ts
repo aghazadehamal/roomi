@@ -368,3 +368,95 @@ export async function restoreListing(listingId: string): Promise<CreateListingRe
   revalidatePath("/profile");
   return { ok: true, id: listing.id };
 }
+
+export type SaveListingResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
+export async function saveListing(listingId: string): Promise<SaveListingResult> {
+  const parsed = listingIdSchema.safeParse({ listingId });
+  if (!parsed.success) {
+    return { ok: false, error: "Elan tapılmadı." };
+  }
+
+  const ensured = await ensureCurrentProfile();
+  if (!ensured.user) {
+    return { ok: false, error: ensured.error ?? "Seçilmişlərə əlavə etmək üçün giriş et." };
+  }
+
+  const supabase = await createClient();
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("id, user_id, status")
+    .eq("id", parsed.data.listingId)
+    .maybeSingle();
+
+  if (!listing) {
+    return { ok: false, error: "Elan tapılmadı." };
+  }
+
+  if (listing.user_id === ensured.user.id) {
+    return { ok: false, error: "Öz elanını seçilmişlərə əlavə edə bilməzsən." };
+  }
+
+  if (listing.status !== "active") {
+    return { ok: false, error: "Yalnız aktiv elanları saxlamaq olar." };
+  }
+
+  const { error } = await supabase.from("saved_listings").insert({
+    user_id: ensured.user.id,
+    listing_id: listing.id,
+  });
+
+  if (error) {
+    if (error.code === "23505") {
+      return { ok: true };
+    }
+    if (error.code === "42501") {
+      return {
+        ok: false,
+        error: "Cədvələ icazə yoxdur. SQL Editor-də 20260825000013_saved_listings.sql faylını Run et.",
+      };
+    }
+    return { ok: false, error: "Seçilmişlərə əlavə olunmadı." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/profile");
+  revalidatePath(`/listings/${listing.id}`);
+  return { ok: true };
+}
+
+export async function unsaveListing(listingId: string): Promise<SaveListingResult> {
+  const parsed = listingIdSchema.safeParse({ listingId });
+  if (!parsed.success) {
+    return { ok: false, error: "Elan tapılmadı." };
+  }
+
+  const ensured = await ensureCurrentProfile();
+  if (!ensured.user) {
+    return { ok: false, error: "Seçilmişdən çıxartmaq üçün giriş et." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("saved_listings")
+    .delete()
+    .eq("user_id", ensured.user.id)
+    .eq("listing_id", parsed.data.listingId);
+
+  if (error) {
+    if (error.code === "42501") {
+      return {
+        ok: false,
+        error: "Cədvələ icazə yoxdur. SQL Editor-də 20260825000013_saved_listings.sql faylını Run et.",
+      };
+    }
+    return { ok: false, error: "Seçilmişdən çıxarılmadı." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/profile");
+  revalidatePath(`/listings/${parsed.data.listingId}`);
+  return { ok: true };
+}

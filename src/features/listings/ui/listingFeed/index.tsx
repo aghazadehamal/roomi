@@ -11,7 +11,14 @@ import { EmptyState } from "./emptyState";
 import { ListingFilters } from "./listingFilters";
 import type { ListingFeedProps } from "./type";
 
-export function ListingFeed({ tab, listings, filters }: ListingFeedProps) {
+export function ListingFeed({
+  tab,
+  listings,
+  filters,
+  savedListingIds = [],
+  currentUserId = null,
+}: ListingFeedProps) {
+  const savedSet = new Set(savedListingIds);
   const hasListings = listings.length > 0;
   const filteredEmpty = !hasListings && listingFeedFiltersActive(filters);
 
@@ -43,7 +50,11 @@ export function ListingFeed({ tab, listings, filters }: ListingFeedProps) {
         <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {listings.map((listing) => (
             <li key={listing.id}>
-              <ListingCard listing={listing} />
+              <ListingCard
+                listing={listing}
+                saved={savedSet.has(listing.id)}
+                showSave={Boolean(currentUserId && currentUserId !== listing.userId)}
+              />
             </li>
           ))}
         </ul>

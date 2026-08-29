@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { ensureCurrentProfile, nameFromAuthUser } from "@/features/auth/queries";
-import { listOwnListings } from "@/features/listings/queries";
-import { OwnListings } from "@/features/listings/ui";
+import { listOwnListings, listSavedListings } from "@/features/listings/queries";
+import { OwnListings, SavedListings } from "@/features/listings/ui";
 import { getOwnProfile } from "@/features/profile/queries";
 import { ProfileForm, ProfileView } from "@/features/profile/ui";
 
@@ -12,7 +12,11 @@ export default async function OwnProfilePage() {
     redirect("/login?next=/profile");
   }
 
-  const [profile, listings] = await Promise.all([getOwnProfile(), listOwnListings()]);
+  const [profile, listings, savedListings] = await Promise.all([
+    getOwnProfile(),
+    listOwnListings(),
+    listSavedListings(),
+  ]);
 
   if (!profile) {
     return (
@@ -39,6 +43,10 @@ export default async function OwnProfilePage() {
       <section className="flex flex-col gap-4">
         <h2 className="font-heading text-2xl tracking-tight">Elanların</h2>
         <OwnListings listings={listings} />
+      </section>
+      <section className="flex flex-col gap-4">
+        <h2 className="font-heading text-2xl tracking-tight">Seçilmişlər</h2>
+        <SavedListings listings={savedListings} />
       </section>
     </div>
   );

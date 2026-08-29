@@ -4,4 +4,6 @@ export type ListingFeedProps = {
   tab: FeedTab;
   listings: ListingSummary[];
   filters: ListingFeedFilters;
+  savedListingIds?: string[];
+  currentUserId?: string | null;
 };

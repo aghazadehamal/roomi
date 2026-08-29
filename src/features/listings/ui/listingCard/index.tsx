@@ -14,6 +14,7 @@ import {
   listingShowsRooms,
 } from "@/features/listings/model";
 
+import { SaveListingButton } from "../saveListingButton";
 import type { ListingCardProps } from "./type";
 
 type Fact = {
@@ -59,17 +60,32 @@ function listingFacts(listing: ListingCardProps["listing"]): Fact[] {
   return facts;
 }
 
-export function ListingCard({ listing }: ListingCardProps) {
+export function ListingCard({
+  listing,
+  saved = false,
+  showSave = false,
+}: ListingCardProps) {
   const isSeek = SEEK_TYPES.includes(listing.type);
   const hasPrice = listing.priceAzn > 0;
   const showPhotoSlot = Boolean(listing.photoUrl) || listingShowsPhotos(listing.type);
   const facts = listingFacts(listing);
 
   return (
-    <Link
-      href={`/listings/${listing.id}`}
-      className="group flex h-full flex-col overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-border transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-md"
-    >
+    <div className="group/card relative h-full">
+      {showSave ? (
+        <div className="absolute top-3 right-3 z-10">
+          <SaveListingButton
+            listingId={listing.id}
+            initialSaved={saved}
+            iconOnly
+            className="bg-card/95 shadow-sm backdrop-blur-sm"
+          />
+        </div>
+      ) : null}
+      <Link
+        href={`/listings/${listing.id}`}
+        className="group flex h-full flex-col overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-border transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-md"
+      >
       {listing.photoUrl ? (
         <div className="relative aspect-[4/3] bg-muted">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -149,6 +165,7 @@ export function ListingCard({ listing }: ListingCardProps) {
           </p>
         </div>
       </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

@@ -17,6 +17,8 @@ import {
 } from "@/features/listings/ui";
 import { getBlockStatus } from "@/features/moderation/actions";
 import { ModerationActions } from "@/features/moderation/ui";
+import { SaveListingButton } from "@/features/listings/ui";
+import { isListingSaved } from "@/features/listings/queries";
 import { profileDisplayName } from "@/features/profile/model";
 import { getProfile } from "@/features/profile/queries";
 import { cn } from "@/lib/utils";
@@ -42,6 +44,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
     listing && user && user.id !== listing.userId
       ? await getBlockStatus(listing.userId)
       : null;
+  const saved =
+    listing && user && user.id !== listing.userId
+      ? await isListingSaved(listing.id)
+      : false;
 
   if (!listing) {
     notFound();
@@ -111,6 +117,9 @@ export default async function ListingPage({ params }: ListingPageProps) {
           )
         }
       />
+      {user && !isOwner ? (
+        <SaveListingButton listingId={listing.id} initialSaved={saved} />
+      ) : null}
       {user && !isOwner ? (
         <ModerationActions
           targetUserId={listing.userId}

@@ -16,6 +16,7 @@ export {
   type ListingDetail,
   type ListingSummary,
   type OwnListing,
+  type SavedListing,
   type ListingFeedFilters,
 } from "./listing/type";
 export {

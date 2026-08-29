@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 
+import { getCurrentUser } from "@/features/auth/queries";
 import { parseListingFeedFilters } from "@/features/listings/helpers/listingFeedFilters";
 import { homeFeedMetadata } from "@/features/listings/helpers/listingSeo";
 import { feedTabFromParam } from "@/features/listings/helpers/newListing";
-import { listListings } from "@/features/listings/queries";
+import { listListings, listSavedListingIds } from "@/features/listings/queries";
 import { ListingFeed } from "@/features/listings/ui";
 
 type HomePageProps = {
@@ -28,7 +29,19 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const tab = feedTabFromParam(params.tab);
   const filters = parseListingFeedFilters(params);
-  const listings = await listListings(tab, filters);
+  const [listings, user, savedListingIds] = await Promise.all([
+    listListings(tab, filters),
+    getCurrentUser(),
+    listSavedListingIds(),
+  ]);
 
-  return <ListingFeed tab={tab} listings={listings} filters={filters} />;
+  return (
+    <ListingFeed
+      tab={tab}
+      listings={listings}
+      filters={filters}
+      savedListingIds={[...savedListingIds]}
+      currentUserId={user?.id ?? null}
+    />
+  );
 }

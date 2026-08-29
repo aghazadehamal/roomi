@@ -7,6 +7,7 @@ import {
   type ListingDetail,
   type ListingSummary,
   type OwnListing,
+  type SavedListing,
   type ListingFeedFilters,
 } from "@/features/listings/model";
 import { ANY_DISTRICT, BAKU_CITY } from "@/features/listings/model/locations";
@@ -66,7 +67,7 @@ export async function listListings(
   const supabase = await createClient();
   let query = supabase
     .from("listings")
-    .select("id, title, price, city, district, rooms, type, housing_kind, expires_at")
+    .select("id, user_id, title, price, city, district, rooms, type, housing_kind, expires_at")
     .eq("status", "active")
     .in("type", types);
 
@@ -119,6 +120,7 @@ export async function listListings(
     return [
       {
         id: row.id,
+        userId: row.user_id,
         title: row.title,
         priceAzn: row.price,
         city: row.city,
@@ -184,7 +186,7 @@ export async function listActiveListingsByUser(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id, title, price, city, district, rooms, type, housing_kind, expires_at")
+    .select("id, user_id, title, price, city, district, rooms, type, housing_kind, expires_at")
     .eq("user_id", userId)
     .eq("status", "active")
     .order("published_at", { ascending: false });
@@ -205,6 +207,7 @@ export async function listActiveListingsByUser(
     return [
       {
         id: row.id,
+        userId: row.user_id,
         title: row.title,
         priceAzn: row.price,
         city: row.city,
@@ -228,7 +231,7 @@ export async function listOwnListings(): Promise<OwnListing[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id, title, price, city, district, rooms, type, housing_kind, expires_at, status")
+    .select("id, user_id, title, price, city, district, rooms, type, housing_kind, expires_at, status")
     .eq("user_id", user.id)
     .order("published_at", { ascending: false });
 
@@ -252,6 +255,7 @@ export async function listOwnListings(): Promise<OwnListing[]> {
     return [
       {
         id: row.id,
+        userId: row.user_id,
         title: row.title,
         priceAzn: row.price,
         city: row.city,
@@ -265,4 +269,102 @@ export async function listOwnListings(): Promise<OwnListing[]> {
       },
     ];
   });
+}
+
+export async function listSavedListingIds(): Promise<Set<string>> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return new Set();
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("saved_listings")
+    .select("listing_id")
+    .eq("user_id", user.id);
+
+  if (error || !data) {
+    return new Set();
+  }
+
+  return new Set(data.map((row) => row.listing_id));
+}
+
+export async function isListingSaved(listingId: string): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return false;
+  }
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("saved_listings")
+    .select("listing_id")
+    .eq("user_id", user.id)
+    .eq("listing_id", listingId)
+    .maybeSingle();
+
+  return Boolean(data);
+}
+
+export async function listSavedListings(): Promise<SavedListing[]> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return [];
+  }
+
+  const supabase = await createClient();
+  const { data: savedRows, error: savedError } = await supabase
+    .from("saved_listings")
+    .select("listing_id, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (savedError || !savedRows || savedRows.length === 0) {
+    return [];
+  }
+
+  const listingIds = savedRows.map((row) => row.listing_id);
+  const { data, error } = await supabase
+    .from("listings")
+    .select("id, user_id, title, price, city, district, rooms, type, housing_kind, expires_at, status")
+    .in("id", listingIds);
+
+  if (error || !data) {
+    return [];
+  }
+
+  const order = new Map(listingIds.map((id, index) => [id, index]));
+  const photos = await photosByListing(listingIds);
+
+  return data
+    .flatMap((row) => {
+      if (
+        !isListingType(row.type) ||
+        !isListingStatus(row.status) ||
+        !isHousingKind(row.housing_kind)
+      ) {
+        return [];
+      }
+
+      const listingPhotos = photos.get(row.id) ?? [];
+
+      return [
+        {
+          id: row.id,
+          userId: row.user_id,
+          title: row.title,
+          priceAzn: row.price,
+          city: row.city,
+          district: row.district,
+          rooms: row.rooms,
+          type: row.type,
+          housingKind: row.housing_kind,
+          daysLeft: row.status === "active" ? daysLeft(row.expires_at) : 0,
+          photoUrl: listingPhotos[0]?.url ?? null,
+          status: row.status,
+        },
+      ];
+    })
+    .sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
 }

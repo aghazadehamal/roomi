@@ -14,6 +14,7 @@ export type HousingKind = "apartment" | "house" | "any";
 
 export type ListingSummary = {
   id: string;
+  userId: string;
   title: string;
   priceAzn: number;
   city: string;
@@ -35,6 +36,10 @@ export type ListingDetail = ListingSummary & {
 };
 
 export type OwnListing = ListingSummary & {
+  status: ListingDetail["status"];
+};
+
+export type SavedListing = ListingSummary & {
   status: ListingDetail["status"];
 };
 

@@ -74,6 +74,12 @@ type ReportRow = {
   created_at: string
 }
 
+type SavedListingRow = {
+  user_id: string
+  listing_id: string
+  created_at: string
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -169,6 +175,16 @@ export type Database = {
           created_at?: string
         }
         Update: Partial<ReportRow>
+        Relationships: []
+      }
+      saved_listings: {
+        Row: SavedListingRow
+        Insert: {
+          user_id: string
+          listing_id: string
+          created_at?: string
+        }
+        Update: Partial<SavedListingRow>
         Relationships: []
       }
     }
