@@ -25,7 +25,7 @@ export async function SiteHeader() {
           <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground sm:size-12">
             <svg
               viewBox="0 0 24 24"
-              className="size-5 sm:size-6"
+              className="size-7 sm:size-8"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.8"
