@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -57,20 +56,19 @@ export function ChatThread({
   blocked = false,
   blockedByMe = false,
 }: ChatThreadProps) {
-  const router = useRouter();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [pending, setPending] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const stickToBottomRef = useRef(true);
 
   useEffect(() => {
     setMessages(initialMessages);
   }, [initialMessages]);
 
   useEffect(() => {
-    void markConversationRead(conversationId).then(() => {
-      router.refresh();
-    });
-  }, [conversationId, router]);
+    void markConversationRead(conversationId);
+  }, [conversationId]);
 
   useEffect(() => {
     const last = messages.at(-1);
@@ -80,8 +78,38 @@ export function ChatThread({
   }, [conversationId, currentUserId, messages]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "end" });
-  }, [messages]);
+    const container = scrollContainerRef.current;
+    if (!container) {
+      return;
+    }
+
+    const el = container;
+
+    function onScroll() {
+      const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      stickToBottomRef.current = distanceFromBottom < 96;
+    }
+
+    container.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    return () => {
+      container.removeEventListener("scroll", onScroll);
+    };
+  }, [conversationId]);
+
+  useEffect(() => {
+    if (!stickToBottomRef.current) {
+      return;
+    }
+
+    bottomRef.current?.scrollIntoView({ block: "end", behavior: "auto" });
+  }, [messages, conversationId]);
+
+  useEffect(() => {
+    stickToBottomRef.current = true;
+    bottomRef.current?.scrollIntoView({ block: "end", behavior: "auto" });
+  }, [conversationId]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -138,6 +166,7 @@ export function ChatThread({
     }
 
     form.reset();
+    stickToBottomRef.current = true;
     setMessages((current) => {
       if (current.some((message) => message.id === result.id)) {
         return current;
@@ -155,8 +184,8 @@ export function ChatThread({
   }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] w-full max-w-2xl flex-col">
-      <div className="flex flex-col gap-3">
+    <div className="mx-auto flex h-[calc(100dvh-7.5rem)] w-full max-w-2xl flex-col overflow-hidden md:h-[calc(100dvh-9rem)]">
+      <div className="shrink-0 flex flex-col gap-3">
         <Link href={peerHref} className="py-3 font-heading text-2xl">
           {peerName}
         </Link>
@@ -167,7 +196,10 @@ export function ChatThread({
           blockedByMe={blockedByMe}
         />
       </div>
-      <div className="flex flex-1 flex-col gap-3 px-1 py-6">
+      <div
+        ref={scrollContainerRef}
+        className="min-h-0 flex-1 overflow-y-auto px-1 py-6"
+      >
         {messages.length === 0 ? (
           <p className="py-8 text-center text-muted-foreground">
             İlk mesajı yaz. Razılaşanda nömrə və ya Instagram paylaşa bilərsən.
@@ -178,7 +210,7 @@ export function ChatThread({
             return (
               <div
                 key={message.id}
-                className={cn("flex", mine ? "justify-end" : "justify-start")}
+                className={cn("mb-3 flex", mine ? "justify-end" : "justify-start")}
               >
                 <p
                   className={cn(
@@ -197,11 +229,11 @@ export function ChatThread({
         <div ref={bottomRef} />
       </div>
       {blocked ? (
-        <p className="pt-3 text-sm text-muted-foreground">
+        <p className="shrink-0 pt-3 text-sm text-muted-foreground">
           Bu istifadəçi ilə mesajlaşmaq olmaz.
         </p>
       ) : (
-        <form onSubmit={onSubmit} className="flex gap-2 pt-3">
+        <form onSubmit={onSubmit} className="shrink-0 flex gap-2 border-t border-border/70 bg-background pt-3">
           <Input name="body" placeholder="Mesaj yazın…" autoComplete="off" disabled={pending} />
           <Button type="submit" size="lg" disabled={pending}>
             Göndər
