@@ -33,7 +33,10 @@ export function normalizeModerationText(text: string): string {
     .replace(/[мМ]/g, "m");
 
   value = [...value].map((char) => LEET_MAP[char] ?? char).join("");
-  return value.replace(/\s+/g, " ").trim();
+  return value
+    .replace(/[\u200B-\u200D\uFEFF\u00AD]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function compactModerationText(text: string): string {
