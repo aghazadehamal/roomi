@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { blockUser } from "@/features/moderation/actions";
+import { blockUser, unblockUser } from "@/features/moderation/actions";
 
 import type { BlockButtonProps } from "./type";
 
@@ -17,15 +17,6 @@ export function BlockButton({
 }: BlockButtonProps) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
-
-  if (blockedByMe) {
-    return (
-      <Button type="button" variant="outline" size="sm" disabled>
-        <Ban className="size-4" aria-hidden />
-        Bloklanıb
-      </Button>
-    );
-  }
 
   async function onBlock() {
     const confirmed = window.confirm(
@@ -47,6 +38,45 @@ export function BlockButton({
     toast.success("İstifadəçi bloklandı");
     onBlocked?.();
     router.refresh();
+  }
+
+  async function onUnblock() {
+    const confirmed = window.confirm(
+      "Bloku götürəcəksən. Mesajlaşma yenidən açılacaq.",
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    setPending(true);
+    const result = await unblockUser(blockedUserId);
+    setPending(false);
+
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+
+    toast.success("Blok götürüldü");
+    onBlocked?.();
+    router.refresh();
+  }
+
+  if (blockedByMe) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={pending}
+        onClick={() => {
+          void onUnblock();
+        }}
+      >
+        <Ban className="size-4" aria-hidden />
+        {pending ? "Gözlə…" : "Bloku götür"}
+      </Button>
+    );
   }
 
   return (

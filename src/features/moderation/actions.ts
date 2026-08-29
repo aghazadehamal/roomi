@@ -50,6 +50,39 @@ export async function blockUser(blockedId: string): Promise<ModerationActionResu
     return { ok: false, error: "Bloklanmadı. Bir az sonra yenə yoxla." };
   }
 
+  revalidatePath("/");
+  revalidatePath("/messages");
+  revalidatePath("/profile");
+  return { ok: true };
+}
+
+export async function unblockUser(blockedId: string): Promise<ModerationActionResult> {
+  const parsed = blockUserSchema.safeParse({ blockedId });
+  if (!parsed.success) {
+    return { ok: false, error: "İstifadəçi tapılmadı." };
+  }
+
+  const ensured = await ensureCurrentProfile();
+  if (!ensured.user) {
+    return { ok: false, error: ensured.error ?? "Bloku götürmək üçün giriş et." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("blocks")
+    .delete()
+    .eq("blocker_id", ensured.user.id)
+    .eq("blocked_id", parsed.data.blockedId);
+
+  if (error) {
+    const granted = grantError(error.code);
+    if (granted) {
+      return { ok: false, error: granted };
+    }
+    return { ok: false, error: "Blok götürülmədi. Bir az sonra yenə yoxla." };
+  }
+
+  revalidatePath("/");
   revalidatePath("/messages");
   revalidatePath("/profile");
   return { ok: true };
