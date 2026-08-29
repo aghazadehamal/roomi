@@ -11,12 +11,16 @@ import { cn } from "@/lib/utils";
 
 import type { MessagesNavProps } from "./type";
 
-export function MessagesNav({ initialUnread }: MessagesNavProps) {
+export function MessagesNav({ initialUnread = 0 }: MessagesNavProps) {
   const [unread, setUnread] = useState(initialUnread);
 
   useEffect(() => {
     setUnread(initialUnread);
   }, [initialUnread]);
+
+  useEffect(() => {
+    void getUnreadCount().then(setUnread);
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();

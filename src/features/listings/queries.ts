@@ -12,6 +12,7 @@ import {
 } from "@/features/listings/model";
 import { ANY_DISTRICT, BAKU_CITY } from "@/features/listings/model/locations";
 import { createClient } from "@/lib/supabase/server";
+import { cache } from "react";
 
 const MS_PER_DAY = 86_400_000;
 
@@ -135,7 +136,7 @@ export async function listListings(
   });
 }
 
-export async function getListing(id: string): Promise<ListingDetail | null> {
+export const getListing = cache(async (id: string): Promise<ListingDetail | null> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
@@ -178,7 +179,7 @@ export async function getListing(id: string): Promise<ListingDetail | null> {
     photos: listingPhotos,
     status: data.status,
   };
-}
+});
 
 export async function listActiveListingsByUser(
   userId: string,

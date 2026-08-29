@@ -1,7 +1,9 @@
+import { cache } from "react";
+
 import { takePendingProfileName } from "@/features/auth/helpers/pendingName";
 import { createClient } from "@/lib/supabase/server";
 
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
 
@@ -10,7 +12,7 @@ export async function getCurrentUser() {
   }
 
   return data.user;
-}
+});
 
 function nameFromMeta(meta: unknown): string {
   if (typeof meta === "string") {

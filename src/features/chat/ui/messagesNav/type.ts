@@ -1,3 +1,3 @@
 export type MessagesNavProps = {
-  initialUnread: number;
+  initialUnread?: number;
 };
