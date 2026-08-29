@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { CONTACT_INFO_ERROR, containsContactInfo } from "@/features/moderation/helpers/contactInfo";
+import { PROFANITY_ERROR, containsProfanity } from "@/features/moderation/helpers/profanity";
 
 export const NEW_CONVERSATION_DAILY_CAP = 5;
 
@@ -19,5 +19,5 @@ export const sendMessageSchema = z.object({
     .trim()
     .min(1, "Mesaj boş ola bilməz.")
     .max(2000)
-    .refine((value) => !containsContactInfo(value), CONTACT_INFO_ERROR),
+    .refine((value) => !containsProfanity(value), PROFANITY_ERROR),
 });

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-import { CONTACT_INFO_ERROR, containsContactInfo } from "@/features/moderation/helpers/contactInfo";
+import { containsContactInfo } from "@/features/moderation/helpers/contactInfo";
+import { PROFANITY_ERROR, containsProfanity } from "@/features/moderation/helpers/profanity";
 
 export const REPORT_REASONS = [
   "spam",
@@ -46,7 +47,18 @@ export function contactInfoIssue(text: string, path: (string | number)[]) {
     return {
       code: "custom" as const,
       path,
-      message: CONTACT_INFO_ERROR,
+      message: "Elanlarda telefon və Instagram yazmaq olmaz. Mesajla paylaşa bilərsən.",
+    };
+  }
+  return null;
+}
+
+export function profanityIssue(text: string, path: (string | number)[]) {
+  if (containsProfanity(text)) {
+    return {
+      code: "custom" as const,
+      path,
+      message: PROFANITY_ERROR,
     };
   }
   return null;

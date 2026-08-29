@@ -176,7 +176,7 @@ export function ChatThread({
       <div className="flex flex-1 flex-col gap-3 px-1 py-6">
         {messages.length === 0 ? (
           <p className="py-8 text-center text-muted-foreground">
-            İlk mesajı yaz. Nömrə və Instagram paylaşma.
+            İlk mesajı yaz. Razılaşanda nömrə və ya Instagram paylaşa bilərsən.
           </p>
         ) : (
           messages.map((message) => {

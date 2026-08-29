@@ -181,7 +181,7 @@ export function ListingDetailView({
         <footer className="flex flex-col gap-4 border-t border-border/80 pt-6">
           <p className="text-sm leading-relaxed text-muted-foreground">
             {listing.status === "active"
-              ? "Nömrə və Instagram paylaşmayın. Görüşü ictimai yerdə alın."
+              ? "Elanlarda nömrə yazmayın — mesajla paylaşın. Görüşü ictimai yerdə alın."
               : "Bu elan arxivdədir. Söhbətlər qalır."}
           </p>
 

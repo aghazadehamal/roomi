@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { contactInfoIssue } from "@/features/moderation/schema";
+import { contactInfoIssue, profanityIssue } from "@/features/moderation/schema";
 import { ListingType } from "@/features/listings/model";
 import {
   ANY_DISTRICT,
@@ -83,6 +83,16 @@ export const listingFormSchema = z
     const bodyIssue = contactInfoIssue(data.body, ["body"]);
     if (bodyIssue) {
       ctx.addIssue(bodyIssue);
+    }
+
+    const titleProfanity = profanityIssue(data.title, ["title"]);
+    if (titleProfanity) {
+      ctx.addIssue(titleProfanity);
+    }
+
+    const bodyProfanity = profanityIssue(data.body, ["body"]);
+    if (bodyProfanity) {
+      ctx.addIssue(bodyProfanity);
     }
 
     if (seek) {
