@@ -207,7 +207,7 @@ export function ChatThread({
   }
 
   return (
-    <div className="mx-auto flex h-[calc(100dvh-7.5rem)] w-full max-w-2xl flex-col overflow-hidden md:h-[calc(100dvh-9rem)]">
+    <div className="mx-auto flex h-[calc(100dvh-7.5rem)] w-full max-w-2xl min-h-0 flex-col md:h-[calc(100dvh-9rem)]">
       <div className="shrink-0 flex flex-col gap-3">
         <Link href={peerHref} className="py-3 font-heading text-2xl">
           {peerName}
@@ -255,16 +255,22 @@ export function ChatThread({
         <div ref={bottomRef} />
       </div>
       {blocked ? (
-        <p className="shrink-0 pt-3 text-sm text-muted-foreground">
+        <p className="shrink-0 px-4 pb-4 pt-3 text-sm text-muted-foreground">
           Bu istifadəçi ilə mesajlaşmaq olmaz.
         </p>
       ) : (
         <form
           ref={formRef}
           onSubmit={onSubmit}
-          className="shrink-0 flex gap-2 border-t border-border/70 bg-background pt-3"
+          className="shrink-0 flex gap-2 border-t border-border/70 bg-background px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))]"
         >
-          <Input name="body" placeholder="Mesaj yazın…" autoComplete="off" disabled={pending} />
+          <Input
+            name="body"
+            placeholder="Mesaj yazın…"
+            autoComplete="off"
+            disabled={pending}
+            className="min-w-0 flex-1"
+          />
           <Button type="submit" size="lg" disabled={pending}>
             Göndər
           </Button>
