@@ -29,7 +29,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const tab = feedTabFromParam(params.tab);
   const filters = parseListingFeedFilters(params);
-  const [listings, user, savedListingIds] = await Promise.all([
+  const [listingsResult, user, savedListingIds] = await Promise.all([
     listListings(tab, filters),
     getCurrentUser(),
     listSavedListingIds(),
@@ -38,7 +38,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <ListingFeed
       tab={tab}
-      listings={listings}
+      listings={listingsResult.listings}
+      hasMore={listingsResult.hasMore}
       filters={filters}
       savedListingIds={[...savedListingIds]}
       currentUserId={user?.id ?? null}

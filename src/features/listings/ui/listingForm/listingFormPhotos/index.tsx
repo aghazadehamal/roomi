@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/ui/confirmDialog";
 import { deleteListingPhoto } from "@/features/listings/actions";
 import { MAX_LISTING_PHOTOS } from "@/features/listings/helpers/listingPhoto";
 import { ListingPhotoPicker } from "@/features/listings/ui/listingPhotoPicker";
+import { ListingPhoto } from "@/features/listings/ui/listingPhoto";
 
 import type { ListingFormPhotosProps } from "./type";
 
@@ -45,8 +46,7 @@ export function ListingFormPhotos({
         <div className="flex flex-wrap gap-3">
           {photos.map((photo) => (
             <div key={photo.id} className="relative size-24 overflow-hidden rounded-2xl bg-muted">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo.url} alt="" className="size-full object-cover" />
+              <ListingPhoto src={photo.url} className="object-cover" sizes="96px" />
               <button
                 type="button"
                 className="absolute top-1 right-1 cursor-pointer rounded-full bg-card/90 p-1 text-foreground disabled:cursor-not-allowed"

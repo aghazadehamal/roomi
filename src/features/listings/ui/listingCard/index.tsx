@@ -15,6 +15,7 @@ import {
 } from "@/features/listings/model";
 
 import { SaveListingButton } from "../saveListingButton";
+import { ListingPhoto } from "../listingPhoto";
 import type { ListingCardProps } from "./type";
 
 type Fact = {
@@ -78,11 +79,10 @@ export function ListingCard({
       >
       {listing.photoUrl ? (
         <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-muted">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <ListingPhoto
             src={listing.photoUrl}
-            alt=""
-            className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
           />
           <span className="absolute top-3 left-3 z-[1] rounded-full bg-card/95 px-3 py-1 text-xs font-semibold text-primary shadow-sm">
             {LISTING_TYPE_LABELS[listing.type]}

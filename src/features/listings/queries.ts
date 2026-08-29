@@ -10,9 +10,15 @@ import {
   type SavedListing,
   type ListingFeedFilters,
 } from "@/features/listings/model";
+import { LISTING_FEED_PAGE_SIZE } from "@/features/listings/helpers/listingFeedPagination";
 import { ANY_DISTRICT, BAKU_CITY } from "@/features/listings/model/locations";
 import { createClient } from "@/lib/supabase/server";
 import { cache } from "react";
+
+export type ListListingsResult = {
+  listings: ListingSummary[];
+  hasMore: boolean;
+};
 
 const MS_PER_DAY = 86_400_000;
 
@@ -63,7 +69,10 @@ async function photosByListing(
 export async function listListings(
   tab: FeedTab,
   filters: ListingFeedFilters,
-): Promise<ListingSummary[]> {
+  options?: { offset?: number; limit?: number },
+): Promise<ListListingsResult> {
+  const pageSize = options?.limit ?? LISTING_FEED_PAGE_SIZE;
+  const offset = options?.offset ?? 0;
   const types = tab === FeedTab.Seek ? SEEK_TYPES : OFFER_TYPES;
   const supabase = await createClient();
   let query = supabase
@@ -98,20 +107,24 @@ export async function listListings(
     query = query.in("housing_kind", [filters.housingKind, "any"]);
   }
 
-  const { data, error } = await query.order("published_at", { ascending: false });
+  const { data, error } = await query
+    .order("published_at", { ascending: false })
+    .range(offset, offset + pageSize);
 
   if (error) {
     console.error("listListings failed", error.message);
-    return [];
+    return { listings: [], hasMore: false };
   }
 
   if (!data) {
-    return [];
+    return { listings: [], hasMore: false };
   }
 
-  const photos = await photosByListing(data.map((row) => row.id));
+  const hasMore = data.length > pageSize;
+  const rows = hasMore ? data.slice(0, pageSize) : data;
+  const photos = await photosByListing(rows.map((row) => row.id));
 
-  return data.flatMap((row) => {
+  const listings = rows.flatMap((row) => {
     if (!isListingType(row.type) || !isHousingKind(row.housing_kind)) {
       return [];
     }
@@ -134,6 +147,8 @@ export async function listListings(
       },
     ];
   });
+
+  return { listings, hasMore };
 }
 
 export const getListing = cache(async (id: string): Promise<ListingDetail | null> => {

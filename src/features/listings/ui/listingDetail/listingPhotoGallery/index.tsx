@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+import { ListingPhoto } from "../../listingPhoto";
 import type { ListingPhotoGalleryProps } from "./type";
 
 export function ListingPhotoGallery({ photos }: ListingPhotoGalleryProps) {
@@ -94,13 +95,16 @@ export function ListingPhotoGallery({ photos }: ListingPhotoGalleryProps) {
               </button>
             </>
           ) : null}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={photos[active]}
-            alt=""
-            className="h-full w-full object-contain"
+          <div
+            className="relative h-full w-full"
             onClick={(event) => event.stopPropagation()}
-          />
+          >
+            <ListingPhoto
+              src={photos[active]}
+              className="object-contain"
+              sizes="100vw"
+            />
+          </div>
         </div>
       </div>,
       document.body,
@@ -110,12 +114,16 @@ export function ListingPhotoGallery({ photos }: ListingPhotoGalleryProps) {
     <>
       <button
         type="button"
-        className="aspect-[16/9] w-full cursor-zoom-in overflow-hidden bg-muted"
+        className="relative aspect-[16/9] w-full cursor-zoom-in overflow-hidden bg-muted"
         onClick={() => setOpen(true)}
         aria-label="Şəkli böyüt"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photos[active]} alt="" className="size-full object-cover" />
+        <ListingPhoto
+          src={photos[active]}
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 768px"
+          priority
+        />
       </button>
       {photos.length > 1 ? (
         <div className="flex gap-2 overflow-x-auto px-6 pt-4">
@@ -124,15 +132,14 @@ export function ListingPhotoGallery({ photos }: ListingPhotoGalleryProps) {
               key={url}
               type="button"
               className={cn(
-                "h-20 w-28 shrink-0 overflow-hidden rounded-xl ring-2 transition-[ring-color]",
+                "relative h-20 w-28 shrink-0 overflow-hidden rounded-xl ring-2 transition-[ring-color]",
                 index === active ? "ring-primary" : "ring-transparent hover:ring-border",
               )}
               onClick={() => setActive(index)}
               aria-label={`Şəkil ${index + 1}`}
               aria-current={index === active ? "true" : undefined}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt="" className="size-full object-cover" />
+              <ListingPhoto src={url} className="object-cover" sizes="112px" />
             </button>
           ))}
         </div>

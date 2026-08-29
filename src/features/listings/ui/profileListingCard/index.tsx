@@ -8,6 +8,7 @@ import {
   listingShowsPhotos,
 } from "@/features/listings/model";
 
+import { ListingPhoto } from "../listingPhoto";
 import type { ProfileListingCardProps } from "./type";
 
 function ListingThumbnail({
@@ -22,8 +23,11 @@ function ListingThumbnail({
   if (photoUrl) {
     return (
       <div className="relative w-24 shrink-0 self-stretch bg-muted">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photoUrl} alt="" className="absolute inset-0 size-full object-cover" />
+        <ListingPhoto
+          src={photoUrl}
+          className="object-cover"
+          sizes="96px"
+        />
       </div>
     );
   }

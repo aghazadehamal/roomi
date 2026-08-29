@@ -6,19 +6,19 @@ import { listingFeedFiltersActive } from "@/features/listings/helpers/listingFee
 import { newListingHref } from "@/features/listings/helpers/newListing";
 import { cn } from "@/lib/utils";
 
-import { ListingCard } from "../listingCard";
 import { EmptyState } from "./emptyState";
+import { ListingFeedGrid } from "./listingFeedGrid";
 import { ListingFilters } from "./listingFilters";
 import type { ListingFeedProps } from "./type";
 
 export function ListingFeed({
   tab,
   listings,
+  hasMore,
   filters,
   savedListingIds = [],
   currentUserId = null,
 }: ListingFeedProps) {
-  const savedSet = new Set(savedListingIds);
   const hasListings = listings.length > 0;
   const filteredEmpty = !hasListings && listingFeedFiltersActive(filters);
 
@@ -47,17 +47,15 @@ export function ListingFeed({
         }
       />
       {hasListings ? (
-        <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {listings.map((listing) => (
-            <li key={listing.id} className="h-full">
-              <ListingCard
-                listing={listing}
-                saved={savedSet.has(listing.id)}
-                showSave={Boolean(currentUserId && currentUserId !== listing.userId)}
-              />
-            </li>
-          ))}
-        </ul>
+        <ListingFeedGrid
+          key={`${tab}:${filters.city ?? ""}:${filters.district ?? ""}:${filters.maxPrice ?? ""}:${filters.rooms ?? ""}:${filters.housingKind ?? ""}`}
+          tab={tab}
+          filters={filters}
+          initialListings={listings}
+          initialHasMore={hasMore}
+          savedListingIds={savedListingIds}
+          currentUserId={currentUserId}
+        />
       ) : (
         <EmptyState tab={tab} filtered={filteredEmpty} />
       )}

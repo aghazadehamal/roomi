@@ -6,8 +6,31 @@ import { ensureCurrentProfile } from "@/features/auth/queries";
 import { ACTIVE_LISTING_LIMIT_MESSAGE } from "@/features/listings/helpers/activeListingLimit";
 import { LISTING_PHOTO_BUCKET, MAX_LISTING_PHOTOS, listingPhotoStoragePath } from "@/features/listings/helpers/listingPhoto";
 import { LISTING_TTL_DAYS, listingFormSchema, listingIdSchema, listingPhotoIdSchema } from "@/features/listings/schema";
+import {
+  FeedTab,
+  type ListingFeedFilters,
+  type ListingSummary,
+} from "@/features/listings/model";
+import { listListings } from "@/features/listings/queries";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
+
+export type LoadMoreListingsResult =
+  | { ok: true; listings: ListingSummary[]; hasMore: boolean }
+  | { ok: false; error: string };
+
+export async function loadMoreListings(
+  tab: FeedTab,
+  filters: ListingFeedFilters,
+  offset: number,
+): Promise<LoadMoreListingsResult> {
+  if (!Number.isFinite(offset) || offset < 0) {
+    return { ok: false, error: "Səhifələmə xətası." };
+  }
+
+  const result = await listListings(tab, filters, { offset });
+  return { ok: true, listings: result.listings, hasMore: result.hasMore };
+}
 
 export type CreateListingResult =
   | { ok: true; id: string }
