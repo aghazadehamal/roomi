@@ -48,6 +48,8 @@ type ConversationRow = {
   created_at: string
   guest_last_read_at: string | null
   owner_last_read_at: string | null
+  last_message_body: string | null
+  last_message_at: string | null
 }
 
 type MessageRow = {
@@ -230,6 +232,10 @@ export type Database = {
           last_message_at: string
           unread: boolean
         }[]
+      }
+      users_are_blocked: {
+        Args: { user_a: string; user_b: string }
+        Returns: boolean
       }
     }
     Enums: Record<string, never>

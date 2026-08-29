@@ -12,16 +12,25 @@ export async function areUsersBlocked(
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const { data, error } = await supabase.rpc("users_are_blocked", {
+    user_a: userId,
+    user_b: otherUserId,
+  });
+
+  if (!error && data !== null) {
+    return Boolean(data);
+  }
+
+  const { data: rows, error: fallbackError } = await supabase
     .from("blocks")
     .select("blocker_id, blocked_id")
     .or(`blocker_id.eq.${userId},blocked_id.eq.${userId}`);
 
-  if (error || !data) {
+  if (fallbackError || !rows) {
     return false;
   }
 
-  return data.some(
+  return rows.some(
     (row) =>
       (row.blocker_id === userId && row.blocked_id === otherUserId) ||
       (row.blocker_id === otherUserId && row.blocked_id === userId),

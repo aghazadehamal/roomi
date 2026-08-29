@@ -15,6 +15,39 @@ import { listListings } from "@/features/listings/queries";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
+type ListingRevalidateScopes = {
+  feed?: boolean;
+  detail?: boolean;
+  edit?: boolean;
+  profile?: boolean;
+  newListing?: boolean;
+  messages?: boolean;
+};
+
+function revalidateAfterListingChange(
+  listingId: string,
+  scopes: ListingRevalidateScopes,
+) {
+  if (scopes.feed) {
+    revalidatePath("/");
+  }
+  if (scopes.detail) {
+    revalidatePath(`/listings/${listingId}`);
+  }
+  if (scopes.edit) {
+    revalidatePath(`/listings/${listingId}/edit`);
+  }
+  if (scopes.profile) {
+    revalidatePath("/profile");
+  }
+  if (scopes.newListing) {
+    revalidatePath("/listings/new");
+  }
+  if (scopes.messages) {
+    revalidatePath("/messages");
+  }
+}
+
 export type LoadMoreListingsResult =
   | { ok: true; listings: ListingSummary[]; hasMore: boolean }
   | { ok: false; error: string };
@@ -95,8 +128,12 @@ export async function createListing(input: unknown): Promise<CreateListingResult
     return { ok: false, error: "Elan yadda saxlanılmadı. Bir az sonra yenə yoxla." };
   }
 
-  revalidatePath("/");
-  revalidatePath(`/listings/${data.id}`);
+  revalidateAfterListingChange(data.id, {
+    feed: true,
+    detail: true,
+    profile: true,
+    newListing: true,
+  });
   return { ok: true, id: data.id };
 }
 
@@ -157,11 +194,12 @@ export async function updateListing(
     return { ok: false, error: "Elan yadda saxlanılmadı. Bir az sonra yenə yoxla." };
   }
 
-  revalidatePath("/");
-  revalidatePath(`/listings/${listing.id}`);
-  revalidatePath(`/listings/${listing.id}/edit`);
-  revalidatePath("/profile");
-  revalidatePath("/messages");
+  revalidateAfterListingChange(listing.id, {
+    feed: true,
+    detail: true,
+    edit: true,
+    profile: true,
+  });
   return { ok: true, id: listing.id };
 }
 
@@ -227,8 +265,7 @@ export async function attachListingPhotos(
     return { ok: false, error: "Şəkil yadda saxlanılmadı." };
   }
 
-  revalidatePath("/");
-  revalidatePath(`/listings/${listingId}`);
+  revalidateAfterListingChange(listingId, { feed: true, detail: true });
   return { ok: true, id: listingId };
 }
 
@@ -284,9 +321,11 @@ export async function deleteListingPhoto(
     await supabase.storage.from(LISTING_PHOTO_BUCKET).remove([path]);
   }
 
-  revalidatePath("/");
-  revalidatePath(`/listings/${listing.id}`);
-  revalidatePath("/profile");
+  revalidateAfterListingChange(listing.id, {
+    feed: true,
+    detail: true,
+    profile: true,
+  });
   return { ok: true, id: listing.id };
 }
 
@@ -326,11 +365,13 @@ export async function archiveListing(listingId: string): Promise<CreateListingRe
     return { ok: false, error: "Arxivə salınmadı. Bir az sonra yenə yoxla." };
   }
 
-  revalidatePath("/");
-  revalidatePath(`/listings/${listing.id}`);
-  revalidatePath("/listings/new");
-  revalidatePath("/messages");
-  revalidatePath("/profile");
+  revalidateAfterListingChange(listing.id, {
+    feed: true,
+    detail: true,
+    profile: true,
+    newListing: true,
+    messages: true,
+  });
   return { ok: true, id: listing.id };
 }
 
@@ -392,10 +433,12 @@ export async function deleteListing(listingId: string): Promise<CreateListingRes
     return { ok: false, error: "Elan silinmədi. Bir az sonra yenə yoxla." };
   }
 
-  revalidatePath("/");
-  revalidatePath("/listings/new");
-  revalidatePath("/messages");
-  revalidatePath("/profile");
+  revalidateAfterListingChange(listing.id, {
+    feed: true,
+    profile: true,
+    newListing: true,
+    messages: true,
+  });
   return { ok: true, id: listing.id };
 }
 
@@ -450,11 +493,13 @@ export async function restoreListing(listingId: string): Promise<CreateListingRe
     return { ok: false, error: "Aktiv edilmədi. Bir az sonra yenə yoxla." };
   }
 
-  revalidatePath("/");
-  revalidatePath(`/listings/${listing.id}`);
-  revalidatePath("/listings/new");
-  revalidatePath("/messages");
-  revalidatePath("/profile");
+  revalidateAfterListingChange(listing.id, {
+    feed: true,
+    detail: true,
+    profile: true,
+    newListing: true,
+    messages: true,
+  });
   return { ok: true, id: listing.id };
 }
 
@@ -510,9 +555,11 @@ export async function saveListing(listingId: string): Promise<SaveListingResult>
     return { ok: false, error: "Seçilmişlərə əlavə olunmadı." };
   }
 
-  revalidatePath("/");
-  revalidatePath("/profile");
-  revalidatePath(`/listings/${listing.id}`);
+  revalidateAfterListingChange(listing.id, {
+    feed: true,
+    profile: true,
+    detail: true,
+  });
   return { ok: true };
 }
 
@@ -544,8 +591,10 @@ export async function unsaveListing(listingId: string): Promise<SaveListingResul
     return { ok: false, error: "Seçilmişdən çıxarılmadı." };
   }
 
-  revalidatePath("/");
-  revalidatePath("/profile");
-  revalidatePath(`/listings/${parsed.data.listingId}`);
+  revalidateAfterListingChange(parsed.data.listingId, {
+    feed: true,
+    profile: true,
+    detail: true,
+  });
   return { ok: true };
 }
