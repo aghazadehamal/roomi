@@ -9,6 +9,42 @@ const LEET_MAP: Record<string, string> = {
   $: "s",
 };
 
+const CYRILLIC_TO_LATIN: Record<string, string> = {
+  а: "a",
+  б: "b",
+  в: "v",
+  г: "g",
+  д: "d",
+  е: "e",
+  ё: "e",
+  ж: "z",
+  з: "z",
+  и: "i",
+  й: "i",
+  к: "k",
+  л: "l",
+  м: "m",
+  н: "n",
+  о: "o",
+  п: "p",
+  р: "r",
+  с: "s",
+  т: "t",
+  у: "u",
+  ф: "f",
+  х: "h",
+  ц: "c",
+  ч: "c",
+  ш: "s",
+  щ: "s",
+  ъ: "",
+  ы: "y",
+  ь: "",
+  э: "e",
+  ю: "u",
+  я: "a",
+};
+
 const WORD_TO_DIGIT: Record<string, string> = {
   sifir: "0",
   sifr: "0",
@@ -50,18 +86,9 @@ export function normalizeModerationText(text: string): string {
     .replace(/[üÜ]/g, "u")
     .replace(/[çÇ]/g, "c")
     .replace(/[şŞ]/g, "s")
-    .replace(/[ğĞ]/g, "g")
-    .replace(/[аА]/g, "a")
-    .replace(/[еЕ]/g, "e")
-    .replace(/[оО]/g, "o")
-    .replace(/[рР]/g, "r")
-    .replace(/[сС]/g, "s")
-    .replace(/[тТ]/g, "t")
-    .replace(/[иИ]/g, "i")
-    .replace(/[нН]/g, "n")
-    .replace(/[гГ]/g, "g")
-    .replace(/[мМ]/g, "m");
+    .replace(/[ğĞ]/g, "g");
 
+  value = [...value].map((char) => CYRILLIC_TO_LATIN[char] ?? char).join("");
   value = [...value].map((char) => LEET_MAP[char] ?? char).join("");
   return value
     .replace(/[\u200B-\u200D\uFEFF\u00AD]/g, "")

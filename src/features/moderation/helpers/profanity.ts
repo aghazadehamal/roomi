@@ -43,8 +43,6 @@ const PROFANITY_TERMS = [
   "amcıq",
   "amciq",
   "amcig",
-  "amına",
-  "amina",
   "amk",
   "amq",
   "ananisikim",
@@ -122,6 +120,8 @@ const PROFANITY_TERMS = [
 
 const PROFANITY_PHRASES = [
   "sikim senin",
+  "sikim amina",
+  "amina sikim",
   "anani sikim",
   "anan avradini",
   "basini sikim",
@@ -145,6 +145,23 @@ const PROFANITY_ROOT_PATTERNS = [
   /\b(?:qehbe|qanciq|fahise|kahpe)\w*\b/,
   /\b(?:ebal|ebat|eblan|cindir|dolbayob)\w*\b/,
 ] as const;
+
+const ALLOWED_EXACT_WORDS = new Set([
+  "amina",
+  "aysel",
+  "ayse",
+  "aynur",
+  "lamia",
+  "lale",
+  "nuray",
+  "nigar",
+  "samira",
+  "guler",
+  "sevinc",
+  "turkan",
+  "zeynab",
+  "zeyneb",
+]);
 
 export const PROFANITY_ERROR = "Kobud və ya uyğunsuz sözlər yazmaq olmaz.";
 
@@ -170,6 +187,10 @@ export function containsProfanity(text: string): boolean {
   const cleaned = stripEmoji(text);
   const normalized = normalizeModerationText(cleaned);
   if (!normalized) {
+    return false;
+  }
+
+  if (ALLOWED_EXACT_WORDS.has(normalized)) {
     return false;
   }
 
