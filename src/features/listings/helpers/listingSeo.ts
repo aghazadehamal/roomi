@@ -33,10 +33,10 @@ export function homeFeedMetadata(tab: FeedTab, filters: ListingFeedFilters): Met
 
   const description =
     tab === FeedTab.Seek
-      ? `${location} üzrə ev, otaq və otaq yoldaşı axtarış elanları. Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın.`
+      ? `${location} üzrə ev, otaq və otaq yoldaşı axtarış elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.`
       : isDefaultLocation
-        ? "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın."
-        : `${location} üzrə kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın.`;
+        ? "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla."
+        : `${location} üzrə kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.`;
 
   return {
     title,

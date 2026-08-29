@@ -30,7 +30,7 @@ export function ListingFeed({
         </h1>
         <p className="max-w-2xl text-base text-muted-foreground md:text-lg">
           Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları.
-          Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın.
+          Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.
         </p>
       </header>
       <ListingFilters

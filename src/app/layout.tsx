@@ -26,20 +26,20 @@ export const metadata: Metadata = {
     template: "%s | kirayesin.az",
   },
   description:
-    "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın.",
+    "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.",
   openGraph: {
     type: "website",
     locale: "az_AZ",
     siteName: "kirayesin.az",
     title: "Azərbaycanda kirayə ev və otaq platforması | kirayesin.az",
     description:
-      "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın.",
+      "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.",
   },
   twitter: {
     card: "summary_large_image",
     title: "Azərbaycanda kirayə ev və otaq platforması | kirayesin.az",
     description:
-      "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın.",
+      "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.",
   },
 };
 

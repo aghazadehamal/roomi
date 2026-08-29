@@ -32,7 +32,7 @@ export function ProfileView({ profile, isOwn, extra }: ProfileViewProps) {
             </p>
           ) : (
             <p className="mt-3 text-sm text-muted-foreground">
-              Mesaj yazmaq üçün elanına gir. Nömrə və Instagram burada yoxdur.
+              Mesaj yazmaq üçün elana gir.
             </p>
           )}
         </div>

@@ -20,7 +20,7 @@ export function EmptyState({ tab, filtered = false }: EmptyStateProps) {
         <p className="mt-4 max-w-md text-lg text-muted-foreground">
           {filtered
             ? "Filtrləri dəyiş, başqa şəhər və ya qiymət yoxla."
-            : "Ev, otaq və ya yoldaş axtaranlar eyni yerdə. Nömrə gizlidir — yazışma elanın içindən açılır."}
+            : "Ev, otaq və yoldaş axtaranlar eyni yerdə."}
         </p>
         <Link
           href={newListingHref(tab)}
