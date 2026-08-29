@@ -45,6 +45,52 @@ const CYRILLIC_TO_LATIN: Record<string, string> = {
   я: "a",
 };
 
+const ARABIC_TO_LATIN: Record<string, string> = {
+  ا: "a",
+  أ: "a",
+  إ: "a",
+  آ: "a",
+  ب: "b",
+  ت: "t",
+  ث: "t",
+  ج: "j",
+  ح: "h",
+  خ: "h",
+  د: "d",
+  ذ: "d",
+  ر: "r",
+  ز: "z",
+  س: "s",
+  ش: "s",
+  ص: "s",
+  ض: "d",
+  ط: "t",
+  ظ: "z",
+  ع: "a",
+  غ: "g",
+  ف: "f",
+  ق: "k",
+  ك: "k",
+  ک: "k",
+  ل: "l",
+  م: "m",
+  ن: "n",
+  ه: "h",
+  ة: "a",
+  و: "u",
+  ي: "i",
+  ی: "i",
+  ى: "a",
+  ء: "",
+  ؤ: "u",
+  ئ: "i",
+  پ: "p",
+  چ: "c",
+  ژ: "z",
+  گ: "g",
+  ڤ: "v",
+};
+
 const WORD_TO_DIGIT: Record<string, string> = {
   sifir: "0",
   sifr: "0",
@@ -88,7 +134,9 @@ export function normalizeModerationText(text: string): string {
     .replace(/[şŞ]/g, "s")
     .replace(/[ğĞ]/g, "g");
 
-  value = [...value].map((char) => CYRILLIC_TO_LATIN[char] ?? char).join("");
+  value = [...value]
+    .map((char) => ARABIC_TO_LATIN[char] ?? CYRILLIC_TO_LATIN[char] ?? char)
+    .join("");
   value = [...value].map((char) => LEET_MAP[char] ?? char).join("");
   return value
     .replace(/[\u200B-\u200D\uFEFF\u00AD]/g, "")
