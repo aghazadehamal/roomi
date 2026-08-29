@@ -82,6 +82,10 @@ export function normalizeEmojiDigits(text: string): string {
     );
 }
 
+export function stripEmoji(text: string): string {
+  return text.replace(/\p{Extended_Pictographic}|\p{Emoji_Presentation}/gu, "");
+}
+
 export function compactModerationText(text: string): string {
   return normalizeModerationText(text).replace(/[^a-z0-9]/g, "");
 }
