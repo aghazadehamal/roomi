@@ -72,16 +72,6 @@ export function ListingCard({
 
   return (
     <div className="group/card relative h-full">
-      {showSave ? (
-        <div className="absolute top-3 right-3 z-10">
-          <SaveListingButton
-            listingId={listing.id}
-            initialSaved={saved}
-            iconOnly
-            className="bg-card/95 shadow-sm backdrop-blur-sm"
-          />
-        </div>
-      ) : null}
       <Link
         href={`/listings/${listing.id}`}
         className="group flex h-full flex-col overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-border transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-md"
@@ -108,7 +98,7 @@ export function ListingCard({
 
       <div className="flex flex-1 flex-col gap-4 px-5 py-5">
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             {!showPhotoSlot ? (
               <p className="text-xs font-semibold tracking-wide text-primary uppercase">
                 {LISTING_TYPE_LABELS[listing.type]}
@@ -131,9 +121,14 @@ export function ListingCard({
               {listing.title}
             </h3>
           </div>
-          <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-            <ArrowUpRight className="size-4" aria-hidden />
-          </span>
+          <div className="flex shrink-0 items-center gap-1.5">
+            {!showPhotoSlot && showSave ? (
+              <SaveListingButton listingId={listing.id} initialSaved={saved} iconOnly />
+            ) : null}
+            <span className="flex size-9 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+              <ArrowUpRight className="size-4" aria-hidden />
+            </span>
+          </div>
         </div>
 
         <dl className="grid grid-cols-1 gap-2">
@@ -166,6 +161,11 @@ export function ListingCard({
         </div>
       </div>
       </Link>
+      {showSave && showPhotoSlot ? (
+        <div className="absolute top-3 right-3 z-10">
+          <SaveListingButton listingId={listing.id} initialSaved={saved} iconOnly />
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -42,9 +42,17 @@ export function SaveListingButton({
   return (
     <Button
       type="button"
-      variant={saved ? "default" : "outline"}
+      variant={iconOnly ? "outline" : saved ? "default" : "outline"}
       size={iconOnly ? "icon-sm" : "sm"}
-      className={cn(saved && "bg-primary text-primary-foreground", className)}
+      className={cn(
+        iconOnly &&
+          "rounded-full bg-card/95 shadow-sm ring-1 ring-border/70 backdrop-blur-sm hover:bg-card",
+        iconOnly &&
+          saved &&
+          "border-primary/30 bg-primary text-primary-foreground hover:bg-primary/90",
+        !iconOnly && saved && "bg-primary text-primary-foreground",
+        className,
+      )}
       disabled={pending}
       aria-pressed={saved}
       aria-label={saved ? "Seçilmişdən çıxart" : "Seçilmişlərə əlavə et"}
