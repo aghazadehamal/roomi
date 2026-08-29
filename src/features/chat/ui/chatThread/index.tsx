@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { markConversationRead, sendMessage } from "@/features/chat/actions";
 import type { ChatMessage } from "@/features/chat/model";
+import {
+  CONTACT_INFO_CHAT_WARNING,
+  containsContactInfo,
+} from "@/features/moderation/helpers/contactInfo";
 import { ModerationActions } from "@/features/moderation/ui";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -117,6 +121,10 @@ export function ChatThread({
     const formData = new FormData(form);
     const body = String(formData.get("body") ?? "").trim();
     if (!body) {
+      return;
+    }
+
+    if (containsContactInfo(body) && !window.confirm(CONTACT_INFO_CHAT_WARNING)) {
       return;
     }
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { setPendingProfileName } from "@/features/auth/helpers/pendingName";
 import { ensureCurrentProfile } from "@/features/auth/queries";
+import { profileFormSchema } from "@/features/profile/schema";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
@@ -23,9 +24,10 @@ export async function POST(request: Request) {
       name: string;
     };
 
-    if (name.trim().length < 2) {
+    const nameParsed = profileFormSchema.safeParse({ name });
+    if (!nameParsed.success) {
       return NextResponse.json(
-        { error: "Ad ən azı 2 simvol olmalıdır." },
+        { error: nameParsed.error.issues[0]?.message ?? "Adı yoxla." },
         { status: 400 },
       );
     }
@@ -34,14 +36,14 @@ export async function POST(request: Request) {
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: { data: { name: name.trim() } },
+      options: { data: { name: nameParsed.data.name } },
     });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    const trimmedName = name.trim();
+    const trimmedName = nameParsed.data.name;
     await setPendingProfileName(trimmedName);
 
     if (!data.session) {

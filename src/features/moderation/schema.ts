@@ -40,6 +40,13 @@ export const reportSchema = z
         message: "Şikayət üçün elan və ya söhbət lazımdır.",
       });
     }
+
+    if (data.body) {
+      const profanity = profanityIssue(data.body, ["body"]);
+      if (profanity) {
+        ctx.addIssue(profanity);
+      }
+    }
   });
 
 export function contactInfoIssue(text: string, path: (string | number)[]) {
@@ -47,7 +54,7 @@ export function contactInfoIssue(text: string, path: (string | number)[]) {
     return {
       code: "custom" as const,
       path,
-      message: "Elanlarda telefon və Instagram yazmaq olmaz. Mesajla paylaşa bilərsən.",
+      message: "Elanlarda telefon, Instagram və link yazmaq olmaz. Mesajla paylaşa bilərsən.",
     };
   }
   return null;

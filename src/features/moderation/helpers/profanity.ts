@@ -1,3 +1,9 @@
+import {
+  collapseRepeatedChars,
+  compactModerationText,
+  normalizeModerationText,
+} from "@/features/moderation/helpers/textNormalize";
+
 const PROFANITY_TERMS = [
   "siktir",
   "sikdir",
@@ -5,6 +11,14 @@ const PROFANITY_TERMS = [
   "sikimin",
   "sikine",
   "sikik",
+  "sikikler",
+  "sikesen",
+  "sikdirsin",
+  "sikdirsinler",
+  "siktirgit",
+  "gijdillaq",
+  "gijduz",
+  "gijdillax",
   "göt",
   "got",
   "götü",
@@ -17,12 +31,15 @@ const PROFANITY_TERMS = [
   "amına",
   "amina",
   "amk",
+  "amq",
   "peysər",
   "peyser",
   "qancıq",
   "qanciq",
+  "qehbe",
   "orospu",
   "orospunun",
+  "orospuya",
   "daşşaq",
   "dassaq",
   "daşşag",
@@ -34,6 +51,7 @@ const PROFANITY_TERMS = [
   "pici",
   "pox",
   "poxu",
+  "poxa",
   "blyad",
   "blyat",
   "bljat",
@@ -49,46 +67,53 @@ const PROFANITY_TERMS = [
   "ebat",
   "ebal",
   "ebatj",
+  "cindir",
+  "dalybask",
+  "serefsiz",
+  "pezevenk",
+  "kahpe",
+  "fahise",
+  "oc",
+  "ocu",
   "fuck",
   "fucking",
   "fucker",
+  "motherfucker",
   "shit",
   "bitch",
   "asshole",
   "bastard",
-];
+  "dick",
+  "cunt",
+  "nigger",
+  "nigga",
+  "retard",
+  "whore",
+  "slut",
+] as const;
 
 export const PROFANITY_ERROR = "Kobud və ya uyğunsuz sözlər yazmaq olmaz.";
 
-function normalizeForProfanity(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/[ıİ]/g, "i")
-    .replace(/[əƏ]/g, "e")
-    .replace(/[öÖ]/g, "o")
-    .replace(/[üÜ]/g, "u")
-    .replace(/[çÇ]/g, "c")
-    .replace(/[şŞ]/g, "s")
-    .replace(/[ğĞ]/g, "g")
-    .replace(/\s+/g, " ")
-    .trim();
+function compactProfanityText(text: string): string {
+  return collapseRepeatedChars(compactModerationText(text));
 }
 
 export function containsProfanity(text: string): boolean {
-  const normalized = normalizeForProfanity(text);
+  const normalized = normalizeModerationText(text);
   if (!normalized) {
     return false;
   }
 
-  const compact = normalized.replace(/\s+/g, "");
+  const compact = compactProfanityText(text);
   const padded = ` ${normalized} `;
 
   return PROFANITY_TERMS.some((term) => {
-    if (padded.includes(` ${term} `)) {
-      return true;
+    const termCompact = term.replace(/\s+/g, "");
+
+    if (term.length <= 4) {
+      return padded.includes(` ${term} `);
     }
-    return term.length >= 5 && compact.includes(term);
+
+    return compact.includes(termCompact);
   });
 }
