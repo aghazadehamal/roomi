@@ -5,13 +5,14 @@ import {
   HOUSING_KIND_LABELS,
   LISTING_TYPE_LABELS,
   SEEK_TYPES,
+  listingLocationFactLabel,
+  listingLocationText,
   listingPriceText,
   listingRoomsText,
   listingShowsHousingKind,
   listingShowsPhotos,
   listingShowsRooms,
 } from "@/features/listings/model";
-import { ANY_DISTRICT } from "@/features/listings/schema";
 
 import type { ListingCardProps } from "./type";
 
@@ -26,11 +27,8 @@ function listingFacts(listing: ListingCardProps["listing"]): Fact[] {
   const facts: Fact[] = [
     {
       icon: MapPin,
-      label: "Rayon",
-      value:
-        listing.district === ANY_DISTRICT
-          ? "Fərqi yoxdur"
-          : listing.district,
+      label: listingLocationFactLabel(listing.city),
+      value: listingLocationText(listing.city, listing.district),
     },
   ];
 

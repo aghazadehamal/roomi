@@ -5,6 +5,7 @@ import { newListingHref } from "@/features/listings/helpers/newListing";
 import {
   FeedTab,
   LISTING_TYPE_LABELS,
+  listingLocationText,
   listingPriceText,
   listingShowsPhotos,
 } from "@/features/listings/model";
@@ -49,7 +50,8 @@ export function OwnListings({ listings }: OwnListingsProps) {
               </span>
               <span className="mt-1 font-medium">{listing.title}</span>
               <span className="mt-1 text-sm text-muted-foreground">
-                {listing.status === "active" ? "Aktiv" : "Arxiv"} · {listing.district} ·{" "}
+                {listing.status === "active" ? "Aktiv" : "Arxiv"} ·{" "}
+                {listingLocationText(listing.city, listing.district)} ·{" "}
                 {listingPriceText(listing.priceAzn)}
               </span>
             </span>

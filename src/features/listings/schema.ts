@@ -1,6 +1,14 @@
 import { z } from "zod";
 
 import { ListingType } from "@/features/listings/model";
+import {
+  ANY_DISTRICT,
+  AZ_CITIES,
+  BAKU_CITY,
+  BAKU_DISTRICTS,
+  isBakuCity,
+  LISTING_DISTRICTS,
+} from "@/features/listings/model/locations";
 
 export const LISTING_TTL_DAYS = 21;
 
@@ -13,24 +21,7 @@ export const listingPhotoIdSchema = z.object({
   photoId: z.string().uuid(),
 });
 
-export const BAKU_DISTRICTS = [
-  "Binəqədi",
-  "Qaradağ",
-  "Xəzər",
-  "Xətai",
-  "Nərimanov",
-  "Nəsimi",
-  "Nizami",
-  "Pirallahı",
-  "Sabunçu",
-  "Səbail",
-  "Suraxanı",
-  "Yasamal",
-] as const;
-
-export const ANY_DISTRICT = "Fərqi yoxdur";
-
-export const LISTING_DISTRICTS = [...BAKU_DISTRICTS, ANY_DISTRICT] as const;
+export { ANY_DISTRICT, AZ_CITIES, BAKU_CITY, BAKU_DISTRICTS, LISTING_DISTRICTS };
 
 export const listingFormSchema = z
   .object({
@@ -46,7 +37,7 @@ export const listingFormSchema = z
       .trim()
       .min(20, "Təsvir ən azı 20 simvol olmalıdır.")
       .max(2000),
-    city: z.literal("Bakı"),
+    city: z.enum(AZ_CITIES),
     district: z.enum(LISTING_DISTRICTS),
     price: z.number().int().min(0).max(100_000),
     rooms: z.number().int().min(0).max(20),
@@ -75,16 +66,26 @@ export const listingFormSchema = z
       });
     }
 
+    if (!isBakuCity(data.city) && data.district !== ANY_DISTRICT) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["district"],
+        message: "Bakıdan kənar şəhərlərdə rayon seçilmir.",
+      });
+    }
+
     if (seek) {
       return;
     }
-    if (data.district === ANY_DISTRICT) {
+
+    if (isBakuCity(data.city) && data.district === ANY_DISTRICT) {
       ctx.addIssue({
         code: "custom",
         path: ["district"],
         message: "Rayon seç.",
       });
     }
+
     if (data.price < 1) {
       ctx.addIssue({
         code: "custom",

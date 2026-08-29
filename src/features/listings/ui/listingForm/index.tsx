@@ -23,12 +23,19 @@ import {
   ListingType,
   OFFER_TYPES,
   SEEK_TYPES,
+  isBakuCity,
   listingShowsGender,
   listingShowsHousingKind,
   listingShowsPhotos,
   listingShowsRooms,
 } from "@/features/listings/model";
-import { BAKU_DISTRICTS, ANY_DISTRICT, listingFormSchema, type ListingFormValues } from "@/features/listings/schema";
+import {
+  ANY_DISTRICT,
+  AZ_CITIES,
+  BAKU_DISTRICTS,
+  listingFormSchema,
+  type ListingFormValues,
+} from "@/features/listings/schema";
 import { ListingPhotoPicker } from "@/features/listings/ui/listingPhotoPicker";
 import { cn } from "@/lib/utils";
 
@@ -99,9 +106,11 @@ export function ListingForm({
   }
 
   const selectedType = form.watch("type");
+  const selectedCity = form.watch("city");
   const price = form.watch("price");
   const rooms = form.watch("rooms");
   const seekType = SEEK_TYPES.includes(selectedType);
+  const bakuSelected = isBakuCity(selectedCity);
   const anyPrice = seekType && price <= 0;
   const anyRooms = selectedType === ListingType.HomeSeek && rooms <= 0;
 
@@ -163,7 +172,7 @@ export function ListingForm({
                 form.setValue("housingKind", "apartment");
               }
               if (!SEEK_TYPES.includes(type)) {
-                if (form.getValues("district") === ANY_DISTRICT) {
+                if (isBakuCity(form.getValues("city")) && form.getValues("district") === ANY_DISTRICT) {
                   form.setValue("district", "Yasamal");
                 }
                 if (form.getValues("price") <= 0) {
@@ -176,6 +185,29 @@ export function ListingForm({
           </button>
         ))}
       </fieldset>
+
+      <label className="flex flex-col gap-2 text-sm font-medium">
+        Şəhər
+        <select
+          className={selectClass}
+          {...form.register("city", {
+            onChange: (event) => {
+              const city = event.target.value;
+              if (!isBakuCity(city)) {
+                form.setValue("district", ANY_DISTRICT);
+              } else if (form.getValues("district") === ANY_DISTRICT && !seekType) {
+                form.setValue("district", "Yasamal");
+              }
+            },
+          })}
+        >
+          {AZ_CITIES.map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <label className="flex flex-col gap-2 text-sm font-medium">
         Başlıq
@@ -208,19 +240,28 @@ export function ListingForm({
       </label>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-2 text-sm font-medium">
-          Rayon
-          <select className={selectClass} {...form.register("district")}>
-            {seekType ? (
-              <option value={ANY_DISTRICT}>{ANY_DISTRICT}</option>
+        {bakuSelected ? (
+          <label className="flex flex-col gap-2 text-sm font-medium">
+            Rayon
+            <select className={selectClass} {...form.register("district")}>
+              {seekType ? (
+                <option value={ANY_DISTRICT}>{ANY_DISTRICT}</option>
+              ) : null}
+              {BAKU_DISTRICTS.map((district) => (
+                <option key={district} value={district}>
+                  {district}
+                </option>
+              ))}
+            </select>
+            {form.formState.errors.district ? (
+              <span className="font-normal text-destructive">
+                {form.formState.errors.district.message}
+              </span>
             ) : null}
-            {BAKU_DISTRICTS.map((district) => (
-              <option key={district} value={district}>
-                {district}
-              </option>
-            ))}
-          </select>
-        </label>
+          </label>
+        ) : (
+          <input type="hidden" {...form.register("district")} />
+        )}
         <div className="flex flex-col gap-2 text-sm font-medium">
           {tab === FeedTab.Seek ? "Büdcə (AZN)" : "Qiymət (AZN)"}
           {anyPrice ? (
@@ -309,7 +350,7 @@ export function ListingForm({
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Şəhər: Bakı. Küçə və telefon elanda görünməyəcək.
+        Küçə və telefon elanda görünməyəcək.
       </p>
 
       {listingShowsPhotos(selectedType) && !isEdit ? (

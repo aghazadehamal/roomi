@@ -39,6 +39,7 @@ export type OwnListing = ListingSummary & {
 };
 
 export type ListingFeedFilters = {
+  city: string | null;
   district: string | null;
   maxPrice: number | null;
   rooms: number | null;

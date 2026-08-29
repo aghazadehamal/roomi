@@ -6,6 +6,8 @@ import {
   LISTING_TYPE_LABELS,
   ListingType,
   SEEK_TYPES,
+  listingLocationDetailText,
+  listingLocationFactLabel,
   listingPriceText,
   listingRoomsText,
   listingShowsGender,
@@ -13,7 +15,6 @@ import {
   listingShowsPhotos,
   listingShowsRooms,
 } from "@/features/listings/model";
-import { ANY_DISTRICT } from "@/features/listings/schema";
 
 import { ListingPhotoGallery } from "./listingPhotoGallery";
 import type { ListingDetailViewProps } from "./type";
@@ -29,11 +30,8 @@ function listingFacts(listing: ListingDetailViewProps["listing"]): Fact[] {
   const facts: Fact[] = [
     {
       icon: MapPin,
-      label: "Rayon",
-      value:
-        listing.district === ANY_DISTRICT
-          ? `${listing.city} · Fərqi yoxdur`
-          : `${listing.city}, ${listing.district}`,
+      label: listingLocationFactLabel(listing.city),
+      value: listingLocationDetailText(listing.city, listing.district),
     },
   ];
 

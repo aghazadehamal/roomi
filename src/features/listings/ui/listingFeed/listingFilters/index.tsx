@@ -10,7 +10,7 @@ import {
   listingFeedHref,
   PRICE_FILTER_OPTIONS,
 } from "@/features/listings/helpers/listingFeedFilters";
-import { BAKU_DISTRICTS } from "@/features/listings/schema";
+import { AZ_CITIES, BAKU_DISTRICTS, isBakuCity } from "@/features/listings/model/locations";
 import { cn } from "@/lib/utils";
 
 import type { ListingFiltersProps } from "./type";
@@ -20,6 +20,7 @@ const selectClass =
 
 export function ListingFilters({ tab, filters, action }: ListingFiltersProps) {
   const router = useRouter();
+  const showDistrictFilter = !filters.city || isBakuCity(filters.city);
 
   function update(next: Partial<typeof filters>) {
     router.push(listingFeedHref(tab, { ...filters, ...next }));
@@ -55,24 +56,42 @@ export function ListingFilters({ tab, filters, action }: ListingFiltersProps) {
         {action}
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex h-12 items-center rounded-xl bg-card px-4 text-sm shadow-sm ring-1 ring-border">
-          Bakı
-        </span>
         <select
           className={selectClass}
-          value={filters.district ?? ""}
-          aria-label="Rayon"
+          value={filters.city ?? ""}
+          aria-label="Şəhər"
           onChange={(event) => {
-            update({ district: event.target.value || null });
+            const city = event.target.value || null;
+            update({
+              city,
+              district: city && !isBakuCity(city) ? null : filters.district,
+            });
           }}
         >
-          <option value="">Bütün rayonlar</option>
-          {BAKU_DISTRICTS.map((district) => (
-            <option key={district} value={district}>
-              {district}
+          <option value="">Bütün şəhərlər</option>
+          {AZ_CITIES.map((city) => (
+            <option key={city} value={city}>
+              {city}
             </option>
           ))}
         </select>
+        {showDistrictFilter ? (
+          <select
+            className={selectClass}
+            value={filters.district ?? ""}
+            aria-label="Rayon"
+            onChange={(event) => {
+              update({ district: event.target.value || null });
+            }}
+          >
+            <option value="">Bütün rayonlar</option>
+            {BAKU_DISTRICTS.map((district) => (
+              <option key={district} value={district}>
+                {district}
+              </option>
+            ))}
+          </select>
+        ) : null}
         <select
           className={selectClass}
           value={filters.maxPrice ?? ""}

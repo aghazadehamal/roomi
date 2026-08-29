@@ -9,7 +9,7 @@ import {
   type OwnListing,
   type ListingFeedFilters,
 } from "@/features/listings/model";
-import { ANY_DISTRICT } from "@/features/listings/schema";
+import { ANY_DISTRICT, BAKU_CITY } from "@/features/listings/model/locations";
 import { createClient } from "@/lib/supabase/server";
 
 const MS_PER_DAY = 86_400_000;
@@ -68,10 +68,14 @@ export async function listListings(
     .from("listings")
     .select("id, title, price, city, district, rooms, type, housing_kind, expires_at")
     .eq("status", "active")
-    .in("type", types)
-    .eq("city", "Bakı");
+    .in("type", types);
+
+  if (filters.city) {
+    query = query.eq("city", filters.city);
+  }
 
   if (filters.district) {
+    query = query.eq("city", BAKU_CITY);
     query = query.in("district", [filters.district, ANY_DISTRICT]);
   }
 

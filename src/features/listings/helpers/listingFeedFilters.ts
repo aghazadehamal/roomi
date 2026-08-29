@@ -1,14 +1,21 @@
 import { FeedTab, type ListingFeedFilters } from "@/features/listings/model";
-import { BAKU_DISTRICTS } from "@/features/listings/schema";
+import {
+  AZ_CITIES,
+  BAKU_CITY,
+  BAKU_DISTRICTS,
+  isAzCity,
+  isBakuCity,
+} from "@/features/listings/model/locations";
 
 export const PRICE_FILTER_OPTIONS = [300, 500, 800, 1000, 1500, 2000] as const;
 
 export function emptyListingFeedFilters(): ListingFeedFilters {
-  return { district: null, maxPrice: null, rooms: null, housingKind: null };
+  return { city: null, district: null, maxPrice: null, rooms: null, housingKind: null };
 }
 
 export function listingFeedFiltersActive(filters: ListingFeedFilters): boolean {
   return (
+    filters.city !== null ||
     filters.district !== null ||
     filters.maxPrice !== null ||
     filters.rooms !== null ||
@@ -17,14 +24,20 @@ export function listingFeedFiltersActive(filters: ListingFeedFilters): boolean {
 }
 
 export function parseListingFeedFilters(params: {
+  city?: string | string[];
   district?: string | string[];
   maxPrice?: string | string[];
   rooms?: string | string[];
   housingKind?: string | string[];
 }): ListingFeedFilters {
+  const cityValue = firstParam(params.city);
+  const city = cityValue && isAzCity(cityValue) ? cityValue : null;
+
   const districtValue = firstParam(params.district);
   const district =
-    districtValue && (BAKU_DISTRICTS as readonly string[]).includes(districtValue)
+    districtValue &&
+    (BAKU_DISTRICTS as readonly string[]).includes(districtValue) &&
+    (!city || isBakuCity(city))
       ? districtValue
       : null;
 
@@ -43,7 +56,7 @@ export function parseListingFeedFilters(params: {
       ? housingKindValue
       : null;
 
-  return { district, maxPrice, rooms, housingKind };
+  return { city, district, maxPrice, rooms, housingKind };
 }
 
 export function listingFeedHref(tab: FeedTab, filters: ListingFeedFilters): string {
@@ -51,7 +64,10 @@ export function listingFeedHref(tab: FeedTab, filters: ListingFeedFilters): stri
   if (tab === FeedTab.Seek) {
     params.set("tab", FeedTab.Seek);
   }
-  if (filters.district) {
+  if (filters.city) {
+    params.set("city", filters.city);
+  }
+  if (filters.district && (!filters.city || isBakuCity(filters.city))) {
     params.set("district", filters.district);
   }
   if (filters.maxPrice !== null) {

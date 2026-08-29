@@ -6,6 +6,7 @@ import { ListingFeed } from "@/features/listings/ui";
 type HomePageProps = {
   searchParams: Promise<{
     tab?: string;
+    city?: string;
     district?: string;
     maxPrice?: string;
     rooms?: string;
