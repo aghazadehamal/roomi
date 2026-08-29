@@ -198,7 +198,7 @@ export function ChatThread({
       </div>
       <div
         ref={scrollContainerRef}
-        className="min-h-0 flex-1 overflow-y-auto px-1 py-6"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 [scrollbar-gutter:stable]"
       >
         {messages.length === 0 ? (
           <p className="py-8 text-center text-muted-foreground">
@@ -210,11 +210,14 @@ export function ChatThread({
             return (
               <div
                 key={message.id}
-                className={cn("mb-3 flex", mine ? "justify-end" : "justify-start")}
+                className={cn(
+                  "mb-3 flex w-full min-w-0",
+                  mine ? "justify-end pl-6" : "justify-start pr-6",
+                )}
               >
                 <p
                   className={cn(
-                    "max-w-[80%] rounded-2xl px-4 py-3 text-base",
+                    "max-w-[min(80%,100%)] break-words rounded-2xl px-4 py-3 text-base",
                     mine
                       ? "bg-primary text-primary-foreground"
                       : "bg-card shadow-sm ring-1 ring-border",
