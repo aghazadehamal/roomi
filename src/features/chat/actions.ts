@@ -10,6 +10,7 @@ import {
   sendMessageSchema,
   startConversationSchema,
 } from "@/features/chat/schema";
+import { assertCanMessage } from "@/features/moderation/actions";
 import { createClient } from "@/lib/supabase/server";
 
 export type ChatActionResult =
@@ -61,6 +62,11 @@ export async function startConversation(listingId: string): Promise<ChatActionRe
 
   if (listing.user_id === user.id) {
     return { ok: false, error: "Öz elanına mesaj yazmaq olmaz." };
+  }
+
+  const blockError = await assertCanMessage(user.id, listing.user_id);
+  if (blockError) {
+    return { ok: false, error: blockError };
   }
 
   const { data: existing } = await supabase
@@ -161,6 +167,15 @@ export async function sendMessage(input: unknown): Promise<ChatActionResult> {
     (conversation.guest_id !== user.id && conversation.listing_owner_id !== user.id)
   ) {
     return { ok: false, error: "Bu söhbətə yazmaq olmaz." };
+  }
+
+  const peerId =
+    conversation.guest_id === user.id
+      ? conversation.listing_owner_id
+      : conversation.guest_id;
+  const blockError = await assertCanMessage(user.id, peerId);
+  if (blockError) {
+    return { ok: false, error: blockError };
   }
 
   const { data: message, error } = await supabase

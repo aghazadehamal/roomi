@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/features/auth/queries";
 import { listActiveListingsByUser } from "@/features/listings/queries";
 import { ListingCard } from "@/features/listings/ui";
+import { getBlockStatus } from "@/features/moderation/actions";
+import { ModerationActions } from "@/features/moderation/ui";
 import { getProfile } from "@/features/profile/queries";
 import { ProfileView } from "@/features/profile/ui";
 
@@ -26,9 +28,17 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     redirect("/profile");
   }
 
+  const blockStatus = user ? await getBlockStatus(profile.id) : null;
+
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
       <ProfileView profile={profile} isOwn={false} />
+      {user ? (
+        <ModerationActions
+          targetUserId={profile.id}
+          blockedByMe={blockStatus?.blockedByMe}
+        />
+      ) : null}
       <section className="flex flex-col gap-4">
         <div className="flex items-end justify-between gap-3">
           <h2 className="font-heading text-2xl tracking-tight">Elanları</h2>

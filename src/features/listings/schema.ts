@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { contactInfoIssue } from "@/features/moderation/schema";
 import { ListingType } from "@/features/listings/model";
 import {
   ANY_DISTRICT,
@@ -72,6 +73,16 @@ export const listingFormSchema = z
         path: ["district"],
         message: "Bakıdan kənar şəhərlərdə rayon seçilmir.",
       });
+    }
+
+    const titleIssue = contactInfoIssue(data.title, ["title"]);
+    if (titleIssue) {
+      ctx.addIssue(titleIssue);
+    }
+
+    const bodyIssue = contactInfoIssue(data.body, ["body"]);
+    if (bodyIssue) {
+      ctx.addIssue(bodyIssue);
     }
 
     if (seek) {

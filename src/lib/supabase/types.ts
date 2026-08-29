@@ -58,6 +58,22 @@ type MessageRow = {
   created_at: string
 }
 
+type BlockRow = {
+  blocker_id: string
+  blocked_id: string
+  created_at: string
+}
+
+type ReportRow = {
+  id: string
+  reporter_id: string
+  listing_id: string | null
+  conversation_id: string | null
+  reason: string
+  body: string | null
+  created_at: string
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -129,6 +145,30 @@ export type Database = {
           created_at?: string
         }
         Update: Partial<MessageRow>
+        Relationships: []
+      }
+      blocks: {
+        Row: BlockRow
+        Insert: {
+          blocker_id: string
+          blocked_id: string
+          created_at?: string
+        }
+        Update: Partial<BlockRow>
+        Relationships: []
+      }
+      reports: {
+        Row: ReportRow
+        Insert: {
+          id?: string
+          reporter_id: string
+          listing_id?: string | null
+          conversation_id?: string | null
+          reason: string
+          body?: string | null
+          created_at?: string
+        }
+        Update: Partial<ReportRow>
         Relationships: []
       }
     }

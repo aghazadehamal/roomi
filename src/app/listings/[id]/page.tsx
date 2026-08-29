@@ -15,6 +15,8 @@ import {
   ListingDetailView,
   RestoreListingButton,
 } from "@/features/listings/ui";
+import { getBlockStatus } from "@/features/moderation/actions";
+import { ModerationActions } from "@/features/moderation/ui";
 import { profileDisplayName } from "@/features/profile/model";
 import { getProfile } from "@/features/profile/queries";
 import { cn } from "@/lib/utils";
@@ -36,6 +38,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
   const { id } = await params;
   const [listing, user] = await Promise.all([getListing(id), getCurrentUser()]);
   const owner = listing ? await getProfile(listing.userId) : null;
+  const blockStatus =
+    listing && user && user.id !== listing.userId
+      ? await getBlockStatus(listing.userId)
+      : null;
 
   if (!listing) {
     notFound();
@@ -88,7 +94,13 @@ export default async function ListingPage({ params }: ListingPageProps) {
         }
         action={
           user ? (
-            <StartChatButton listingId={listing.id} />
+            blockStatus?.blocked ? (
+              <p className="text-sm text-muted-foreground">
+                Bu istifadəçi ilə mesajlaşmaq olmaz.
+              </p>
+            ) : (
+              <StartChatButton listingId={listing.id} />
+            )
           ) : (
             <Link
               href={`/login?next=/listings/${listing.id}`}
@@ -99,6 +111,13 @@ export default async function ListingPage({ params }: ListingPageProps) {
           )
         }
       />
+      {user && !isOwner ? (
+        <ModerationActions
+          targetUserId={listing.userId}
+          listingId={listing.id}
+          blockedByMe={blockStatus?.blockedByMe}
+        />
+      ) : null}
     </div>
   );
 }

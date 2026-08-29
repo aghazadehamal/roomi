@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { markConversationRead, sendMessage } from "@/features/chat/actions";
 import type { ChatMessage } from "@/features/chat/model";
+import { ModerationActions } from "@/features/moderation/ui";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -44,12 +45,16 @@ function fromRealtime(value: unknown): ChatMessage | null {
 export function ChatThread({
   conversationId,
   currentUserId,
+  peerId,
   peerName,
   peerHref,
+  listingId,
   listingLabel,
   listingHref,
   listingActive,
   initialMessages,
+  blocked = false,
+  blockedByMe = false,
 }: ChatThreadProps) {
   const router = useRouter();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
@@ -146,9 +151,17 @@ export function ChatThread({
 
   return (
     <div className="mx-auto flex min-h-[70vh] w-full max-w-2xl flex-col">
-      <Link href={peerHref} className="py-3 font-heading text-2xl">
-        {peerName}
-      </Link>
+      <div className="flex flex-col gap-3">
+        <Link href={peerHref} className="py-3 font-heading text-2xl">
+          {peerName}
+        </Link>
+        <ModerationActions
+          targetUserId={peerId}
+          listingId={listingId}
+          conversationId={conversationId}
+          blockedByMe={blockedByMe}
+        />
+      </div>
       <Link
         href={listingHref}
         className="rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-border"
@@ -189,12 +202,18 @@ export function ChatThread({
         )}
         <div ref={bottomRef} />
       </div>
-      <form onSubmit={onSubmit} className="flex gap-2 pt-3">
-        <Input name="body" placeholder="Mesaj yazın…" autoComplete="off" disabled={pending} />
-        <Button type="submit" size="lg" disabled={pending}>
-          Göndər
-        </Button>
-      </form>
+      {blocked ? (
+        <p className="pt-3 text-sm text-muted-foreground">
+          Bu istifadəçi ilə mesajlaşmaq olmaz.
+        </p>
+      ) : (
+        <form onSubmit={onSubmit} className="flex gap-2 pt-3">
+          <Input name="body" placeholder="Mesaj yazın…" autoComplete="off" disabled={pending} />
+          <Button type="submit" size="lg" disabled={pending}>
+            Göndər
+          </Button>
+        </form>
+      )}
     </div>
   );
 }
