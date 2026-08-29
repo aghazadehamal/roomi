@@ -4,4 +4,5 @@ export type ListingCardProps = {
   listing: ListingSummary;
   saved?: boolean;
   showSave?: boolean;
+  priority?: boolean;
 };

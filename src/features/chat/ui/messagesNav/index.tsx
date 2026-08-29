@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 
@@ -18,12 +18,18 @@ function conversationFilter(conversationIds: string[]): string | null {
   return `conversation_id=in.(${conversationIds.join(",")})`;
 }
 
+function messageSenderId(payload: { new: Record<string, unknown> }): string | null {
+  const senderId = payload.new.sender_id;
+  return typeof senderId === "string" ? senderId : null;
+}
+
 export function MessagesNav({
   userId,
   conversationIds,
   initialUnread = 0,
 }: MessagesNavProps) {
   const [unread, setUnread] = useState(initialUnread);
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setUnread(initialUnread);
@@ -41,6 +47,16 @@ export function MessagesNav({
       if (active) {
         setUnread(next);
       }
+    }
+
+    function scheduleRefresh() {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+      }
+      refreshTimerRef.current = setTimeout(() => {
+        refreshTimerRef.current = null;
+        void refresh();
+      }, 400);
     }
 
     function onVisibilityChange() {
@@ -63,8 +79,13 @@ export function MessagesNav({
           table: "messages",
           filter: messageFilter,
         },
-        () => {
-          void refresh();
+        (payload) => {
+          const senderId = messageSenderId(payload);
+          if (senderId && senderId !== userId) {
+            setUnread((current) => current + 1);
+            return;
+          }
+          scheduleRefresh();
         },
       );
     }
@@ -79,7 +100,7 @@ export function MessagesNav({
           filter: `guest_id=eq.${userId}`,
         },
         () => {
-          void refresh();
+          scheduleRefresh();
         },
       )
       .on(
@@ -91,13 +112,16 @@ export function MessagesNav({
           filter: `listing_owner_id=eq.${userId}`,
         },
         () => {
-          void refresh();
+          scheduleRefresh();
         },
       )
       .subscribe();
 
     return () => {
       active = false;
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+      }
       document.removeEventListener("visibilitychange", onVisibilityChange);
       void supabase.removeChannel(channel);
     };

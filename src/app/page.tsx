@@ -1,10 +1,8 @@
 import { Suspense } from "react";
 
-import { getCurrentUser } from "@/features/auth/queries";
 import { parseListingFeedFilters } from "@/features/listings/helpers/listingFeedFilters";
 import { homeFeedMetadata } from "@/features/listings/helpers/listingSeo";
 import { feedTabFromParam } from "@/features/listings/helpers/newListing";
-import { listSavedListingIds } from "@/features/listings/queries";
 import {
   ListingFeedContent,
   ListingFeedGridSkeleton,
@@ -35,22 +33,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const tab = feedTabFromParam(params.tab);
   const filters = parseListingFeedFilters(params);
-  const [user, savedListingIds] = await Promise.all([
-    getCurrentUser(),
-    listSavedListingIds(),
-  ]);
-  const currentUserId = user?.id ?? null;
-  const savedIds = [...savedListingIds];
 
   return (
     <ListingFeedShell tab={tab} filters={filters}>
       <Suspense fallback={<ListingFeedGridSkeleton />}>
-        <ListingFeedContent
-          tab={tab}
-          filters={filters}
-          savedListingIds={savedIds}
-          currentUserId={currentUserId}
-        />
+        <ListingFeedContent tab={tab} filters={filters} />
       </Suspense>
     </ListingFeedShell>
   );

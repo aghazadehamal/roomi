@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { getCurrentUser } from "@/features/auth/queries";
 import {
   FeedTab,
@@ -24,7 +26,6 @@ import {
 import { ANY_DISTRICT, BAKU_CITY } from "@/features/listings/model/locations";
 import { getBlockStatus } from "@/features/moderation/queries";
 import { createClient } from "@/lib/supabase/server";
-import { cache } from "react";
 
 export type ListListingsResult = {
   listings: ListingSummary[];
@@ -294,7 +295,7 @@ export async function listOwnListings(): Promise<OwnListing[]> {
   });
 }
 
-export async function listSavedListingIds(): Promise<Set<string>> {
+export const listSavedListingIds = cache(async (): Promise<Set<string>> => {
   const user = await getCurrentUser();
   if (!user) {
     return new Set();
@@ -311,7 +312,7 @@ export async function listSavedListingIds(): Promise<Set<string>> {
   }
 
   return new Set(data.map((row) => row.listing_id));
-}
+});
 
 export async function isListingSaved(listingId: string): Promise<boolean> {
   const user = await getCurrentUser();

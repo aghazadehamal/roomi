@@ -3,8 +3,8 @@ import type { FeedTab, ListingFeedFilters, ListingSummary } from "@/features/lis
 export type ListingFeedGridProps = {
   tab: FeedTab;
   filters: ListingFeedFilters;
-  initialListings: ListingSummary[];
-  initialHasMore: boolean;
+  listings: ListingSummary[];
+  hasMore: boolean;
   savedListingIds: string[];
   currentUserId: string | null;
 };
