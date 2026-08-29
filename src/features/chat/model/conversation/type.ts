@@ -25,4 +25,5 @@ export type ConversationThread = {
   listingTitle: string;
   listingActive: boolean;
   messages: ChatMessage[];
+  hasOlderMessages: boolean;
 };

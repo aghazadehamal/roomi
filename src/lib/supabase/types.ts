@@ -202,6 +202,19 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      list_conversations_for_user: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          peer_id: string
+          peer_name: string
+          listing_title: string
+          listing_active: boolean
+          last_message: string
+          last_message_at: string
+          unread: boolean
+        }[]
+      }
     }
     Enums: Record<string, never>
     CompositeTypes: Record<string, never>

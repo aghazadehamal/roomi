@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirmDialog";
 import { Input } from "@/components/ui/input";
-import { markConversationRead, sendMessage } from "@/features/chat/actions";
+import { loadOlderMessages, markConversationRead, sendMessage } from "@/features/chat/actions";
 import type { ChatMessage } from "@/features/chat/model";
 import {
   CONTACT_INFO_CHAT_WARNING,
@@ -54,10 +54,13 @@ export function ChatThread({
   peerHref,
   listingId,
   initialMessages,
+  initialHasOlderMessages = false,
   blocked = false,
   blockedByMe = false,
 }: ChatThreadProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [hasOlderMessages, setHasOlderMessages] = useState(initialHasOlderMessages);
+  const [loadingOlder, setLoadingOlder] = useState(false);
   const [pending, setPending] = useState(false);
   const [contactConfirmOpen, setContactConfirmOpen] = useState(false);
   const [pendingBody, setPendingBody] = useState("");
@@ -68,7 +71,8 @@ export function ChatThread({
 
   useEffect(() => {
     setMessages(initialMessages);
-  }, [initialMessages]);
+    setHasOlderMessages(initialHasOlderMessages);
+  }, [initialHasOlderMessages, initialMessages]);
 
   useEffect(() => {
     void markConversationRead(conversationId);
@@ -147,6 +151,39 @@ export function ChatThread({
     };
   }, [conversationId]);
 
+  async function onLoadOlder() {
+    const oldest = messages[0];
+    if (!oldest || loadingOlder) {
+      return;
+    }
+
+    const container = scrollContainerRef.current;
+    const previousHeight = container?.scrollHeight ?? 0;
+
+    setLoadingOlder(true);
+    const result = await loadOlderMessages(conversationId, oldest.createdAt);
+    setLoadingOlder(false);
+
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+
+    setHasOlderMessages(result.hasOlder);
+    setMessages((current) => {
+      const existing = new Set(current.map((message) => message.id));
+      const older = result.messages.filter((message) => !existing.has(message.id));
+      return [...older, ...current];
+    });
+
+    requestAnimationFrame(() => {
+      if (!container) {
+        return;
+      }
+      container.scrollTop += container.scrollHeight - previousHeight;
+    });
+  }
+
   async function deliverMessage(body: string): Promise<boolean> {
     setPending(true);
     const result = await sendMessage({ conversationId, body });
@@ -223,6 +260,19 @@ export function ChatThread({
         ref={scrollContainerRef}
         className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 [scrollbar-gutter:stable]"
       >
+        {hasOlderMessages ? (
+          <div className="mb-4 flex justify-center">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onLoadOlder}
+              disabled={loadingOlder}
+            >
+              {loadingOlder ? "Yüklənir…" : "Köhnə mesajlar"}
+            </Button>
+          </div>
+        ) : null}
         {messages.length === 0 ? (
           <p className="py-8 text-center text-muted-foreground">
             İlk mesajı yaz. Razılaşanda nömrə və ya Instagram paylaşa bilərsən.

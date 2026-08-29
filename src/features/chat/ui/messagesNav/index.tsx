@@ -11,7 +11,18 @@ import { cn } from "@/lib/utils";
 
 import type { MessagesNavProps } from "./type";
 
-export function MessagesNav({ initialUnread = 0 }: MessagesNavProps) {
+function conversationFilter(conversationIds: string[]): string | null {
+  if (conversationIds.length === 0) {
+    return null;
+  }
+  return `conversation_id=in.(${conversationIds.join(",")})`;
+}
+
+export function MessagesNav({
+  userId,
+  conversationIds,
+  initialUnread = 0,
+}: MessagesNavProps) {
   const [unread, setUnread] = useState(initialUnread);
 
   useEffect(() => {
@@ -24,24 +35,65 @@ export function MessagesNav({ initialUnread = 0 }: MessagesNavProps) {
 
   useEffect(() => {
     const supabase = createClient();
+    let active = true;
 
     async function refresh() {
+      if (!active || document.visibilityState === "hidden") {
+        return;
+      }
       const next = await getUnreadCount();
-      setUnread(next);
+      if (active) {
+        setUnread(next);
+      }
     }
 
-    const channel = supabase
-      .channel("unread-messages")
+    function onVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        void refresh();
+      }
+    }
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    const channel = supabase.channel(`unread:${userId}`);
+    const messageFilter = conversationFilter(conversationIds);
+
+    if (messageFilter) {
+      channel.on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: messageFilter,
+        },
+        () => {
+          void refresh();
+        },
+      );
+    }
+
+    channel
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages" },
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "conversations",
+          filter: `guest_id=eq.${userId}`,
+        },
         () => {
           void refresh();
         },
       )
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "conversations" },
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "conversations",
+          filter: `listing_owner_id=eq.${userId}`,
+        },
         () => {
           void refresh();
         },
@@ -49,9 +101,11 @@ export function MessagesNav({ initialUnread = 0 }: MessagesNavProps) {
       .subscribe();
 
     return () => {
+      active = false;
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       void supabase.removeChannel(channel);
     };
-  }, []);
+  }, [conversationIds, userId]);
 
   return (
     <Link

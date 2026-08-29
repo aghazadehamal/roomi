@@ -8,6 +8,7 @@ export type ChatThreadProps = {
   peerHref: string;
   listingId: string;
   initialMessages: ChatMessage[];
+  initialHasOlderMessages?: boolean;
   blocked?: boolean;
   blockedByMe?: boolean;
 };

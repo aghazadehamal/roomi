@@ -1,27 +1,15 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import type { ReactNode } from "react";
 
 import { buttonVariants } from "@/components/ui/button";
-import { listingFeedFiltersActive } from "@/features/listings/helpers/listingFeedFilters";
 import { newListingHref } from "@/features/listings/helpers/newListing";
 import { cn } from "@/lib/utils";
 
-import { EmptyState } from "./emptyState";
-import { ListingFeedGrid } from "./listingFeedGrid";
 import { ListingFilters } from "./listingFilters";
-import type { ListingFeedProps } from "./type";
+import type { ListingFeedShellProps } from "./type";
 
-export function ListingFeed({
-  tab,
-  listings,
-  hasMore,
-  filters,
-  savedListingIds = [],
-  currentUserId = null,
-}: ListingFeedProps) {
-  const hasListings = listings.length > 0;
-  const filteredEmpty = !hasListings && listingFeedFiltersActive(filters);
-
+export function ListingFeedShell({ tab, filters, children }: ListingFeedShellProps) {
   return (
     <div className="flex flex-1 flex-col gap-8">
       <header className="flex flex-col gap-2">
@@ -46,19 +34,10 @@ export function ListingFeed({
           </Link>
         }
       />
-      {hasListings ? (
-        <ListingFeedGrid
-          key={`${tab}:${filters.city ?? ""}:${filters.district ?? ""}:${filters.maxPrice ?? ""}:${filters.rooms ?? ""}:${filters.housingKind ?? ""}`}
-          tab={tab}
-          filters={filters}
-          initialListings={listings}
-          initialHasMore={hasMore}
-          savedListingIds={savedListingIds}
-          currentUserId={currentUserId}
-        />
-      ) : (
-        <EmptyState tab={tab} filtered={filteredEmpty} />
-      )}
+      {children}
     </div>
   );
 }
+
+export { ListingFeedContent } from "./listingFeedContent";
+export { ListingFeedGridSkeleton } from "./listingFeedGridSkeleton";

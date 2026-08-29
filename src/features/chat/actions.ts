@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache";
 
 import { ensureCurrentProfile, getCurrentUser } from "@/features/auth/queries";
-import { countUnreadMessages } from "@/features/chat/queries";
+import {
+  countUnreadMessages,
+  listMyConversationIds,
+  loadOlderConversationMessages,
+} from "@/features/chat/queries";
+import type { ChatMessage } from "@/features/chat/model";
 import {
   NEW_CONVERSATION_DAILY_CAP,
   markConversationReadSchema,
@@ -240,4 +245,28 @@ export async function markConversationRead(conversationId: string): Promise<void
 
 export async function getUnreadCount(): Promise<number> {
   return countUnreadMessages();
+}
+
+export type LoadOlderMessagesResult =
+  | { ok: true; messages: ChatMessage[]; hasOlder: boolean }
+  | { ok: false; error: string };
+
+export async function loadOlderMessages(
+  conversationId: string,
+  beforeCreatedAt: string,
+): Promise<LoadOlderMessagesResult> {
+  if (!beforeCreatedAt) {
+    return { ok: false, error: "Mesaj tarixçəsi tapılmadı." };
+  }
+
+  const result = await loadOlderConversationMessages(conversationId, beforeCreatedAt);
+  if (!result) {
+    return { ok: false, error: "Bu söhbətə baxmaq olmaz." };
+  }
+
+  return { ok: true, messages: result.messages, hasOlder: result.hasOlder };
+}
+
+export async function getMyConversationIds(): Promise<string[]> {
+  return listMyConversationIds();
 }

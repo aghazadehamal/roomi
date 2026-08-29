@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/features/auth/queries";
+import { CHAT_MESSAGE_PAGE_SIZE } from "@/features/chat/helpers/chatPagination";
 import type {
   ChatMessage,
   ConversationSummary,
@@ -40,19 +41,61 @@ function isIncomingUnread(
   return new Date(createdAt).getTime() > new Date(readAt).getTime();
 }
 
-export async function listConversations(): Promise<ConversationSummary[]> {
-  const user = await getCurrentUser();
-  if (!user) {
-    return [];
+function mapMessageRow(row: {
+  id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+}): ChatMessage {
+  return {
+    id: row.id,
+    senderId: row.sender_id,
+    body: row.body,
+    createdAt: row.created_at,
+  };
+}
+
+async function listConversationMessages(
+  conversationId: string,
+  options?: { beforeCreatedAt?: string; limit?: number },
+): Promise<{ messages: ChatMessage[]; hasOlder: boolean }> {
+  const pageSize = options?.limit ?? CHAT_MESSAGE_PAGE_SIZE;
+  const supabase = await createClient();
+  let query = supabase
+    .from("messages")
+    .select("id, sender_id, body, created_at")
+    .eq("conversation_id", conversationId)
+    .order("created_at", { ascending: false })
+    .limit(pageSize + 1);
+
+  if (options?.beforeCreatedAt) {
+    query = query.lt("created_at", options.beforeCreatedAt);
   }
 
+  const { data, error } = await query;
+  if (error || !data) {
+    return { messages: [], hasOlder: false };
+  }
+
+  const hasOlder = data.length > pageSize;
+  const rows = hasOlder ? data.slice(0, pageSize) : data;
+
+  return {
+    messages: rows.reverse().map(mapMessageRow),
+    hasOlder,
+  };
+}
+
+async function listConversationsFallback(
+  userId: string,
+): Promise<ConversationSummary[]> {
   const supabase = await createClient();
   const { data: conversations, error } = await supabase
     .from("conversations")
     .select(
       "id, listing_id, listing_owner_id, guest_id, created_at, guest_last_read_at, owner_last_read_at",
     )
-    .or(`listing_owner_id.eq.${user.id},guest_id.eq.${user.id}`)
+    .or(`listing_owner_id.eq.${userId},guest_id.eq.${userId}`)
     .order("created_at", { ascending: false });
 
   if (error || !conversations || conversations.length === 0) {
@@ -96,14 +139,14 @@ export async function listConversations(): Promise<ConversationSummary[]> {
     .map((conversation) => {
       const listing = listingById.get(conversation.listing_id);
       const peerId =
-        conversation.guest_id === user.id
+        conversation.guest_id === userId
           ? conversation.listing_owner_id
           : conversation.guest_id;
-      const readAt = lastReadAt(conversation, user.id);
+      const readAt = lastReadAt(conversation, userId);
       const unread = (messages ?? []).some(
         (message) =>
           message.conversation_id === conversation.id &&
-          isIncomingUnread(message.created_at, message.sender_id, user.id, readAt),
+          isIncomingUnread(message.created_at, message.sender_id, userId, readAt),
       );
       const last = lastByConversation.get(conversation.id);
 
@@ -123,6 +166,50 @@ export async function listConversations(): Promise<ConversationSummary[]> {
       const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
       return bTime - aTime;
     });
+}
+
+export async function listConversations(): Promise<ConversationSummary[]> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return [];
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("list_conversations_for_user");
+
+  if (error || !data) {
+    return listConversationsFallback(user.id);
+  }
+
+  return data.map((row) => ({
+    id: row.id,
+    peerId: row.peer_id,
+    peerName: row.peer_name,
+    listingTitle: row.listing_title,
+    lastMessage: row.last_message,
+    lastMessageAt: row.last_message_at,
+    listingActive: row.listing_active,
+    unread: row.unread,
+  }));
+}
+
+export async function listMyConversationIds(): Promise<string[]> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return [];
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("conversations")
+    .select("id")
+    .or(`listing_owner_id.eq.${user.id},guest_id.eq.${user.id}`);
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data.map((row) => row.id);
 }
 
 export async function getConversationThread(
@@ -153,26 +240,15 @@ export async function getConversationThread(
       ? conversation.listing_owner_id
       : conversation.guest_id;
 
-  const [{ data: listing }, { data: peer }, { data: messageRows }] = await Promise.all([
+  const [{ data: listing }, { data: peer }, messagePage] = await Promise.all([
     supabase
       .from("listings")
       .select("id, title, status")
       .eq("id", conversation.listing_id)
       .maybeSingle(),
     supabase.from("profiles").select("id, name").eq("id", peerId).maybeSingle(),
-    supabase
-      .from("messages")
-      .select("id, sender_id, body, created_at")
-      .eq("conversation_id", conversationId)
-      .order("created_at", { ascending: true }),
+    listConversationMessages(conversationId),
   ]);
-
-  const messages: ChatMessage[] = (messageRows ?? []).map((row) => ({
-    id: row.id,
-    senderId: row.sender_id,
-    body: row.body,
-    createdAt: row.created_at,
-  }));
 
   return {
     id: conversation.id,
@@ -182,8 +258,35 @@ export async function getConversationThread(
     listingId: conversation.listing_id,
     listingTitle: listing?.title ?? "Elan",
     listingActive: listing?.status === "active",
-    messages,
+    messages: messagePage.messages,
+    hasOlderMessages: messagePage.hasOlder,
   };
+}
+
+export async function loadOlderConversationMessages(
+  conversationId: string,
+  beforeCreatedAt: string,
+): Promise<{ messages: ChatMessage[]; hasOlder: boolean } | null> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return null;
+  }
+
+  const supabase = await createClient();
+  const { data: conversation } = await supabase
+    .from("conversations")
+    .select("guest_id, listing_owner_id")
+    .eq("id", conversationId)
+    .maybeSingle();
+
+  if (
+    !conversation ||
+    (conversation.guest_id !== user.id && conversation.listing_owner_id !== user.id)
+  ) {
+    return null;
+  }
+
+  return listConversationMessages(conversationId, { beforeCreatedAt });
 }
 
 export async function countUnreadMessages(): Promise<number> {

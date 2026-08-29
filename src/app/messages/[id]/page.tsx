@@ -29,6 +29,7 @@ export default async function MessageThreadPage({
       peerHref={`/profile/${thread.peerId}`}
       listingId={thread.listingId}
       initialMessages={thread.messages}
+      initialHasOlderMessages={thread.hasOlderMessages}
       blocked={blockStatus.blocked}
       blockedByMe={blockStatus.blockedByMe}
     />

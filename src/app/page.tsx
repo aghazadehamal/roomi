@@ -1,11 +1,17 @@
-import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { getCurrentUser } from "@/features/auth/queries";
 import { parseListingFeedFilters } from "@/features/listings/helpers/listingFeedFilters";
 import { homeFeedMetadata } from "@/features/listings/helpers/listingSeo";
 import { feedTabFromParam } from "@/features/listings/helpers/newListing";
-import { listListings, listSavedListingIds } from "@/features/listings/queries";
-import { ListingFeed } from "@/features/listings/ui";
+import { listSavedListingIds } from "@/features/listings/queries";
+import {
+  ListingFeedContent,
+  ListingFeedGridSkeleton,
+  ListingFeedShell,
+} from "@/features/listings/ui/listingFeed";
+
+import type { Metadata } from "next";
 
 type HomePageProps = {
   searchParams: Promise<{
@@ -29,20 +35,23 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const tab = feedTabFromParam(params.tab);
   const filters = parseListingFeedFilters(params);
-  const [listingsResult, user, savedListingIds] = await Promise.all([
-    listListings(tab, filters),
+  const [user, savedListingIds] = await Promise.all([
     getCurrentUser(),
     listSavedListingIds(),
   ]);
+  const currentUserId = user?.id ?? null;
+  const savedIds = [...savedListingIds];
 
   return (
-    <ListingFeed
-      tab={tab}
-      listings={listingsResult.listings}
-      hasMore={listingsResult.hasMore}
-      filters={filters}
-      savedListingIds={[...savedListingIds]}
-      currentUserId={user?.id ?? null}
-    />
+    <ListingFeedShell tab={tab} filters={filters}>
+      <Suspense fallback={<ListingFeedGridSkeleton />}>
+        <ListingFeedContent
+          tab={tab}
+          filters={filters}
+          savedListingIds={savedIds}
+          currentUserId={currentUserId}
+        />
+      </Suspense>
+    </ListingFeedShell>
   );
 }

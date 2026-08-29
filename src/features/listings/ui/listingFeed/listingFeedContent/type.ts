@@ -1,8 +1,8 @@
 import type { FeedTab, ListingFeedFilters } from "@/features/listings/model";
-import type { ReactNode } from "react";
 
-export type ListingFeedShellProps = {
+export type ListingFeedContentProps = {
   tab: FeedTab;
   filters: ListingFeedFilters;
-  children: ReactNode;
+  savedListingIds: string[];
+  currentUserId: string | null;
 };

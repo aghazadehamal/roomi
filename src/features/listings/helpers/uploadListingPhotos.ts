@@ -4,6 +4,7 @@ import {
   listingPhotoError,
   listingPhotoExtension,
 } from "@/features/listings/helpers/listingPhoto";
+import { compressListingPhoto } from "@/features/listings/helpers/compressListingPhoto";
 import { createClient } from "@/lib/supabase/client";
 
 export async function uploadListingPhotos(
@@ -15,11 +16,14 @@ export async function uploadListingPhotos(
     return { urls: [] };
   }
 
+  const compressed: File[] = [];
   for (const file of files) {
-    const invalid = listingPhotoError(file);
+    const prepared = await compressListingPhoto(file);
+    const invalid = listingPhotoError(prepared);
     if (invalid) {
       return { error: invalid };
     }
+    compressed.push(prepared);
   }
 
   const supabase = createClient();
@@ -33,7 +37,7 @@ export async function uploadListingPhotos(
 
   const urls: string[] = [];
 
-  for (const [index, file] of files.entries()) {
+  for (const [index, file] of compressed.entries()) {
     const extension = listingPhotoExtension(file.type);
     if (!extension) {
       return { error: "Yalnız JPG, PNG və ya WebP yüklə." };
