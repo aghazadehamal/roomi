@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
   const router = useRouter();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [name, setName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [pending, setPending] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -113,13 +115,32 @@ export function LoginForm({ nextPath }: LoginFormProps) {
         />
       ) : null}
       <Input name="email" type="email" placeholder="Email" required />
-      <Input
-        name="password"
-        type="password"
-        placeholder="Şifrə"
-        required
-        minLength={6}
-      />
+      <div className="relative">
+        <Input
+          name="password"
+          type={showPassword ? "text" : "password"}
+          placeholder="Şifrə"
+          required
+          minLength={6}
+          autoComplete={mode === "signup" ? "new-password" : "current-password"}
+          className="pr-12"
+        />
+        <button
+          type="button"
+          aria-label={showPassword ? "Şifrəni gizlət" : "Şifrəni göstər"}
+          aria-pressed={showPassword}
+          className="absolute top-1/2 right-3 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground"
+          onClick={() => {
+            setShowPassword((current) => !current);
+          }}
+        >
+          {showPassword ? (
+            <EyeOff className="size-5" aria-hidden />
+          ) : (
+            <Eye className="size-5" aria-hidden />
+          )}
+        </button>
+      </div>
       <Button type="submit" size="lg" className="mt-1 w-full" disabled={pending}>
         {mode === "signup" ? "Hesab yarat" : "Daxil ol"}
       </Button>
