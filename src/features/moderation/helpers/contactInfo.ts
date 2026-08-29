@@ -1,6 +1,6 @@
 import {
   compactModerationText,
-  extractDigits,
+  extractPhoneDigits,
   normalizeModerationText,
 } from "@/features/moderation/helpers/textNormalize";
 
@@ -24,14 +24,10 @@ const WA_LINK_RE = /\bwa\.me\/[\d+]+/i;
 
 const TG_LINK_RE = /\b(?:t\.me|telegram\.me)\/\S+/i;
 
-const SOCIAL_MARKERS = [
+const SOCIAL_COMPACT_MARKERS = [
   "instagram",
-  "instagr",
   "instagrem",
   "instgram",
-  "insta",
-  "inst",
-  "instag",
   "инстаграм",
   "whatsapp",
   "watsapp",
@@ -43,12 +39,28 @@ const SOCIAL_MARKERS = [
   "telgram",
   "telqram",
   "teleqram",
-  "viber",
-  "tiktok",
   "snapchat",
   "facebook",
   "messenger",
   "mesenger",
+] as const;
+
+const SOCIAL_WORD_PATTERNS = [
+  /\binstagram\b/,
+  /\binsta\b/,
+  /\binstagr\b/,
+  /\binstagrem\b/,
+  /\binstgram\b/,
+  /\big\b/,
+  /\bwhatsapp\b/,
+  /\bwatsapp\b/,
+  /\bvatsap\b/,
+  /\btelegram\b/,
+  /\btelgram\b/,
+  /\btelqram\b/,
+  /\bviber\b/,
+  /\btiktok\b/,
+  /\bwp\b/,
 ] as const;
 
 const HANDLE_RE = /(?:^|[\s([{"'])@([a-z0-9_.]{3,30})\b/i;
@@ -63,7 +75,9 @@ export const CONTACT_INFO_CHAT_WARNING =
   "Nömrə və ya sosial şəbəkə paylaşırsan. Yalnız tanıdığın və etibar etdiyin insanlara göndər. Davam edək?";
 
 function hasAzMobileDigits(digits: string): boolean {
-  const prefix = new RegExp(String.raw`^(?:994(?:${AZ_MOBILE_PREFIXES})|0(?:${AZ_MOBILE_PREFIXES})|(?:${AZ_MOBILE_PREFIXES}))\d{7}$`);
+  const prefix = new RegExp(
+    String.raw`^(?:994(?:${AZ_MOBILE_PREFIXES})|0(?:${AZ_MOBILE_PREFIXES})|(?:${AZ_MOBILE_PREFIXES}))\d{7}$`,
+  );
 
   for (let index = 0; index < digits.length; index += 1) {
     const chunk12 = digits.slice(index, index + 12);
@@ -90,12 +104,18 @@ function hasPhoneNumber(text: string): boolean {
     return true;
   }
 
-  return hasAzMobileDigits(extractDigits(text));
+  return hasAzMobileDigits(extractPhoneDigits(text));
 }
 
 function hasSocialMarker(text: string): boolean {
+  const normalized = normalizeModerationText(text);
   const compact = compactModerationText(text);
-  return SOCIAL_MARKERS.some((marker) => compact.includes(marker));
+
+  if (SOCIAL_COMPACT_MARKERS.some((marker) => compact.includes(marker))) {
+    return true;
+  }
+
+  return SOCIAL_WORD_PATTERNS.some((pattern) => pattern.test(normalized));
 }
 
 function hasExternalLink(text: string): boolean {
