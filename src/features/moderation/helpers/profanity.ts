@@ -82,6 +82,13 @@ export function containsProfanity(text: string): boolean {
     return false;
   }
 
+  const compact = normalized.replace(/\s+/g, "");
   const padded = ` ${normalized} `;
-  return PROFANITY_TERMS.some((term) => padded.includes(` ${term} `));
+
+  return PROFANITY_TERMS.some((term) => {
+    if (padded.includes(` ${term} `)) {
+      return true;
+    }
+    return term.length >= 5 && compact.includes(term);
+  });
 }

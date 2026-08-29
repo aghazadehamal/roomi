@@ -54,10 +54,10 @@ const TITLE_PLACEHOLDER: Record<ListingType, string> = {
 };
 
 const BODY_PLACEHOLDER: Record<ListingType, string> = {
-  [ListingType.HomeOffer]: "Evi, məhəlləni, şərtləri yaz. Telefon və Instagram yazma.",
-  [ListingType.RoomOffer]: "Otağı, evi və şərtləri yaz. Telefon və Instagram yazma.",
-  [ListingType.HomeSeek]: "Nə axtardığını və şərtləri yaz. Telefon və Instagram yazma.",
-  [ListingType.RoommateSeek]: "Özünü və kimi axtardığını yaz. Telefon və Instagram yazma.",
+  [ListingType.HomeOffer]: "Evi, məhəlləni, şərtləri yaz. Telefon, Instagram və kobud sözlər yazma.",
+  [ListingType.RoomOffer]: "Otağı, evi və şərtləri yaz. Telefon, Instagram və kobud sözlər yazma.",
+  [ListingType.HomeSeek]: "Nə axtardığını və şərtləri yaz. Telefon, Instagram və kobud sözlər yazma.",
+  [ListingType.RoommateSeek]: "Özünü və kimi axtardığını yaz. Telefon, Instagram və kobud sözlər yazma.",
 };
 
 export function ListingForm({
