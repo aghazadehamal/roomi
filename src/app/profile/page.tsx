@@ -1,10 +1,9 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { ensureCurrentProfile, nameFromAuthUser } from "@/features/auth/queries";
-import { listOwnListings, listSavedListings } from "@/features/listings/queries";
-import { OwnListings, SavedListings } from "@/features/listings/ui";
 import { getOwnProfile } from "@/features/profile/queries";
-import { ProfileForm, ProfileView } from "@/features/profile/ui";
+import { ProfileForm, ProfileListingsContent, ProfileListingsSkeleton, ProfileView } from "@/features/profile/ui";
 
 export default async function OwnProfilePage() {
   const ensured = await ensureCurrentProfile();
@@ -12,11 +11,7 @@ export default async function OwnProfilePage() {
     redirect("/login?next=/profile");
   }
 
-  const [profile, listings, savedListings] = await Promise.all([
-    getOwnProfile(),
-    listOwnListings(),
-    listSavedListings(),
-  ]);
+  const profile = await getOwnProfile();
 
   if (!profile) {
     return (
@@ -32,15 +27,6 @@ export default async function OwnProfilePage() {
   const name =
     profile.name.trim() || ensured.name || nameFromAuthUser(ensured.user);
   const viewProfile = { ...profile, name };
-  const activeListingCount = listings.filter((listing) => listing.status === "active").length;
-  const ownListingsCountLabel =
-    listings.length === 0
-      ? null
-      : activeListingCount === listings.length
-        ? `${activeListingCount} aktiv`
-        : activeListingCount === 0
-          ? `${listings.length} elan`
-          : `${activeListingCount} aktiv · ${listings.length} elan`;
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
@@ -49,31 +35,9 @@ export default async function OwnProfilePage() {
         isOwn
         extra={<ProfileForm defaultName={name} />}
       />
-      <section className="flex flex-col gap-4">
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <h2 className="font-heading text-2xl tracking-tight">Elanların</h2>
-            {listings.length > 0 ? (
-              <p className="mt-1 text-sm text-muted-foreground">
-                Redaktə, arxiv və silmək üçün elana daxil ol.
-              </p>
-            ) : null}
-          </div>
-          {ownListingsCountLabel ? (
-            <p className="text-sm text-muted-foreground">{ownListingsCountLabel}</p>
-          ) : null}
-        </div>
-        <OwnListings listings={listings} />
-      </section>
-      <section className="flex flex-col gap-4">
-        <div className="flex items-end justify-between gap-3">
-          <h2 className="font-heading text-2xl tracking-tight">Seçilmişlər</h2>
-          {savedListings.length > 0 ? (
-            <p className="text-sm text-muted-foreground">{savedListings.length} elan</p>
-          ) : null}
-        </div>
-        <SavedListings listings={savedListings} />
-      </section>
+      <Suspense fallback={<ProfileListingsSkeleton />}>
+        <ProfileListingsContent />
+      </Suspense>
     </div>
   );
 }

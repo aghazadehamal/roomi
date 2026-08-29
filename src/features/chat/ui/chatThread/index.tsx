@@ -121,33 +121,58 @@ export function ChatThread({
 
   useEffect(() => {
     const supabase = createClient();
-    const channel = supabase
-      .channel(`messages:${conversationId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload) => {
-          const next = fromRealtime(payload.new);
-          if (!next) {
-            return;
-          }
-          setMessages((current) => {
-            if (current.some((message) => message.id === next.id)) {
-              return current;
+    let active = true;
+    let channel = supabase.channel(`messages:${conversationId}`);
+
+    function subscribe() {
+      if (!active || document.visibilityState === "hidden") {
+        return;
+      }
+
+      channel = supabase
+        .channel(`messages:${conversationId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "messages",
+            filter: `conversation_id=eq.${conversationId}`,
+          },
+          (payload) => {
+            const next = fromRealtime(payload.new);
+            if (!next) {
+              return;
             }
-            return [...current, next];
-          });
-        },
-      )
-      .subscribe();
+            setMessages((current) => {
+              if (current.some((message) => message.id === next.id)) {
+                return current;
+              }
+              return [...current, next];
+            });
+          },
+        )
+        .subscribe();
+    }
+
+    function unsubscribe() {
+      void supabase.removeChannel(channel);
+    }
+
+    function onVisibilityChange() {
+      unsubscribe();
+      if (document.visibilityState === "visible") {
+        subscribe();
+      }
+    }
+
+    subscribe();
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
-      void supabase.removeChannel(channel);
+      active = false;
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      unsubscribe();
     };
   }, [conversationId]);
 

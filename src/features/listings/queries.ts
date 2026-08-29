@@ -11,6 +11,15 @@ import {
   type ListingFeedFilters,
 } from "@/features/listings/model";
 import { LISTING_FEED_PAGE_SIZE } from "@/features/listings/helpers/listingFeedPagination";
+import {
+  LISTING_DETAIL_SELECT,
+  LISTING_OWN_SELECT,
+  LISTING_SUMMARY_SELECT,
+  coverPhotoUrl,
+  normalizeNestedPhotos,
+  sortedListingPhotos,
+  type NestedListingPhoto,
+} from "@/features/listings/helpers/listingPhotoRows";
 import { ANY_DISTRICT, BAKU_CITY } from "@/features/listings/model/locations";
 import { createClient } from "@/lib/supabase/server";
 import { cache } from "react";
@@ -21,6 +30,20 @@ export type ListListingsResult = {
 };
 
 const MS_PER_DAY = 86_400_000;
+
+type ListingSummaryRow = {
+  id: string;
+  user_id: string;
+  title: string;
+  price: number;
+  city: string;
+  district: string;
+  rooms: number;
+  type: string;
+  housing_kind: string;
+  expires_at: string;
+  listing_photos: NestedListingPhoto | NestedListingPhoto[] | null;
+};
 
 function daysLeft(expiresAt: string): number {
   return Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / MS_PER_DAY));
@@ -42,28 +65,33 @@ function isHousingKind(value: string): value is ListingDetail["housingKind"] {
   return value === "apartment" || value === "house" || value === "any";
 }
 
-async function photosByListing(
-  listingIds: string[],
-): Promise<Map<string, { id: string; url: string }[]>> {
-  const byListing = new Map<string, { id: string; url: string }[]>();
-  if (listingIds.length === 0) {
-    return byListing;
+function mapSummaryRow(row: ListingSummaryRow): ListingSummary | null {
+  if (!isListingType(row.type) || !isHousingKind(row.housing_kind)) {
+    return null;
   }
 
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("listing_photos")
-    .select("id, listing_id, url, sort_order")
-    .in("listing_id", listingIds)
-    .order("sort_order", { ascending: true });
+  return {
+    id: row.id,
+    userId: row.user_id,
+    title: row.title,
+    priceAzn: row.price,
+    city: row.city,
+    district: row.district,
+    rooms: row.rooms,
+    type: row.type,
+    housingKind: row.housing_kind,
+    daysLeft: daysLeft(row.expires_at),
+    photoUrl: coverPhotoUrl(row.listing_photos),
+  };
+}
 
-  for (const row of data ?? []) {
-    const current = byListing.get(row.listing_id) ?? [];
-    current.push({ id: row.id, url: row.url });
-    byListing.set(row.listing_id, current);
-  }
-
-  return byListing;
+function mapSummaryRowFromData(row: Omit<ListingSummaryRow, "listing_photos"> & {
+  listing_photos: NestedListingPhoto | NestedListingPhoto[] | null;
+}): ListingSummary | null {
+  return mapSummaryRow({
+    ...row,
+    listing_photos: normalizeNestedPhotos(row.listing_photos),
+  });
 }
 
 export async function listListings(
@@ -77,7 +105,7 @@ export async function listListings(
   const supabase = await createClient();
   let query = supabase
     .from("listings")
-    .select("id, user_id, title, price, city, district, rooms, type, housing_kind, expires_at")
+    .select(LISTING_SUMMARY_SELECT)
     .eq("status", "active")
     .in("type", types);
 
@@ -122,30 +150,9 @@ export async function listListings(
 
   const hasMore = data.length > pageSize;
   const rows = hasMore ? data.slice(0, pageSize) : data;
-  const photos = await photosByListing(rows.map((row) => row.id));
-
   const listings = rows.flatMap((row) => {
-    if (!isListingType(row.type) || !isHousingKind(row.housing_kind)) {
-      return [];
-    }
-
-    const listingPhotos = photos.get(row.id) ?? [];
-
-    return [
-      {
-        id: row.id,
-        userId: row.user_id,
-        title: row.title,
-        priceAzn: row.price,
-        city: row.city,
-        district: row.district,
-        rooms: row.rooms,
-        type: row.type,
-        housingKind: row.housing_kind,
-        daysLeft: daysLeft(row.expires_at),
-        photoUrl: listingPhotos[0]?.url ?? null,
-      },
-    ];
+    const summary = mapSummaryRowFromData(row);
+    return summary ? [summary] : [];
   });
 
   return { listings, hasMore };
@@ -155,44 +162,45 @@ export const getListing = cache(async (id: string): Promise<ListingDetail | null
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select(
-      "id, user_id, title, body, price, city, district, rooms, type, gender_pref, housing_kind, expires_at, status",
-    )
+    .select(LISTING_DETAIL_SELECT)
     .eq("id", id)
     .maybeSingle();
 
+  if (error || !data) {
+    return null;
+  }
+
+  const row = data;
+
   if (
-    error ||
-    !data ||
-    !isListingType(data.type) ||
-    !isGenderPref(data.gender_pref) ||
-    !isHousingKind(data.housing_kind) ||
-    !isListingStatus(data.status)
+    !isListingType(row.type) ||
+    !isGenderPref(row.gender_pref) ||
+    !isHousingKind(row.housing_kind) ||
+    !isListingStatus(row.status)
   ) {
     return null;
   }
 
-  const photos = await photosByListing([data.id]);
-  const listingPhotos = photos.get(data.id) ?? [];
+  const listingPhotos = sortedListingPhotos(row.listing_photos);
   const photoUrls = listingPhotos.map((photo) => photo.url);
 
   return {
-    id: data.id,
-    userId: data.user_id,
-    title: data.title,
-    body: data.body,
-    priceAzn: data.price,
-    city: data.city,
-    district: data.district,
-    rooms: data.rooms,
-    type: data.type,
-    housingKind: data.housing_kind,
-    genderPref: data.gender_pref,
-    daysLeft: data.status === "active" ? daysLeft(data.expires_at) : 0,
+    id: row.id,
+    userId: row.user_id,
+    title: row.title,
+    body: row.body,
+    priceAzn: row.price,
+    city: row.city,
+    district: row.district,
+    rooms: row.rooms,
+    type: row.type,
+    housingKind: row.housing_kind,
+    genderPref: row.gender_pref,
+    daysLeft: row.status === "active" ? daysLeft(row.expires_at) : 0,
     photoUrl: photoUrls[0] ?? null,
     photoUrls,
     photos: listingPhotos,
-    status: data.status,
+    status: row.status,
   };
 });
 
@@ -202,7 +210,7 @@ export async function listActiveListingsByUser(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id, user_id, title, price, city, district, rooms, type, housing_kind, expires_at")
+    .select(LISTING_SUMMARY_SELECT)
     .eq("user_id", userId)
     .eq("status", "active")
     .order("published_at", { ascending: false });
@@ -211,30 +219,9 @@ export async function listActiveListingsByUser(
     return [];
   }
 
-  const photos = await photosByListing(data.map((row) => row.id));
-
   return data.flatMap((row) => {
-    if (!isListingType(row.type) || !isHousingKind(row.housing_kind)) {
-      return [];
-    }
-
-    const listingPhotos = photos.get(row.id) ?? [];
-
-    return [
-      {
-        id: row.id,
-        userId: row.user_id,
-        title: row.title,
-        priceAzn: row.price,
-        city: row.city,
-        district: row.district,
-        rooms: row.rooms,
-        type: row.type,
-        housingKind: row.housing_kind,
-        daysLeft: daysLeft(row.expires_at),
-        photoUrl: listingPhotos[0]?.url ?? null,
-      },
-    ];
+    const summary = mapSummaryRowFromData(row);
+    return summary ? [summary] : [];
   });
 }
 
@@ -268,15 +255,13 @@ export async function listOwnListings(): Promise<OwnListing[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id, user_id, title, price, city, district, rooms, type, housing_kind, expires_at, status")
+    .select(LISTING_OWN_SELECT)
     .eq("user_id", user.id)
     .order("published_at", { ascending: false });
 
   if (error || !data) {
     return [];
   }
-
-  const photos = await photosByListing(data.map((row) => row.id));
 
   return data.flatMap((row) => {
     if (
@@ -286,8 +271,6 @@ export async function listOwnListings(): Promise<OwnListing[]> {
     ) {
       return [];
     }
-
-    const listingPhotos = photos.get(row.id) ?? [];
 
     return [
       {
@@ -301,7 +284,7 @@ export async function listOwnListings(): Promise<OwnListing[]> {
         type: row.type,
         housingKind: row.housing_kind,
         daysLeft: row.status === "active" ? daysLeft(row.expires_at) : 0,
-        photoUrl: listingPhotos[0]?.url ?? null,
+        photoUrl: coverPhotoUrl(row.listing_photos),
         status: row.status,
       },
     ];
@@ -364,7 +347,7 @@ export async function listSavedListings(): Promise<SavedListing[]> {
   const listingIds = savedRows.map((row) => row.listing_id);
   const { data, error } = await supabase
     .from("listings")
-    .select("id, user_id, title, price, city, district, rooms, type, housing_kind, expires_at, status")
+    .select(LISTING_OWN_SELECT)
     .in("id", listingIds);
 
   if (error || !data) {
@@ -372,7 +355,6 @@ export async function listSavedListings(): Promise<SavedListing[]> {
   }
 
   const order = new Map(listingIds.map((id, index) => [id, index]));
-  const photos = await photosByListing(listingIds);
 
   return data
     .flatMap((row) => {
@@ -383,8 +365,6 @@ export async function listSavedListings(): Promise<SavedListing[]> {
       ) {
         return [];
       }
-
-      const listingPhotos = photos.get(row.id) ?? [];
 
       return [
         {
@@ -398,7 +378,7 @@ export async function listSavedListings(): Promise<SavedListing[]> {
           type: row.type,
           housingKind: row.housing_kind,
           daysLeft: row.status === "active" ? daysLeft(row.expires_at) : 0,
-          photoUrl: listingPhotos[0]?.url ?? null,
+          photoUrl: coverPhotoUrl(row.listing_photos),
           status: row.status,
         },
       ];

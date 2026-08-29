@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { getCurrentUser } from "@/features/auth/queries";
 import { CHAT_MESSAGE_PAGE_SIZE } from "@/features/chat/helpers/chatPagination";
 import type {
@@ -168,7 +170,7 @@ async function listConversationsFallback(
     });
 }
 
-export async function listConversations(): Promise<ConversationSummary[]> {
+export const listConversations = cache(async (): Promise<ConversationSummary[]> => {
   const user = await getCurrentUser();
   if (!user) {
     return [];
@@ -191,7 +193,7 @@ export async function listConversations(): Promise<ConversationSummary[]> {
     listingActive: row.listing_active,
     unread: row.unread,
   }));
-}
+});
 
 export async function listMyConversationIds(): Promise<string[]> {
   const user = await getCurrentUser();

@@ -116,7 +116,15 @@ export type Database = {
           created_at?: string
         }
         Update: Partial<ListingRow>
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "listing_photos_listing_id_fkey"
+            columns: ["id"]
+            isOneToOne: false
+            referencedRelation: "listing_photos"
+            referencedColumns: ["listing_id"]
+          },
+        ]
       }
       listing_photos: {
         Row: ListingPhotoRow
@@ -127,7 +135,15 @@ export type Database = {
           sort_order?: number
         }
         Update: Partial<ListingPhotoRow>
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "listing_photos_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: ConversationRow

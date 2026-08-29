@@ -2,6 +2,7 @@ import { getCurrentUser, nameFromAuthUser } from "@/features/auth/queries";
 import { type Profile } from "@/features/profile/model";
 import { profileIdSchema } from "@/features/profile/schema";
 import { createClient } from "@/lib/supabase/server";
+import { cache } from "react";
 
 function toProfile(row: {
   id: string;
@@ -17,7 +18,7 @@ function toProfile(row: {
   };
 }
 
-export async function getProfile(id: string): Promise<Profile | null> {
+export const getProfile = cache(async (id: string): Promise<Profile | null> => {
   const parsed = profileIdSchema.safeParse(id);
   if (!parsed.success) {
     return null;
@@ -35,7 +36,7 @@ export async function getProfile(id: string): Promise<Profile | null> {
   }
 
   return toProfile(data);
-}
+});
 
 export async function getOwnProfile(): Promise<Profile | null> {
   const user = await getCurrentUser();
