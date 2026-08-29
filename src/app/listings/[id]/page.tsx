@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { MessageCircle, PencilLine } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/features/auth/queries";
-import { StartChatButton } from "@/features/chat/ui";
 import { listingJsonLd, listingMetadata } from "@/features/listings/helpers/listingSeo";
 import { getListing } from "@/features/listings/queries";
 import {
@@ -14,12 +14,12 @@ import {
   ListingDetailView,
   RestoreListingButton,
 } from "@/features/listings/ui";
-import { getBlockStatus } from "@/features/moderation/actions";
-import { ModerationActions } from "@/features/moderation/ui";
-import { SaveListingButton } from "@/features/listings/ui";
-import { isListingSaved } from "@/features/listings/queries";
-import { profileDisplayName } from "@/features/profile/model";
-import { getProfile } from "@/features/profile/queries";
+import {
+  ListingGuestAction,
+  ListingGuestActionFallback,
+} from "@/features/listings/ui/listingDetail/listingGuestAction";
+import { ListingGuestExtras } from "@/features/listings/ui/listingDetail/listingGuestExtras";
+import { ListingOwnerLink } from "@/features/listings/ui/listingDetail/listingOwnerLink";
 import { cn } from "@/lib/utils";
 
 type ListingPageProps = {
@@ -43,14 +43,8 @@ export default async function ListingPage({ params }: ListingPageProps) {
     notFound();
   }
 
-  const isGuest = Boolean(user && user.id !== listing.userId);
-  const [owner, blockStatus, saved] = await Promise.all([
-    getProfile(listing.userId),
-    isGuest ? getBlockStatus(listing.userId) : Promise.resolve(null),
-    isGuest ? isListingSaved(listing.id) : Promise.resolve(false),
-  ]);
-
   const isOwner = user?.id === listing.userId;
+  const isGuest = Boolean(user && !isOwner);
   const jsonLd = listingJsonLd(listing);
   const editLink = (
     <Link
@@ -88,25 +82,20 @@ export default async function ListingPage({ params }: ListingPageProps) {
           )
         }
         ownerLink={
-          owner ? (
-            <Link
-              href={`/profile/${listing.userId}`}
-              className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+          !isOwner ? (
+            <Suspense
+              fallback={<div className="h-4 w-40 animate-pulse rounded bg-muted" />}
             >
-              {profileDisplayName(owner.name)} — profilə bax
-            </Link>
+              <ListingOwnerLink ownerId={listing.userId} />
+            </Suspense>
           ) : null
         }
         action={
-          user ? (
-            blockStatus?.blocked ? (
-              <p className="text-sm text-muted-foreground">
-                Bu istifadəçi ilə mesajlaşmaq olmaz.
-              </p>
-            ) : (
-              <StartChatButton listingId={listing.id} />
-            )
-          ) : (
+          isGuest ? (
+            <Suspense fallback={<ListingGuestActionFallback />}>
+              <ListingGuestAction listingId={listing.id} ownerId={listing.userId} />
+            </Suspense>
+          ) : !isOwner ? (
             <Link
               href={`/login?next=/listings/${listing.id}`}
               className={cn(buttonVariants({ size: "lg" }), "inline-flex w-fit gap-2")}
@@ -114,18 +103,13 @@ export default async function ListingPage({ params }: ListingPageProps) {
               <MessageCircle className="size-5" aria-hidden />
               Mesaj yaz
             </Link>
-          )
+          ) : null
         }
       />
-      {user && !isOwner ? (
-        <SaveListingButton listingId={listing.id} initialSaved={saved} />
-      ) : null}
-      {user && !isOwner ? (
-        <ModerationActions
-          targetUserId={listing.userId}
-          listingId={listing.id}
-          blockedByMe={blockStatus?.blockedByMe}
-        />
+      {isGuest ? (
+        <Suspense fallback={null}>
+          <ListingGuestExtras listingId={listing.id} ownerId={listing.userId} />
+        </Suspense>
       ) : null}
     </div>
   );

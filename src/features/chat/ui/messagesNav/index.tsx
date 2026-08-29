@@ -30,10 +30,6 @@ export function MessagesNav({
   }, [initialUnread]);
 
   useEffect(() => {
-    void getUnreadCount().then(setUnread);
-  }, []);
-
-  useEffect(() => {
     const supabase = createClient();
     let active = true;
 

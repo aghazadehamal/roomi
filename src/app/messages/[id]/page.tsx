@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { getConversationThread } from "@/features/chat/queries";
 import { ChatThread } from "@/features/chat/ui";
-import { getBlockStatus } from "@/features/moderation/actions";
+import { getBlockStatus } from "@/features/moderation/queries";
 
 type MessageThreadPageProps = {
   params: Promise<{ id: string }>;

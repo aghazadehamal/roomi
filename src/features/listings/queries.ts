@@ -15,12 +15,14 @@ import {
   LISTING_DETAIL_SELECT,
   LISTING_OWN_SELECT,
   LISTING_SUMMARY_SELECT,
+  applyCoverPhotoLimit,
   coverPhotoUrl,
   normalizeNestedPhotos,
   sortedListingPhotos,
   type NestedListingPhoto,
 } from "@/features/listings/helpers/listingPhotoRows";
 import { ANY_DISTRICT, BAKU_CITY } from "@/features/listings/model/locations";
+import { getBlockStatus } from "@/features/moderation/queries";
 import { createClient } from "@/lib/supabase/server";
 import { cache } from "react";
 
@@ -135,6 +137,8 @@ export async function listListings(
     query = query.in("housing_kind", [filters.housingKind, "any"]);
   }
 
+  query = applyCoverPhotoLimit(query);
+
   const { data, error } = await query
     .order("published_at", { ascending: false })
     .range(offset, offset + pageSize);
@@ -208,12 +212,13 @@ export async function listActiveListingsByUser(
   userId: string,
 ): Promise<ListingSummary[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("listings")
-    .select(LISTING_SUMMARY_SELECT)
-    .eq("user_id", userId)
-    .eq("status", "active")
-    .order("published_at", { ascending: false });
+  const { data, error } = await applyCoverPhotoLimit(
+    supabase
+      .from("listings")
+      .select(LISTING_SUMMARY_SELECT)
+      .eq("user_id", userId)
+      .eq("status", "active"),
+  ).order("published_at", { ascending: false });
 
   if (error || !data) {
     return [];
@@ -253,11 +258,9 @@ export async function listOwnListings(): Promise<OwnListing[]> {
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("listings")
-    .select(LISTING_OWN_SELECT)
-    .eq("user_id", user.id)
-    .order("published_at", { ascending: false });
+  const { data, error } = await applyCoverPhotoLimit(
+    supabase.from("listings").select(LISTING_OWN_SELECT).eq("user_id", user.id),
+  ).order("published_at", { ascending: false });
 
   if (error || !data) {
     return [];
@@ -327,6 +330,28 @@ export async function isListingSaved(listingId: string): Promise<boolean> {
   return Boolean(data);
 }
 
+export const getListingGuestState = cache(
+  async (
+    listingId: string,
+    ownerId: string,
+  ): Promise<{
+    blockStatus: { blocked: boolean; blockedByMe: boolean };
+    saved: boolean;
+  } | null> => {
+    const user = await getCurrentUser();
+    if (!user || user.id === ownerId) {
+      return null;
+    }
+
+    const [blockStatus, saved] = await Promise.all([
+      getBlockStatus(ownerId),
+      isListingSaved(listingId),
+    ]);
+
+    return { blockStatus, saved };
+  },
+);
+
 export async function listSavedListings(): Promise<SavedListing[]> {
   const user = await getCurrentUser();
   if (!user) {
@@ -345,10 +370,9 @@ export async function listSavedListings(): Promise<SavedListing[]> {
   }
 
   const listingIds = savedRows.map((row) => row.listing_id);
-  const { data, error } = await supabase
-    .from("listings")
-    .select(LISTING_OWN_SELECT)
-    .in("id", listingIds);
+  const { data, error } = await applyCoverPhotoLimit(
+    supabase.from("listings").select(LISTING_OWN_SELECT).in("id", listingIds),
+  );
 
   if (error || !data) {
     return [];

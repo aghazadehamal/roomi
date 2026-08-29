@@ -203,7 +203,6 @@ export async function sendMessage(input: unknown): Promise<ChatActionResult> {
 
   revalidatePath("/messages");
   revalidatePath(`/messages/${conversation.id}`);
-  revalidatePath("/", "layout");
   return { ok: true, id: message.id };
 }
 
@@ -240,7 +239,6 @@ export async function markConversationRead(conversationId: string): Promise<void
 
   await supabase.from("conversations").update(patch).eq("id", conversation.id);
   revalidatePath("/messages");
-  revalidatePath("/", "layout");
 }
 
 export async function getUnreadCount(): Promise<number> {

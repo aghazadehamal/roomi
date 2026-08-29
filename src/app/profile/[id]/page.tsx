@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/features/auth/queries";
 import { listActiveListingsByUser } from "@/features/listings/queries";
 import { ListingCard } from "@/features/listings/ui";
-import { getBlockStatus } from "@/features/moderation/actions";
+import { getBlockStatus } from "@/features/moderation/queries";
 import { ModerationActions } from "@/features/moderation/ui";
 import { getProfile } from "@/features/profile/queries";
 import { ProfileView } from "@/features/profile/ui";

@@ -1,3 +1,6 @@
+import { cache } from "react";
+
+import { getCurrentUser } from "@/features/auth/queries";
 import { createClient } from "@/lib/supabase/server";
 
 export async function areUsersBlocked(
@@ -39,3 +42,21 @@ export async function isBlockedByCurrentUser(
 
   return Boolean(data);
 }
+
+export const getBlockStatus = cache(
+  async (
+    targetUserId: string,
+  ): Promise<{ blocked: boolean; blockedByMe: boolean }> => {
+    const user = await getCurrentUser();
+    if (!user || user.id === targetUserId) {
+      return { blocked: false, blockedByMe: false };
+    }
+
+    const [blocked, blockedByMe] = await Promise.all([
+      areUsersBlocked(user.id, targetUserId),
+      isBlockedByCurrentUser(user.id, targetUserId),
+    ]);
+
+    return { blocked, blockedByMe };
+  },
+);

@@ -214,6 +214,23 @@ export async function listMyConversationIds(): Promise<string[]> {
   return data.map((row) => row.id);
 }
 
+export const getMessagingContext = cache(async (): Promise<{
+  conversationIds: string[];
+  unreadCount: number;
+}> => {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { conversationIds: [], unreadCount: 0 };
+  }
+
+  const [conversationIds, unreadCount] = await Promise.all([
+    listMyConversationIds(),
+    countUnreadMessages(),
+  ]);
+
+  return { conversationIds, unreadCount };
+});
+
 export async function getConversationThread(
   conversationId: string,
 ): Promise<ConversationThread | null> {

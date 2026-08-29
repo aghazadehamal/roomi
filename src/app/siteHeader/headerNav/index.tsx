@@ -3,7 +3,7 @@ import { LogIn, MessageCircle, User } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/features/auth/queries";
-import { listMyConversationIds } from "@/features/chat/queries";
+import { getMessagingContext } from "@/features/chat/queries";
 import { MessagesNav } from "@/features/chat/ui";
 import { cn } from "@/lib/utils";
 
@@ -18,11 +18,15 @@ export async function HeaderNav() {
   const user = await getCurrentUser();
 
   if (user) {
-    const conversationIds = await listMyConversationIds();
+    const { conversationIds, unreadCount } = await getMessagingContext();
 
     return (
       <>
-        <MessagesNav userId={user.id} conversationIds={conversationIds} />
+        <MessagesNav
+          userId={user.id}
+          conversationIds={conversationIds}
+          initialUnread={unreadCount}
+        />
         <Link href="/profile" aria-label="Profil" className={navIconClass}>
           <User className="size-5" aria-hidden />
           <span className="hidden sm:inline">Profil</span>

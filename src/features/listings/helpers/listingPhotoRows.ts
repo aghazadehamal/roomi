@@ -30,6 +30,23 @@ export function coverPhotoUrl(
   return sortedListingPhotos(photos)[0]?.url ?? null;
 }
 
+export const LISTING_PHOTOS_FOREIGN_TABLE = "listing_photos";
+
+export function applyCoverPhotoLimit<T extends {
+  order: (
+    column: string,
+    options?: { referencedTable?: string; ascending?: boolean },
+  ) => T;
+  limit: (count: number, options?: { referencedTable?: string }) => T;
+}>(query: T): T {
+  return query
+    .order("sort_order", {
+      referencedTable: LISTING_PHOTOS_FOREIGN_TABLE,
+      ascending: true,
+    })
+    .limit(1, { referencedTable: LISTING_PHOTOS_FOREIGN_TABLE });
+}
+
 export const LISTING_SUMMARY_SELECT =
   "id, user_id, title, price, city, district, rooms, type, housing_kind, expires_at, listing_photos ( url, sort_order )";
 

@@ -165,28 +165,3 @@ export async function assertCanMessage(
   }
   return null;
 }
-
-export async function getBlockStatus(
-  targetUserId: string,
-): Promise<{ blocked: boolean; blockedByMe: boolean }> {
-  const user = await getCurrentUser();
-  if (!user || user.id === targetUserId) {
-    return { blocked: false, blockedByMe: false };
-  }
-
-  const [blocked, blockedByMe] = await Promise.all([
-    areUsersBlocked(user.id, targetUserId),
-    (async () => {
-      const supabase = await createClient();
-      const { data } = await supabase
-        .from("blocks")
-        .select("blocker_id")
-        .eq("blocker_id", user.id)
-        .eq("blocked_id", targetUserId)
-        .maybeSingle();
-      return Boolean(data);
-    })(),
-  ]);
-
-  return { blocked, blockedByMe };
-}
