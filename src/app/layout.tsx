@@ -3,6 +3,7 @@ import { Fraunces, Nunito } from "next/font/google";
 
 import { SiteHeader } from "@/app/siteHeader";
 import { Toaster } from "@/components/ui/sonner";
+import { getSiteUrl } from "@/lib/siteUrl";
 
 import "./globals.css";
 
@@ -19,6 +20,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: "kirayesin.az",
   description: "Kirayə və otaq yoldaşı elanları",
 };
