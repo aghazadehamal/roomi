@@ -22,24 +22,24 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "Kirayə ev və otaq yoldaşı elanları",
+    default: "Azərbaycanda kirayə ev və otaq platforması",
     template: "%s | kirayesin.az",
   },
   description:
-    "Azərbaycan üzrə kirayə ev, otaq və otaq yoldaşı elanları. Bakı və digər şəhərlər. Nömrə paylaşılmır — birbaşa yazış.",
+    "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın.",
   openGraph: {
     type: "website",
     locale: "az_AZ",
     siteName: "kirayesin.az",
-    title: "Kirayə ev və otaq yoldaşı elanları | kirayesin.az",
+    title: "Azərbaycanda kirayə ev və otaq platforması | kirayesin.az",
     description:
-      "Azərbaycan üzrə kirayə ev, otaq və otaq yoldaşı elanları. Nömrə paylaşılmır — birbaşa yazış.",
+      "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kirayə ev və otaq yoldaşı elanları | kirayesin.az",
+    title: "Azərbaycanda kirayə ev və otaq platforması | kirayesin.az",
     description:
-      "Azərbaycan üzrə kirayə ev, otaq və otaq yoldaşı elanları. Nömrə paylaşılmır — birbaşa yazış.",
+      "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın.",
   },
 };
 

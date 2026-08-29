@@ -22,15 +22,21 @@ export function homeFeedMetadata(tab: FeedTab, filters: ListingFeedFilters): Met
   const locationParts = [filters.city, filters.district].filter(Boolean);
   const location = locationParts.length > 0 ? locationParts.join(", ") : "Azərbaycan";
 
+  const isDefaultLocation = locationParts.length === 0;
+
   const title =
     tab === FeedTab.Seek
       ? `Ev və otaq axtarışı — ${location}`
-      : `Kirayə ev və otaq elanları — ${location}`;
+      : isDefaultLocation
+        ? "Azərbaycanda kirayə ev və otaq platforması"
+        : `Kirayə ev və otaq elanları — ${location}`;
 
   const description =
     tab === FeedTab.Seek
-      ? `${location} üzrə ev, otaq və otaq yoldaşı axtarış elanları. Nömrə paylaşılmır — birbaşa yazış.`
-      : `${location} üzrə kirayə ev, otaq və otaq yoldaşı elanları. Nömrə paylaşılmır — birbaşa yazış.`;
+      ? `${location} üzrə ev, otaq və otaq yoldaşı axtarış elanları. Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın.`
+      : isDefaultLocation
+        ? "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın."
+        : `${location} üzrə kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — birbaşa platformada yazışın.`;
 
   return {
     title,
