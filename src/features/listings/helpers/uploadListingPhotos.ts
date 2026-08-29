@@ -7,10 +7,17 @@ import {
 import { compressListingPhoto } from "@/features/listings/helpers/compressListingPhoto";
 import { createClient } from "@/lib/supabase/client";
 
+function listingPhotoObjectPath(
+  userId: string,
+  listingId: string,
+  extension: "jpg" | "png" | "webp",
+): string {
+  return `${userId}/${listingId}/${crypto.randomUUID()}.${extension}`;
+}
+
 export async function uploadListingPhotos(
   listingId: string,
   files: File[],
-  startOrder: number,
 ): Promise<{ error: string } | { urls: string[] }> {
   if (files.length === 0) {
     return { urls: [] };
@@ -37,13 +44,13 @@ export async function uploadListingPhotos(
 
   const urls: string[] = [];
 
-  for (const [index, file] of compressed.entries()) {
+  for (const file of compressed) {
     const extension = listingPhotoExtension(file.type);
     if (!extension) {
       return { error: "Yalnız JPG, PNG və ya WebP yüklə." };
     }
 
-    const path = `${user.id}/${listingId}/${startOrder + index}.${extension}`;
+    const path = listingPhotoObjectPath(user.id, listingId, extension);
     const { error } = await supabase.storage.from(LISTING_PHOTO_BUCKET).upload(path, file, {
       cacheControl: "3600",
       upsert: false,

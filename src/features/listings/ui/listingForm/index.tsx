@@ -129,10 +129,10 @@ export function ListingForm({
       return;
     }
     if (!listingId && photos.length > 0 && listingShowsPhotos(values.type)) {
-      const uploaded = await uploadListingPhotos(result.id, photos, 0);
+      const uploaded = await uploadListingPhotos(result.id, photos);
       if ("error" in uploaded) {
         toast.warning(
-          "Elan yaradıldı, amma şəkillər yüklənmədi. Redaktə səhifəsindən yenidən əlavə et.",
+          `Elan yaradıldı, amma şəkillər yüklənmədi: ${uploaded.error}`,
         );
         router.push(`/listings/${result.id}`);
         router.refresh();
@@ -140,9 +140,9 @@ export function ListingForm({
       }
     }
     if (listingId && photos.length > 0 && listingShowsPhotos(values.type)) {
-      const uploaded = await uploadListingPhotos(listingId, photos, savedPhotos.length);
+      const uploaded = await uploadListingPhotos(listingId, photos);
       if ("error" in uploaded) {
-        toast.warning("Elan yeniləndi, amma yeni şəkillər yüklənmədi. Yenidən yoxla.");
+        toast.warning(`Elan yeniləndi, amma yeni şəkillər yüklənmədi: ${uploaded.error}`);
         router.push(`/listings/${result.id}`);
         router.refresh();
         return;
