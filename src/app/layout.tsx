@@ -21,8 +21,26 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
-  title: "kirayesin.az",
-  description: "Kirayə və otaq yoldaşı elanları",
+  title: {
+    default: "Kirayə ev və otaq yoldaşı elanları",
+    template: "%s | kirayesin.az",
+  },
+  description:
+    "Azərbaycan üzrə kirayə ev, otaq və otaq yoldaşı elanları. Bakı və digər şəhərlər. Nömrə paylaşılmır — birbaşa yazış.",
+  openGraph: {
+    type: "website",
+    locale: "az_AZ",
+    siteName: "kirayesin.az",
+    title: "Kirayə ev və otaq yoldaşı elanları | kirayesin.az",
+    description:
+      "Azərbaycan üzrə kirayə ev, otaq və otaq yoldaşı elanları. Nömrə paylaşılmır — birbaşa yazış.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kirayə ev və otaq yoldaşı elanları | kirayesin.az",
+    description:
+      "Azərbaycan üzrə kirayə ev, otaq və otaq yoldaşı elanları. Nömrə paylaşılmır — birbaşa yazış.",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

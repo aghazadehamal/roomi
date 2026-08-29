@@ -1,14 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/features/auth/queries";
 import { StartChatButton } from "@/features/chat/ui";
+import { listingJsonLd, listingMetadata } from "@/features/listings/helpers/listingSeo";
 import { listingShowsPhotos } from "@/features/listings/model";
 import { getListing } from "@/features/listings/queries";
 import {
   AddListingPhotos,
   ArchiveListingButton,
+  JsonLd,
   ListingDetailView,
   RestoreListingButton,
 } from "@/features/listings/ui";
@@ -20,6 +23,15 @@ type ListingPageProps = {
   params: Promise<{ id: string }>;
 };
 
+export async function generateMetadata({ params }: ListingPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const listing = await getListing(id);
+  if (!listing) {
+    return { title: "Elan tapılmadı" };
+  }
+  return listingMetadata(listing);
+}
+
 export default async function ListingPage({ params }: ListingPageProps) {
   const { id } = await params;
   const [listing, user] = await Promise.all([getListing(id), getCurrentUser()]);
@@ -30,6 +42,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
   }
 
   const isOwner = user?.id === listing.userId;
+  const jsonLd = listingJsonLd(listing);
   const editLink = (
     <Link
       href={`/listings/${listing.id}/edit`}
@@ -41,6 +54,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+      {jsonLd ? <JsonLd data={jsonLd} /> : null}
       <ListingDetailView
         listing={listing}
         isOwner={isOwner}

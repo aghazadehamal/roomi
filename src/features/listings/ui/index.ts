@@ -1,3 +1,4 @@
+export { JsonLd } from "./jsonLd";
 export { ListingCard } from "./listingCard";
 export { ListingFeed } from "./listingFeed";
 export { ListingForm } from "./listingForm";

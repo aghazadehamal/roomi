@@ -1,4 +1,7 @@
+import type { Metadata } from "next";
+
 import { parseListingFeedFilters } from "@/features/listings/helpers/listingFeedFilters";
+import { homeFeedMetadata } from "@/features/listings/helpers/listingSeo";
 import { feedTabFromParam } from "@/features/listings/helpers/newListing";
 import { listListings } from "@/features/listings/queries";
 import { ListingFeed } from "@/features/listings/ui";
@@ -13,6 +16,13 @@ type HomePageProps = {
     housingKind?: string;
   }>;
 };
+
+export async function generateMetadata({ searchParams }: HomePageProps): Promise<Metadata> {
+  const params = await searchParams;
+  const tab = feedTabFromParam(params.tab);
+  const filters = parseListingFeedFilters(params);
+  return homeFeedMetadata(tab, filters);
+}
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
