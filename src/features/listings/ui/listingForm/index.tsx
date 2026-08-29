@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { CirclePlus, Save } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createListing, updateListing } from "@/features/listings/actions";
+import { ACTIVE_LISTING_LIMIT_MESSAGE } from "@/features/listings/helpers/activeListingLimit";
 import { MAX_LISTING_PHOTOS } from "@/features/listings/helpers/listingPhoto";
 import { uploadListingPhotos } from "@/features/listings/helpers/uploadListingPhotos";
 import {
@@ -66,6 +68,7 @@ export function ListingForm({
   defaultValues,
   tab: tabProp,
   loginNext = "/listings/new",
+  activeListing = null,
 }: ListingFormProps) {
   const router = useRouter();
   const isEdit = Boolean(listingId);
@@ -125,7 +128,9 @@ export function ListingForm({
     if (!listingId && photos.length > 0 && listingShowsPhotos(values.type)) {
       const uploaded = await uploadListingPhotos(result.id, photos, 0);
       if ("error" in uploaded) {
-        toast.error(uploaded.error);
+        toast.warning(
+          "Elan yaradıldı, amma şəkillər yüklənmədi. Elanın səhifəsindən yenidən əlavə et.",
+        );
         router.push(`/listings/${result.id}`);
         router.refresh();
         return;
@@ -141,6 +146,21 @@ export function ListingForm({
       onSubmit={form.handleSubmit(onSubmit)}
       className="flex flex-col gap-5 rounded-3xl bg-card p-8 shadow-sm ring-1 ring-border md:p-10"
     >
+      {activeListing && !isEdit ? (
+        <div
+          className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm"
+          role="status"
+        >
+          <p>{ACTIVE_LISTING_LIMIT_MESSAGE}</p>
+          <Link
+            href={`/listings/${activeListing.id}`}
+            className="mt-2 inline-block font-medium text-primary underline-offset-4 hover:underline"
+          >
+            «{activeListing.title}» elanına bax
+          </Link>
+        </div>
+      ) : null}
+
       <fieldset className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <legend className="mb-2 text-sm font-medium">Elan növü</legend>
         {types.map((type) => (
@@ -365,6 +385,11 @@ export function ListingForm({
       ) : null}
 
       <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>
+        {isEdit ? (
+          <Save className="size-5" aria-hidden />
+        ) : (
+          <CirclePlus className="size-5" aria-hidden />
+        )}
         {form.formState.isSubmitting
           ? isEdit
             ? "Yadda saxlanır…"

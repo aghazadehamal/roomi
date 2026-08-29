@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ export function StartChatButton({ listingId }: StartChatButtonProps) {
   return (
     <div className="flex flex-col gap-3">
       <Button type="button" size="lg" className="w-fit" disabled={pending} onClick={onStart}>
+        <MessageCircle className="size-5" aria-hidden />
         {pending ? "Açılır…" : "Mesaj yaz"}
       </Button>
     </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { MessageCircle, PencilLine } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/features/auth/queries";
@@ -58,9 +59,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
   const editLink = (
     <Link
       href={`/listings/${listing.id}/edit`}
-      className={cn(buttonVariants({ size: "lg" }), "inline-flex w-full sm:w-auto")}
+      className={cn(buttonVariants({ size: "lg" }), "inline-flex w-full gap-2 sm:w-auto")}
     >
-      Elanı dəyiş
+      <PencilLine className="size-5" aria-hidden />
+      Elanı redaktə et
     </Link>
   );
 
@@ -73,9 +75,12 @@ export default async function ListingPage({ params }: ListingPageProps) {
         ownerExtra={
           listing.status === "active" ? (
             <>
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 {editLink}
-                <ArchiveListingButton listingId={listing.id} />
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <ArchiveListingButton listingId={listing.id} />
+                  <ArchiveListingButton listingId={listing.id} mode="delete" />
+                </div>
               </div>
               {listingShowsPhotos(listing.type) ? (
                 <AddListingPhotos listingId={listing.id} photos={listing.photos} />
@@ -110,8 +115,9 @@ export default async function ListingPage({ params }: ListingPageProps) {
           ) : (
             <Link
               href={`/login?next=/listings/${listing.id}`}
-              className={cn(buttonVariants({ size: "lg" }), "inline-flex w-fit")}
+              className={cn(buttonVariants({ size: "lg" }), "inline-flex w-fit gap-2")}
             >
+              <MessageCircle className="size-5" aria-hidden />
               Mesaj yaz
             </Link>
           )

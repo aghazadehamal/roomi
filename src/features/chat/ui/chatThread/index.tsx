@@ -5,6 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirmDialog";
 import { Input } from "@/components/ui/input";
 import { markConversationRead, sendMessage } from "@/features/chat/actions";
 import type { ChatMessage } from "@/features/chat/model";
@@ -58,9 +59,12 @@ export function ChatThread({
 }: ChatThreadProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [pending, setPending] = useState(false);
+  const [contactConfirmOpen, setContactConfirmOpen] = useState(false);
+  const [pendingBody, setPendingBody] = useState("");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const stickToBottomRef = useRef(true);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     setMessages(initialMessages);
@@ -143,29 +147,17 @@ export function ChatThread({
     };
   }, [conversationId]);
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const body = String(formData.get("body") ?? "").trim();
-    if (!body) {
-      return;
-    }
-
-    if (containsContactInfo(body) && !window.confirm(CONTACT_INFO_CHAT_WARNING)) {
-      return;
-    }
-
+  async function deliverMessage(body: string): Promise<boolean> {
     setPending(true);
     const result = await sendMessage({ conversationId, body });
     setPending(false);
 
     if (!result.ok) {
       toast.error(result.error);
-      return;
+      return false;
     }
 
-    form.reset();
+    formRef.current?.reset();
     stickToBottomRef.current = true;
     setMessages((current) => {
       if (current.some((message) => message.id === result.id)) {
@@ -181,6 +173,37 @@ export function ChatThread({
         },
       ];
     });
+    return true;
+  }
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const body = String(formData.get("body") ?? "").trim();
+    if (!body) {
+      return;
+    }
+
+    if (containsContactInfo(body)) {
+      setPendingBody(body);
+      setContactConfirmOpen(true);
+      return;
+    }
+
+    await deliverMessage(body);
+  }
+
+  async function onConfirmContactMessage() {
+    if (!pendingBody) {
+      return;
+    }
+    const sent = await deliverMessage(pendingBody);
+    if (!sent) {
+      return;
+    }
+    setContactConfirmOpen(false);
+    setPendingBody("");
   }
 
   return (
@@ -236,13 +259,32 @@ export function ChatThread({
           Bu istifadəçi ilə mesajlaşmaq olmaz.
         </p>
       ) : (
-        <form onSubmit={onSubmit} className="shrink-0 flex gap-2 border-t border-border/70 bg-background pt-3">
+        <form
+          ref={formRef}
+          onSubmit={onSubmit}
+          className="shrink-0 flex gap-2 border-t border-border/70 bg-background pt-3"
+        >
           <Input name="body" placeholder="Mesaj yazın…" autoComplete="off" disabled={pending} />
           <Button type="submit" size="lg" disabled={pending}>
             Göndər
           </Button>
         </form>
       )}
+      <ConfirmDialog
+        open={contactConfirmOpen}
+        onOpenChange={(open) => {
+          if (!open && !pending) {
+            setContactConfirmOpen(false);
+            setPendingBody("");
+          }
+        }}
+        title="Əlaqə məlumatı paylaşırsan?"
+        description={CONTACT_INFO_CHAT_WARNING}
+        confirmLabel={pending ? "Göndərilir…" : "Davam et"}
+        cancelLabel="Ləğv et"
+        pending={pending}
+        onConfirm={onConfirmContactMessage}
+      />
     </div>
   );
 }

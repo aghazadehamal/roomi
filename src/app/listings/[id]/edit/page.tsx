@@ -76,7 +76,7 @@ export default async function EditListingPage({ params }: EditListingPageProps) 
         <Link href={`/listings/${listing.id}`} className="text-sm text-muted-foreground">
           Elana qayıt
         </Link>
-        <h1 className="mt-3 font-heading text-4xl tracking-tight">Elanı dəyiş</h1>
+        <h1 className="mt-3 font-heading text-4xl tracking-tight">Elanı redaktə et</h1>
       </div>
       <ListingForm
         isAuthenticated

@@ -4,6 +4,7 @@ import {
   newListingHref,
 } from "@/features/listings/helpers/newListing";
 import { FeedTab } from "@/features/listings/model";
+import { getOwnActiveListing } from "@/features/listings/queries";
 import { ListingForm } from "@/features/listings/ui";
 
 type NewListingPageProps = {
@@ -14,6 +15,7 @@ export default async function NewListingPage({ searchParams }: NewListingPagePro
   const user = await getCurrentUser();
   const { tab: tabParam } = await searchParams;
   const tab = feedTabFromParam(tabParam);
+  const activeListing = user ? await getOwnActiveListing() : null;
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-6">
@@ -24,6 +26,7 @@ export default async function NewListingPage({ searchParams }: NewListingPagePro
         isAuthenticated={Boolean(user)}
         tab={tab}
         loginNext={newListingHref(tab)}
+        activeListing={activeListing}
       />
     </div>
   );

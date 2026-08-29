@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { X } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirmDialog";
 import { deleteListingPhoto } from "@/features/listings/actions";
 import { MAX_LISTING_PHOTOS } from "@/features/listings/helpers/listingPhoto";
 import { uploadListingPhotos } from "@/features/listings/helpers/uploadListingPhotos";
@@ -19,6 +20,7 @@ export function AddListingPhotos({ listingId, photos }: AddListingPhotosProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [pending, setPending] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [photoToDelete, setPhotoToDelete] = useState<string | null>(null);
 
   async function onUpload() {
     if (files.length === 0) {
@@ -36,19 +38,19 @@ export function AddListingPhotos({ listingId, photos }: AddListingPhotosProps) {
     router.refresh();
   }
 
-  async function onDelete(photoId: string) {
-    const confirmed = window.confirm("Bu şəkli silmək istəyirsən?");
-    if (!confirmed) {
+  async function onConfirmDelete() {
+    if (!photoToDelete) {
       return;
     }
-    setDeletingId(photoId);
-    const result = await deleteListingPhoto(listingId, photoId);
+    setDeletingId(photoToDelete);
+    const result = await deleteListingPhoto(listingId, photoToDelete);
     setDeletingId(null);
     if (!result.ok) {
       toast.error(result.error);
       return;
     }
     toast.success("Şəkil silindi");
+    setPhotoToDelete(null);
     router.refresh();
   }
 
@@ -66,7 +68,7 @@ export function AddListingPhotos({ listingId, photos }: AddListingPhotosProps) {
                 className="absolute top-1 right-1 cursor-pointer rounded-full bg-card/90 p-1 text-foreground disabled:cursor-not-allowed"
                 disabled={deletingId === photo.id}
                 onClick={() => {
-                  void onDelete(photo.id);
+                  setPhotoToDelete(photo.id);
                 }}
                 aria-label="Şəkli sil"
               >
@@ -93,9 +95,25 @@ export function AddListingPhotos({ listingId, photos }: AddListingPhotosProps) {
             void onUpload();
           }}
         >
+          <Upload className="size-5" aria-hidden />
           {pending ? "Yüklənir…" : "Şəkilləri yüklə"}
         </Button>
       ) : null}
+      <ConfirmDialog
+        open={photoToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && deletingId === null) {
+            setPhotoToDelete(null);
+          }
+        }}
+        title="Şəkli sil?"
+        description="Bu şəkil elandan silinəcək. Geri qaytarmaq olmaz."
+        confirmLabel={deletingId ? "Silinir…" : "Sil"}
+        cancelLabel="Ləğv et"
+        destructive
+        pending={deletingId !== null}
+        onConfirm={onConfirmDelete}
+      />
     </div>
   );
 }

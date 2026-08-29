@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ export function RestoreListingButton({ listingId }: RestoreListingButtonProps) {
           void onRestore();
         }}
       >
+        <RotateCcw className="size-5" aria-hidden />
         {pending ? "Aktiv edilir…" : "Yenidən aktiv et"}
       </Button>
       <p className="max-w-md text-sm text-muted-foreground">

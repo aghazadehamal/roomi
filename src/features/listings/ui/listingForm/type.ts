@@ -1,4 +1,5 @@
 import type { FeedTab } from "@/features/listings/model";
+import type { OwnActiveListing } from "@/features/listings/helpers/activeListingLimit";
 import type { ListingFormValues } from "@/features/listings/schema";
 
 export type ListingFormProps = {
@@ -7,4 +8,5 @@ export type ListingFormProps = {
   defaultValues?: ListingFormValues;
   tab?: FeedTab;
   loginNext?: string;
+  activeListing?: OwnActiveListing | null;
 };

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { ensureCurrentProfile } from "@/features/auth/queries";
+import { ACTIVE_LISTING_LIMIT_MESSAGE } from "@/features/listings/helpers/activeListingLimit";
 import { LISTING_PHOTO_BUCKET, MAX_LISTING_PHOTOS, listingPhotoStoragePath } from "@/features/listings/helpers/listingPhoto";
 import { LISTING_TTL_DAYS, listingFormSchema, listingIdSchema, listingPhotoIdSchema } from "@/features/listings/schema";
 import { getSupabaseEnv } from "@/lib/supabase/env";
@@ -53,7 +54,7 @@ export async function createListing(input: unknown): Promise<CreateListingResult
     if (error.code === "23505") {
       return {
         ok: false,
-        error: "Artıq aktiv elanın var. Eyni anda yalnız bir elan ola bilər.",
+        error: ACTIVE_LISTING_LIMIT_MESSAGE,
       };
     }
     if (error.code === "23503") {

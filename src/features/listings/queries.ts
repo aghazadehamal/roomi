@@ -222,6 +222,27 @@ export async function listActiveListingsByUser(
   });
 }
 
+export async function getOwnActiveListing(): Promise<{ id: string; title: string } | null> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return null;
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("listings")
+    .select("id, title")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return { id: data.id, title: data.title };
+}
+
 export async function listOwnListings(): Promise<OwnListing[]> {
   const user = await getCurrentUser();
   if (!user) {

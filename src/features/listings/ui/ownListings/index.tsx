@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Plus } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { newListingHref } from "@/features/listings/helpers/newListing";
@@ -20,8 +21,9 @@ export function OwnListings({ listings }: OwnListingsProps) {
         <p className="text-muted-foreground">Hələ elanın yoxdur.</p>
         <Link
           href={newListingHref(FeedTab.Offer)}
-          className={cn(buttonVariants({ size: "lg" }), "w-fit")}
+          className={cn(buttonVariants({ size: "lg" }), "w-fit gap-2")}
         >
+          <Plus className="size-5" aria-hidden />
           Elan yerləşdir
         </Link>
       </div>
