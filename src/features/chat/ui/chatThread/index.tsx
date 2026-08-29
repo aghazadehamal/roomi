@@ -49,9 +49,6 @@ export function ChatThread({
   peerName,
   peerHref,
   listingId,
-  listingLabel,
-  listingHref,
-  listingActive,
   initialMessages,
   blocked = false,
   blockedByMe = false,
@@ -162,17 +159,6 @@ export function ChatThread({
           blockedByMe={blockedByMe}
         />
       </div>
-      <Link
-        href={listingHref}
-        className="rounded-2xl bg-card px-5 py-4 shadow-sm ring-1 ring-border"
-      >
-        {listingLabel}
-        {listingActive ? null : (
-          <span className="mt-1 block text-sm text-muted-foreground">
-            Bu elan artıq aktiv deyil.
-          </span>
-        )}
-      </Link>
       <div className="flex flex-1 flex-col gap-3 px-1 py-6">
         {messages.length === 0 ? (
           <p className="py-8 text-center text-muted-foreground">

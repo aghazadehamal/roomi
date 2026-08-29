@@ -7,9 +7,6 @@ export type ChatThreadProps = {
   peerName: string;
   peerHref: string;
   listingId: string;
-  listingLabel: string;
-  listingHref: string;
-  listingActive: boolean;
   initialMessages: ChatMessage[];
   blocked?: boolean;
   blockedByMe?: boolean;

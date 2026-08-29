@@ -28,9 +28,6 @@ export default async function MessageThreadPage({
       peerName={thread.peerName}
       peerHref={`/profile/${thread.peerId}`}
       listingId={thread.listingId}
-      listingLabel={thread.listingTitle}
-      listingHref={`/listings/${thread.listingId}`}
-      listingActive={thread.listingActive}
       initialMessages={thread.messages}
       blocked={blockStatus.blocked}
       blockedByMe={blockStatus.blockedByMe}
