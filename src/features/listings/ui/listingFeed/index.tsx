@@ -49,7 +49,7 @@ export function ListingFeed({
       {hasListings ? (
         <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {listings.map((listing) => (
-            <li key={listing.id}>
+            <li key={listing.id} className="h-full">
               <ListingCard
                 listing={listing}
                 saved={savedSet.has(listing.id)}

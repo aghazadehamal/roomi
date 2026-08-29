@@ -51,7 +51,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         {listings.length > 0 ? (
           <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {listings.map((listing) => (
-              <li key={listing.id}>
+              <li key={listing.id} className="h-full">
                 <ListingCard listing={listing} />
               </li>
             ))}
