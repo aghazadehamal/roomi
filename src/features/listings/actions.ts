@@ -311,6 +311,71 @@ export async function archiveListing(listingId: string): Promise<CreateListingRe
   return { ok: true, id: listing.id };
 }
 
+export async function deleteListing(listingId: string): Promise<CreateListingResult> {
+  const parsed = listingIdSchema.safeParse({ listingId });
+  if (!parsed.success) {
+    return { ok: false, error: "Elan tapılmadı." };
+  }
+
+  const ensured = await ensureCurrentProfile();
+  if (!ensured.user) {
+    return { ok: false, error: "Silmək üçün giriş et." };
+  }
+
+  const userId = ensured.user.id;
+
+  const supabase = await createClient();
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("id, user_id, status")
+    .eq("id", parsed.data.listingId)
+    .maybeSingle();
+
+  if (!listing || listing.user_id !== userId) {
+    return { ok: false, error: "Bu elanı silə bilməzsən." };
+  }
+
+  if (listing.status === "closed") {
+    return { ok: false, error: "Bu elanı silmək olmaz." };
+  }
+
+  const { data: photos } = await supabase
+    .from("listing_photos")
+    .select("url")
+    .eq("listing_id", listing.id);
+
+  const { url: supabaseUrl } = getSupabaseEnv();
+  const storagePaths = (photos ?? [])
+    .map((photo) => listingPhotoStoragePath(photo.url, supabaseUrl, userId, listing.id))
+    .filter((path): path is string => path !== null);
+
+  if (storagePaths.length > 0) {
+    await supabase.storage.from(LISTING_PHOTO_BUCKET).remove(storagePaths);
+  }
+
+  const { error } = await supabase
+    .from("listings")
+    .delete()
+    .eq("id", listing.id)
+    .eq("user_id", userId);
+
+  if (error) {
+    if (error.code === "42501") {
+      return {
+        ok: false,
+        error: "Cədvələ icazə yoxdur. SQL Editor-də 20260825000014_listing_delete.sql faylını Run et.",
+      };
+    }
+    return { ok: false, error: "Elan silinmədi. Bir az sonra yenə yoxla." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/listings/new");
+  revalidatePath("/messages");
+  revalidatePath("/profile");
+  return { ok: true, id: listing.id };
+}
+
 export async function restoreListing(listingId: string): Promise<CreateListingResult> {
   const parsed = listingIdSchema.safeParse({ listingId });
   if (!parsed.success) {

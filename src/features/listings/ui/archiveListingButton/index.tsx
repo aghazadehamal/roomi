@@ -7,16 +7,16 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirmDialog";
-import { archiveListing } from "@/features/listings/actions";
+import { archiveListing, deleteListing } from "@/features/listings/actions";
 import { cn } from "@/lib/utils";
 
 import type { ArchiveListingButtonProps } from "./type";
 
 const ARCHIVE_DESCRIPTION =
-  "Elan silinməyəcək, arxivə düşəcək. Söhbətlər qalacaq. Sonra yeni elan yerləşdirə bilərsən.";
+  "Elan feed-də görünməyəcək, amma profilində qalacaq. Sonra yenidən aktiv edə bilərsən. Söhbətlər qalacaq.";
 
 const DELETE_DESCRIPTION =
-  "Elan arxivə düşəcək və feed-də görünməyəcək. Söhbətlər qalacaq. Sonra yeni elan yerləşdirə bilərsən.";
+  "Elan tamamilə silinəcək. Geri qaytarmaq olmaz. Bu elandakı söhbətlər də silinəcək.";
 
 export function ArchiveListingButton({
   listingId,
@@ -29,7 +29,9 @@ export function ArchiveListingButton({
 
   async function onConfirm() {
     setPending(true);
-    const result = await archiveListing(listingId);
+    const result = isDelete
+      ? await deleteListing(listingId)
+      : await archiveListing(listingId);
     if (!result.ok) {
       toast.error(result.error);
       setPending(false);

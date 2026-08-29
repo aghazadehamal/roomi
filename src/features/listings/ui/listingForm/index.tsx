@@ -41,6 +41,7 @@ import {
 import { ListingPhotoPicker } from "@/features/listings/ui/listingPhotoPicker";
 import { cn } from "@/lib/utils";
 
+import { ListingFormPhotos } from "./listingFormPhotos";
 import type { ListingFormProps } from "./type";
 
 const fieldClass =
@@ -66,6 +67,7 @@ export function ListingForm({
   isAuthenticated,
   listingId,
   defaultValues,
+  existingPhotos = [],
   tab: tabProp,
   loginNext = "/listings/new",
   activeListing = null,
@@ -77,6 +79,7 @@ export function ListingForm({
     feedTabForListingType(defaultValues?.type ?? ListingType.HomeOffer);
   const types = tab === FeedTab.Seek ? SEEK_TYPES : OFFER_TYPES;
   const [photos, setPhotos] = useState<File[]>([]);
+  const [savedPhotos, setSavedPhotos] = useState(existingPhotos);
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(listingFormSchema),
     defaultValues: defaultValues ?? {
@@ -129,8 +132,17 @@ export function ListingForm({
       const uploaded = await uploadListingPhotos(result.id, photos, 0);
       if ("error" in uploaded) {
         toast.warning(
-          "Elan yaradıldı, amma şəkillər yüklənmədi. Elanın səhifəsindən yenidən əlavə et.",
+          "Elan yaradıldı, amma şəkillər yüklənmədi. Redaktə səhifəsindən yenidən əlavə et.",
         );
+        router.push(`/listings/${result.id}`);
+        router.refresh();
+        return;
+      }
+    }
+    if (listingId && photos.length > 0 && listingShowsPhotos(values.type)) {
+      const uploaded = await uploadListingPhotos(listingId, photos, savedPhotos.length);
+      if ("error" in uploaded) {
+        toast.warning("Elan yeniləndi, amma yeni şəkillər yüklənmədi. Yenidən yoxla.");
         router.push(`/listings/${result.id}`);
         router.refresh();
         return;
@@ -378,10 +390,14 @@ export function ListingForm({
           <p className="text-sm font-medium">Şəkillər</p>
           <ListingPhotoPicker files={photos} maxCount={MAX_LISTING_PHOTOS} onChange={setPhotos} />
         </div>
-      ) : listingShowsPhotos(selectedType) && isEdit ? (
-        <p className="text-sm text-muted-foreground">
-          Şəkilləri elanın səhifəsindən əlavə edə bilərsən.
-        </p>
+      ) : listingShowsPhotos(selectedType) && isEdit && listingId ? (
+        <ListingFormPhotos
+          listingId={listingId}
+          photos={savedPhotos}
+          onPhotosChange={setSavedPhotos}
+          newFiles={photos}
+          onNewFilesChange={setPhotos}
+        />
       ) : null}
 
       <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>

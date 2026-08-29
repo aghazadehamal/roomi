@@ -83,6 +83,7 @@ export default async function EditListingPage({ params }: EditListingPageProps) 
         listingId={listing.id}
         tab={feedTabForListingType(listing.type)}
         defaultValues={toListingFormValues(listing)}
+        existingPhotos={listing.photos}
       />
     </div>
   );

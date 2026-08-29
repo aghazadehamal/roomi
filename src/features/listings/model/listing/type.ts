@@ -1,3 +1,5 @@
+import { ANY_DISTRICT, isBakuCity } from "../locations";
+
 export enum FeedTab {
   Offer = "offer",
   Seek = "seek",
@@ -102,4 +104,35 @@ export function listingPriceText(priceAzn: number): string {
 
 export function listingRoomsText(rooms: number): string {
   return rooms <= 0 ? "Fərqi yoxdur" : `${rooms} otaq`;
+}
+
+type ListingProfileMetaInput = {
+  type: ListingType;
+  city: string;
+  district: string;
+  priceAzn: number;
+  status: ListingDetail["status"];
+};
+
+function listingProfileLocation(city: string, district: string): string {
+  if (!isBakuCity(city)) {
+    return city;
+  }
+  if (district === ANY_DISTRICT) {
+    return city;
+  }
+  return district;
+}
+
+export function listingProfileMeta(listing: ListingProfileMetaInput): string {
+  const status = listing.status === "active" ? "Aktiv" : "Arxiv";
+  const location = listingProfileLocation(listing.city, listing.district);
+  const isSeek = SEEK_TYPES.includes(listing.type);
+  const pricePart = isSeek
+    ? listing.priceAzn <= 0
+      ? "Büdcə: fərqi yoxdur"
+      : `Büdcə: ${listing.priceAzn} AZN`
+    : listingPriceText(listing.priceAzn);
+
+  return `${status} · ${location} · ${pricePart}`;
 }

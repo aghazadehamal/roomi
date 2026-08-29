@@ -16,7 +16,7 @@ export function ProfileView({ profile, isOwn, extra }: ProfileViewProps) {
   return (
     <div className="flex flex-col gap-6 rounded-3xl bg-card px-8 py-10 shadow-sm ring-1 ring-border">
       <div className="flex items-start gap-5">
-        <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 font-heading text-2xl text-primary">
+        <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-primary font-heading text-2xl text-primary-foreground">
           {profileInitials(storedName)}
         </div>
         <div className="min-w-0 flex-1">
@@ -24,17 +24,16 @@ export function ProfileView({ profile, isOwn, extra }: ProfileViewProps) {
           <p className="mt-2 text-muted-foreground">
             {[profile.city, joined].filter((item) => item.length > 0).join(" · ")}
           </p>
-          {isOwn ? (
+          {isOwn && storedName.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">
-              {storedName.length > 0
-                ? "Bu sənin profilindir."
-                : "Bu ad elanlarda və mesajlarda görünəcək."}
+              Bu ad elanlarda və mesajlarda görünəcək.
             </p>
-          ) : (
+          ) : null}
+          {!isOwn ? (
             <p className="mt-3 text-sm text-muted-foreground">
               Mesaj yazmaq üçün elana gir.
             </p>
-          )}
+          ) : null}
         </div>
       </div>
       {extra}

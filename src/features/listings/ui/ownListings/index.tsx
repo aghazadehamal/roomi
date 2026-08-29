@@ -3,15 +3,10 @@ import { Plus } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { newListingHref } from "@/features/listings/helpers/newListing";
-import {
-  FeedTab,
-  LISTING_TYPE_LABELS,
-  listingLocationText,
-  listingPriceText,
-  listingShowsPhotos,
-} from "@/features/listings/model";
+import { FeedTab } from "@/features/listings/model";
 import { cn } from "@/lib/utils";
 
+import { ProfileListingCard } from "../profileListingCard";
 import type { OwnListingsProps } from "./type";
 
 export function OwnListings({ listings }: OwnListingsProps) {
@@ -34,30 +29,7 @@ export function OwnListings({ listings }: OwnListingsProps) {
     <ul className="flex flex-col gap-3">
       {listings.map((listing) => (
         <li key={listing.id}>
-          <Link
-            href={`/listings/${listing.id}`}
-            className="flex gap-4 overflow-hidden rounded-2xl bg-card shadow-sm ring-1 ring-border"
-          >
-            {listing.photoUrl ? (
-              <div className="size-24 shrink-0 bg-muted">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={listing.photoUrl} alt="" className="size-full object-cover" />
-              </div>
-            ) : listingShowsPhotos(listing.type) ? (
-              <div className="size-24 shrink-0 bg-muted" />
-            ) : null}
-            <span className="flex min-w-0 flex-1 flex-col justify-center px-5 py-4">
-              <span className="text-sm font-medium text-primary">
-                {LISTING_TYPE_LABELS[listing.type]}
-              </span>
-              <span className="mt-1 font-medium">{listing.title}</span>
-              <span className="mt-1 text-sm text-muted-foreground">
-                {listing.status === "active" ? "Aktiv" : "Arxiv"} ·{" "}
-                {listingLocationText(listing.city, listing.district)} ·{" "}
-                {listingPriceText(listing.priceAzn)}
-              </span>
-            </span>
-          </Link>
+          <ProfileListingCard listing={listing} sideAction="manage" />
         </li>
       ))}
     </ul>

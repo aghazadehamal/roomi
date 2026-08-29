@@ -7,10 +7,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/features/auth/queries";
 import { StartChatButton } from "@/features/chat/ui";
 import { listingJsonLd, listingMetadata } from "@/features/listings/helpers/listingSeo";
-import { listingShowsPhotos } from "@/features/listings/model";
 import { getListing } from "@/features/listings/queries";
 import {
-  AddListingPhotos,
   ArchiveListingButton,
   JsonLd,
   ListingDetailView,
@@ -82,14 +80,12 @@ export default async function ListingPage({ params }: ListingPageProps) {
                   <ArchiveListingButton listingId={listing.id} mode="delete" />
                 </div>
               </div>
-              {listingShowsPhotos(listing.type) ? (
-                <AddListingPhotos listingId={listing.id} photos={listing.photos} />
-              ) : null}
             </>
           ) : (
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               {editLink}
               <RestoreListingButton listingId={listing.id} />
+              <ArchiveListingButton listingId={listing.id} mode="delete" />
             </div>
           )
         }

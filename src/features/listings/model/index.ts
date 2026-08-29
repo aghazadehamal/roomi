@@ -11,6 +11,7 @@ export {
   listingShowsPhotos,
   listingShowsRooms,
   listingPriceText,
+  listingProfileMeta,
   listingRoomsText,
   type HousingKind,
   type ListingDetail,
