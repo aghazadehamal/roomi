@@ -198,6 +198,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      count_unread_messages: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: Record<string, never>
     CompositeTypes: Record<string, never>

@@ -193,12 +193,18 @@ export async function countUnreadMessages(): Promise<number> {
   }
 
   const supabase = await createClient();
-  const { data: conversations, error } = await supabase
+  const { data, error } = await supabase.rpc("count_unread_messages");
+
+  if (!error && typeof data === "number") {
+    return data;
+  }
+
+  const { data: conversations, error: conversationsError } = await supabase
     .from("conversations")
     .select("id, guest_id, listing_owner_id, guest_last_read_at, owner_last_read_at")
     .or(`listing_owner_id.eq.${user.id},guest_id.eq.${user.id}`);
 
-  if (error || !conversations || conversations.length === 0) {
+  if (conversationsError || !conversations || conversations.length === 0) {
     return 0;
   }
 

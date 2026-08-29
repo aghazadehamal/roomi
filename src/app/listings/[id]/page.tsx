@@ -38,19 +38,17 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
 export default async function ListingPage({ params }: ListingPageProps) {
   const { id } = await params;
   const [listing, user] = await Promise.all([getListing(id), getCurrentUser()]);
-  const owner = listing ? await getProfile(listing.userId) : null;
-  const blockStatus =
-    listing && user && user.id !== listing.userId
-      ? await getBlockStatus(listing.userId)
-      : null;
-  const saved =
-    listing && user && user.id !== listing.userId
-      ? await isListingSaved(listing.id)
-      : false;
 
   if (!listing) {
     notFound();
   }
+
+  const isGuest = Boolean(user && user.id !== listing.userId);
+  const [owner, blockStatus, saved] = await Promise.all([
+    getProfile(listing.userId),
+    isGuest ? getBlockStatus(listing.userId) : Promise.resolve(null),
+    isGuest ? isListingSaved(listing.id) : Promise.resolve(false),
+  ]);
 
   const isOwner = user?.id === listing.userId;
   const jsonLd = listingJsonLd(listing);
