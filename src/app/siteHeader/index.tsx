@@ -22,10 +22,10 @@ export async function SiteHeader() {
     <header className="sticky top-0 z-10 border-b border-border/70 bg-card/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 md:px-10 md:py-4">
         <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground sm:size-11">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground sm:size-12">
             <svg
               viewBox="0 0 24 24"
-              className="size-4 sm:size-5"
+              className="size-5 sm:size-6"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.8"
