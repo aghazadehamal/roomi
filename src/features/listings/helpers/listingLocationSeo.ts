@@ -66,24 +66,6 @@ export function districtKirayeUrl(district: BakuDistrict): string {
   return `${getSiteUrl()}${districtKirayePath(district)}`;
 }
 
-export const POPULAR_KIRAYE_CITIES: AzCity[] = [
-  "Bakı",
-  "Sumqayıt",
-  "Gəncə",
-  "Lənkəran",
-  "Mingəçevir",
-  "Şəki",
-];
-
-export const POPULAR_KIRAYE_DISTRICTS: BakuDistrict[] = [
-  "Yasamal",
-  "Nəsimi",
-  "Nərimanov",
-  "Xətai",
-  "Nizami",
-  "Səbail",
-];
-
 export function allCityKirayePaths(): string[] {
   return AZ_CITIES.map((city) => cityKirayePath(city));
 }

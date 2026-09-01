@@ -7,5 +7,4 @@ export type ListingFeedShellProps = {
   children: ReactNode;
   heading?: string;
   intro?: string;
-  showSeoLinks?: boolean;
 };
