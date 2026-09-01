@@ -10,12 +10,12 @@ import {
 } from "@/features/chat/queries";
 import type { ChatMessage } from "@/features/chat/model";
 import {
-  NEW_CONVERSATION_DAILY_CAP,
   markConversationReadSchema,
   sendMessageSchema,
   startConversationSchema,
 } from "@/features/chat/schema";
 import { assertCanMessage } from "@/features/moderation/actions";
+import { newConversationsDailyCap } from "@/lib/productLimits";
 import { createClient } from "@/lib/supabase/server";
 
 export type ChatActionResult =
@@ -89,24 +89,27 @@ export async function startConversation(listingId: string): Promise<ChatActionRe
     return { ok: false, error: "Bu elan artıq aktiv deyil." };
   }
 
-  const { count, error: countError } = await supabase
-    .from("conversations")
-    .select("id", { count: "exact", head: true })
-    .eq("guest_id", user.id)
-    .gte("created_at", bakuDayStartIso());
+  const dailyCap = newConversationsDailyCap();
+  if (dailyCap !== null) {
+    const { count, error: countError } = await supabase
+      .from("conversations")
+      .select("id", { count: "exact", head: true })
+      .eq("guest_id", user.id)
+      .gte("created_at", bakuDayStartIso());
 
-  if (countError) {
-    const granted = grantError(countError.code);
-    if (granted) {
-      return { ok: false, error: granted };
+    if (countError) {
+      const granted = grantError(countError.code);
+      if (granted) {
+        return { ok: false, error: granted };
+      }
     }
-  }
 
-  if ((count ?? 0) >= NEW_CONVERSATION_DAILY_CAP) {
-    return {
-      ok: false,
-      error: "Bu gün 5 yeni söhbət limitin dolub. Mövcud söhbətlərə cavab yaza bilərsən.",
-    };
+    if ((count ?? 0) >= dailyCap) {
+      return {
+        ok: false,
+        error: `Bu gün ${dailyCap} yeni söhbət limitin dolub. Mövcud söhbətlərə cavab yaza bilərsən.`,
+      };
+    }
   }
 
   const { data: created, error } = await supabase

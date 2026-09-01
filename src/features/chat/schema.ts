@@ -2,8 +2,6 @@ import { z } from "zod";
 
 import { PROFANITY_ERROR, containsProfanity } from "@/features/moderation/helpers/profanity";
 
-export const NEW_CONVERSATION_DAILY_CAP = 5;
-
 export const startConversationSchema = z.object({
   listingId: z.string().uuid(),
 });

@@ -11,8 +11,9 @@ import {
   type ListingFeedFilters,
   type ListingSummary,
 } from "@/features/listings/model";
-import { listListings } from "@/features/listings/queries";
+import { getOwnActiveListing, listListings } from "@/features/listings/queries";
 import { getSupabaseEnv } from "@/lib/supabase/env";
+import { isActiveListingLimitEnabled } from "@/lib/productLimits";
 import { createClient } from "@/lib/supabase/server";
 
 type ListingRevalidateScopes = {
@@ -87,6 +88,14 @@ export async function createListing(input: unknown): Promise<CreateListingResult
   ).toISOString();
 
   const supabase = await createClient();
+
+  if (isActiveListingLimitEnabled()) {
+    const activeListing = await getOwnActiveListing();
+    if (activeListing) {
+      return { ok: false, error: ACTIVE_LISTING_LIMIT_MESSAGE };
+    }
+  }
+
   const { data, error } = await supabase
     .from("listings")
     .insert({
@@ -107,7 +116,7 @@ export async function createListing(input: unknown): Promise<CreateListingResult
     .single();
 
   if (error) {
-    if (error.code === "23505") {
+    if (error.code === "23505" && isActiveListingLimitEnabled()) {
       return {
         ok: false,
         error: ACTIVE_LISTING_LIMIT_MESSAGE,
@@ -472,6 +481,16 @@ export async function restoreListing(listingId: string): Promise<CreateListingRe
     return { ok: false, error: "Bu elanı aktiv etmək olmaz." };
   }
 
+  if (isActiveListingLimitEnabled()) {
+    const activeListing = await getOwnActiveListing();
+    if (activeListing && activeListing.id !== listing.id) {
+      return {
+        ok: false,
+        error: "Artıq aktiv elanın var. Əvvəlcə onu arxivə sal.",
+      };
+    }
+  }
+
   const now = Date.now();
   const { error } = await supabase
     .from("listings")
@@ -484,7 +503,7 @@ export async function restoreListing(listingId: string): Promise<CreateListingRe
     .eq("user_id", ensured.user.id);
 
   if (error) {
-    if (error.code === "23505") {
+    if (error.code === "23505" && isActiveListingLimitEnabled()) {
       return {
         ok: false,
         error: "Artıq aktiv elanın var. Əvvəlcə onu arxivə sal.",
