@@ -1,8 +1,9 @@
 import { Suspense } from "react";
 
 import { parseListingFeedFilters } from "@/features/listings/helpers/listingFeedFilters";
-import { homeFeedMetadata } from "@/features/listings/helpers/listingSeo";
+import { homeFeedMetadata, siteJsonLd } from "@/features/listings/helpers/listingSeo";
 import { feedTabFromParam } from "@/features/listings/helpers/newListing";
+import { JsonLd } from "@/features/listings/ui";
 import {
   ListingFeedContent,
   ListingFeedGridSkeleton,
@@ -35,10 +36,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const filters = parseListingFeedFilters(params);
 
   return (
-    <ListingFeedShell tab={tab} filters={filters}>
-      <Suspense fallback={<ListingFeedGridSkeleton />}>
-        <ListingFeedContent tab={tab} filters={filters} />
-      </Suspense>
-    </ListingFeedShell>
+    <>
+      <JsonLd data={siteJsonLd()} />
+      <ListingFeedShell tab={tab} filters={filters}>
+        <Suspense fallback={<ListingFeedGridSkeleton />}>
+          <ListingFeedContent tab={tab} filters={filters} />
+        </Suspense>
+      </ListingFeedShell>
+    </>
   );
 }

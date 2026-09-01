@@ -5,4 +5,7 @@ export type ListingFeedShellProps = {
   tab: FeedTab;
   filters: ListingFeedFilters;
   children: ReactNode;
+  heading?: string;
+  intro?: string;
+  showSeoLinks?: boolean;
 };

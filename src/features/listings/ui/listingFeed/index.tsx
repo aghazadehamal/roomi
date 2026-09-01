@@ -7,19 +7,22 @@ import { newListingHref } from "@/features/listings/helpers/newListing";
 import { cn } from "@/lib/utils";
 
 import { ListingFilters } from "./listingFilters";
+import { ListingSeoLinks } from "./listingSeoLinks";
 import type { ListingFeedShellProps } from "./type";
 
-export function ListingFeedShell({ tab, filters, children }: ListingFeedShellProps) {
+export function ListingFeedShell({
+  tab,
+  filters,
+  children,
+  heading = "Azərbaycanda kirayə ev və otaq platforması",
+  intro = "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.",
+  showSeoLinks = true,
+}: ListingFeedShellProps) {
   return (
     <div className="flex flex-1 flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="font-heading text-3xl tracking-tight md:text-4xl">
-          Azərbaycanda kirayə ev və otaq platforması
-        </h1>
-        <p className="max-w-2xl text-base text-muted-foreground md:text-lg">
-          Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları.
-          Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.
-        </p>
+        <h1 className="font-heading text-3xl tracking-tight md:text-4xl">{heading}</h1>
+        <p className="max-w-2xl text-base text-muted-foreground md:text-lg">{intro}</p>
       </header>
       <ListingFilters
         tab={tab}
@@ -35,6 +38,7 @@ export function ListingFeedShell({ tab, filters, children }: ListingFeedShellPro
         }
       />
       {children}
+      {showSeoLinks ? <ListingSeoLinks /> : null}
     </div>
   );
 }

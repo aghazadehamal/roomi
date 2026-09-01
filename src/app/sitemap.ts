@@ -1,5 +1,9 @@
 import type { MetadataRoute } from "next";
 
+import {
+  allCityKirayePaths,
+  allDistrictKirayePaths,
+} from "@/features/listings/helpers/listingLocationSeo";
 import { getSiteUrl } from "@/lib/siteUrl";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -14,6 +18,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "hourly",
       priority: 1,
     },
+    ...allCityKirayePaths().map((path) => ({
+      url: `${siteUrl}${path}`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.9,
+    })),
+    ...allDistrictKirayePaths().map((path) => ({
+      url: `${siteUrl}${path}`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.85,
+    })),
   ];
 
   try {

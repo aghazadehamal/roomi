@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { listingFeedHref } from "@/features/listings/helpers/listingFeedFilters";
 import {
   FeedTab,
   LISTING_TYPE_LABELS,
@@ -9,6 +10,37 @@ import {
   listingPriceText,
 } from "@/features/listings/model";
 import { getSiteUrl } from "@/lib/siteUrl";
+
+function feedCanonicalUrl(tab: FeedTab, filters: ListingFeedFilters): string {
+  const path = listingFeedHref(tab, filters);
+  return path === "/" ? getSiteUrl() : `${getSiteUrl()}${path}`;
+}
+
+export function siteJsonLd(): Record<string, unknown> {
+  const siteUrl = getSiteUrl();
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        url: siteUrl,
+        name: "kirayesin.az",
+        description:
+          "Azərbaycanda kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.",
+        inLanguage: "az",
+      },
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}/#organization`,
+        name: "kirayesin.az",
+        url: siteUrl,
+        logo: `${siteUrl}/icon.png`,
+      },
+    ],
+  };
+}
 
 function truncate(text: string, max: number): string {
   const trimmed = text.trim();
@@ -38,17 +70,20 @@ export function homeFeedMetadata(tab: FeedTab, filters: ListingFeedFilters): Met
         ? "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla."
         : `${location} üzrə kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.`;
 
+  const canonical = feedCanonicalUrl(tab, filters);
+
   return {
     title,
     description,
     openGraph: {
       title,
       description,
-      url: getSiteUrl(),
+      url: canonical,
       type: "website",
+      locale: "az_AZ",
     },
     alternates: {
-      canonical: getSiteUrl(),
+      canonical,
     },
   };
 }

@@ -3,6 +3,7 @@ import { Fraunces, Nunito } from "next/font/google";
 
 import { SiteHeader } from "@/app/siteHeader";
 import { Toaster } from "@/components/ui/sonner";
+import { getGoogleSiteVerification } from "@/lib/googleSiteVerification";
 import { getSiteUrl } from "@/lib/siteUrl";
 
 import "./globals.css";
@@ -19,8 +20,13 @@ const fraunces = Fraunces({
   axes: ["SOFT", "WONK"],
 });
 
+const googleSiteVerification = getGoogleSiteVerification();
+
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
+  ...(googleSiteVerification
+    ? { verification: { google: googleSiteVerification } }
+    : {}),
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "48x48" },
