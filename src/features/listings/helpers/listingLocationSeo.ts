@@ -80,7 +80,7 @@ export function locationFeedMetadata(
 ): Metadata {
   const location = district ? `${city}, ${district}` : city;
   const title = `Kirayə ev və otaq — ${location}`;
-  const description = `${location} üzrə kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.`;
+  const description = `${location} üzrə kirayə ev, otaq və otaq yoldaşı elanları.`;
   const url = district ? districtKirayeUrl(district) : cityKirayeUrl(city);
 
   return {

@@ -58,7 +58,7 @@ export default async function DistrictKirayePage({ params }: DistrictKirayePageP
         tab={FeedTab.Offer}
         filters={filters}
         heading={`Bakı, ${district} kirayə ev və otaq elanları`}
-        intro={`Bakının ${district} rayonunda kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.`}
+        intro={`Bakının ${district} rayonunda kirayə ev, otaq və otaq yoldaşı elanları.`}
       >
         <Suspense fallback={<ListingFeedGridSkeleton />}>
           <ListingFeedContent tab={FeedTab.Offer} filters={filters} />

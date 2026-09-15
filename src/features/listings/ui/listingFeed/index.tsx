@@ -14,7 +14,7 @@ export function ListingFeedShell({
   filters,
   children,
   heading = "Azərbaycanda kirayə ev və otaq platforması",
-  intro = "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.",
+  intro = "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları.",
 }: ListingFeedShellProps) {
   return (
     <div className="flex flex-1 flex-col gap-8">

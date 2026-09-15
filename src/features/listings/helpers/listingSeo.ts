@@ -28,7 +28,7 @@ export function siteJsonLd(): Record<string, unknown> {
         url: siteUrl,
         name: "kirayesin.az",
         description:
-          "Azərbaycanda kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.",
+          "Azərbaycanda kirayə ev, otaq və otaq yoldaşı elanları.",
         inLanguage: "az",
       },
       {
@@ -65,10 +65,10 @@ export function homeFeedMetadata(tab: FeedTab, filters: ListingFeedFilters): Met
 
   const description =
     tab === FeedTab.Seek
-      ? `${location} üzrə ev, otaq və otaq yoldaşı axtarış elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.`
+      ? `${location} üzrə ev, otaq və otaq yoldaşı axtarış elanları.`
       : isDefaultLocation
-        ? "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla."
-        : `${location} üzrə kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.`;
+        ? "Bakı və Azərbaycanın bütün şəhərlərində kirayə ev, otaq və otaq yoldaşı elanları."
+        : `${location} üzrə kirayə ev, otaq və otaq yoldaşı elanları.`;
 
   const canonical = feedCanonicalUrl(tab, filters);
 

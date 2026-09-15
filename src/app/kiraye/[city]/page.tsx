@@ -52,7 +52,7 @@ export default async function CityKirayePage({ params }: CityKirayePageProps) {
         tab={FeedTab.Offer}
         filters={filters}
         heading={`${city} kirayə ev və otaq elanları`}
-        intro={`${city} şəhərində kirayə ev, otaq və otaq yoldaşı elanları. Telefon nömrəsi paylaşılmır — əlaqə yalnız mesajla.`}
+        intro={`${city} şəhərində kirayə ev, otaq və otaq yoldaşı elanları.`}
       >
         <Suspense fallback={<ListingFeedGridSkeleton />}>
           <ListingFeedContent tab={FeedTab.Offer} filters={filters} />
