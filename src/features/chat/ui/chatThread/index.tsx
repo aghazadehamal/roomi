@@ -298,35 +298,29 @@ export function ChatThread({
             </Button>
           </div>
         ) : null}
-        {messages.length === 0 ? (
-          <p className="py-8 text-center text-muted-foreground">
-            İlk mesajı yaz. Razılaşanda nömrə və ya Instagram paylaşa bilərsən.
-          </p>
-        ) : (
-          messages.map((message) => {
-            const mine = message.senderId === currentUserId;
-            return (
-              <div
-                key={message.id}
+        {messages.map((message) => {
+          const mine = message.senderId === currentUserId;
+          return (
+            <div
+              key={message.id}
+              className={cn(
+                "mb-3 flex w-full min-w-0",
+                mine ? "justify-end pl-6" : "justify-start pr-6",
+              )}
+            >
+              <p
                 className={cn(
-                  "mb-3 flex w-full min-w-0",
-                  mine ? "justify-end pl-6" : "justify-start pr-6",
+                  "max-w-[min(80%,100%)] break-words rounded-2xl px-4 py-3 text-base",
+                  mine
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card shadow-sm ring-1 ring-border",
                 )}
               >
-                <p
-                  className={cn(
-                    "max-w-[min(80%,100%)] break-words rounded-2xl px-4 py-3 text-base",
-                    mine
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-card shadow-sm ring-1 ring-border",
-                  )}
-                >
-                  {message.body}
-                </p>
-              </div>
-            );
-          })
-        )}
+                {message.body}
+              </p>
+            </div>
+          );
+        })}
         <div ref={bottomRef} />
       </div>
       {blocked ? (
