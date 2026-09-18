@@ -23,6 +23,7 @@ type ListingRow = {
   body: string
   city: string
   district: string
+  metro: string
   price: number
   rooms: number
   gender_pref: string
@@ -120,6 +121,7 @@ export type Database = {
           floor?: number
           building_floors?: number
           area_sqm?: number
+          metro?: string
           status?: string
           published_at?: string
           expires_at: string

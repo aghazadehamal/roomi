@@ -5,9 +5,11 @@ import { getCurrentUser } from "@/features/auth/queries";
 import { feedTabForListingType } from "@/features/listings/helpers/newListing";
 import {
   ANY_DISTRICT,
+  ANY_METRO,
   isAzCity,
   isBakuCity,
   isBakuDistrict,
+  isBakuMetroStation,
   ListingType,
   type ListingDetail,
 } from "@/features/listings/model";
@@ -22,6 +24,7 @@ type EditListingPageProps = {
 function toListingFormValues(listing: ListingDetail): ListingFormValues {
   const city = isAzCity(listing.city) ? listing.city : "Bakı";
   let district: ListingFormValues["district"] = ANY_DISTRICT;
+  let metro: ListingFormValues["metro"] = ANY_METRO;
 
   if (isBakuCity(city)) {
     if (
@@ -33,6 +36,17 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
       district = listing.district;
     } else {
       district = "Yasamal";
+    }
+
+    if (
+      listing.metro === ANY_METRO &&
+      listing.type === ListingType.HomeSeek
+    ) {
+      metro = ANY_METRO;
+    } else if (isBakuMetroStation(listing.metro)) {
+      metro = listing.metro;
+    } else {
+      metro = "Elmlər Akademiyası";
     }
   }
 
@@ -63,6 +77,7 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
     body: listing.body,
     city,
     district,
+    metro,
     price: listing.priceAzn,
     rooms: listing.rooms,
     genderPref,

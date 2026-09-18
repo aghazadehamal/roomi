@@ -4,11 +4,14 @@ import { contactInfoIssue, profanityIssue } from "@/features/moderation/schema";
 import { ListingType } from "@/features/listings/model";
 import {
   ANY_DISTRICT,
+  ANY_METRO,
   AZ_CITIES,
   BAKU_CITY,
   BAKU_DISTRICTS,
+  BAKU_METRO_STATIONS,
   isBakuCity,
   LISTING_DISTRICTS,
+  LISTING_METROS,
 } from "@/features/listings/model/locations";
 
 export const LISTING_TTL_DAYS = 21;
@@ -22,7 +25,16 @@ export const listingPhotoIdSchema = z.object({
   photoId: z.string().uuid(),
 });
 
-export { ANY_DISTRICT, AZ_CITIES, BAKU_CITY, BAKU_DISTRICTS, LISTING_DISTRICTS };
+export {
+  ANY_DISTRICT,
+  ANY_METRO,
+  AZ_CITIES,
+  BAKU_CITY,
+  BAKU_DISTRICTS,
+  BAKU_METRO_STATIONS,
+  LISTING_DISTRICTS,
+  LISTING_METROS,
+};
 
 export const listingFormSchema = z
   .object({
@@ -40,6 +52,7 @@ export const listingFormSchema = z
       .max(2000),
     city: z.enum(AZ_CITIES),
     district: z.enum(LISTING_DISTRICTS),
+    metro: z.enum(LISTING_METROS),
     price: z.number().int().min(0).max(100_000),
     rooms: z.number().int().min(0).max(20),
     genderPref: z.enum(["any", "female", "male", "family"]),
@@ -106,6 +119,18 @@ export const listingFormSchema = z
     }
 
     if (
+      isBakuCity(data.city) &&
+      (offer || data.type === ListingType.RoommateSeek) &&
+      data.metro === ANY_METRO
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["metro"],
+        message: "Metro stansiyası seç.",
+      });
+    }
+
+    if (
       data.housingKind === "apartment" &&
       (offer || data.type === ListingType.RoommateSeek)
     ) {
@@ -129,6 +154,14 @@ export const listingFormSchema = z
         code: "custom",
         path: ["district"],
         message: "Bakıdan kənar şəhərlərdə rayon seçilmir.",
+      });
+    }
+
+    if (!isBakuCity(data.city) && data.metro !== ANY_METRO) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["metro"],
+        message: "Bakıdan kənar şəhərlərdə metro seçilmir.",
       });
     }
 

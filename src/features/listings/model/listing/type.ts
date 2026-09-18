@@ -23,6 +23,7 @@ export type ListingSummary = {
   priceAzn: number;
   city: string;
   district: string;
+  metro: string;
   rooms: number;
   type: ListingType;
   housingKind: HousingKind;

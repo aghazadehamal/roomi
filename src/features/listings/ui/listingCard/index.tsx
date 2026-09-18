@@ -1,10 +1,12 @@
 import Link from "next/link";
-import { ArrowUpRight, BedDouble, Building2, Layers, MapPin, Ruler, Wallet } from "lucide-react";
+import { ArrowUpRight, BedDouble, Building2, Layers, MapPin, Ruler, TrainFront, Wallet } from "lucide-react";
 
 import {
+  ANY_METRO,
   HOUSING_KIND_LABELS,
   LISTING_TYPE_LABELS,
   SEEK_TYPES,
+  isBakuCity,
   listingAreaText,
   listingBuildingAgeText,
   listingBuildingFloorsText,
@@ -12,6 +14,7 @@ import {
   listingFloorText,
   listingLocationFactLabel,
   listingLocationText,
+  listingMetroText,
   listingPriceText,
   listingRoomsText,
   listingShowsBuildingDetails,
@@ -41,6 +44,13 @@ function listingFacts(listing: ListingCardProps["listing"]): Fact[] {
     },
   ];
 
+  if (isBakuCity(listing.city) && listing.metro !== ANY_METRO) {
+    facts.push({
+      icon: TrainFront,
+      label: "Metro",
+      value: listingMetroText(listing.metro),
+    });
+  }
   if (listingShowsHousingKind(listing.type)) {
     facts.push({
       icon: Building2,

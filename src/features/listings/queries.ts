@@ -41,6 +41,7 @@ type ListingSummaryRow = {
   price: number;
   city: string;
   district: string;
+  metro: string;
   rooms: number;
   type: string;
   housing_kind: string;
@@ -92,6 +93,7 @@ function mapSummaryRow(row: ListingSummaryRow): ListingSummary | null {
     priceAzn: row.price,
     city: row.city,
     district: row.district,
+    metro: row.metro,
     rooms: row.rooms,
     type: row.type,
     housingKind: row.housing_kind,
@@ -214,6 +216,7 @@ export const getListing = cache(async (id: string): Promise<ListingDetail | null
     priceAzn: row.price,
     city: row.city,
     district: row.district,
+    metro: row.metro,
     rooms: row.rooms,
     type: row.type,
     housingKind: row.housing_kind,
@@ -306,6 +309,7 @@ export async function listOwnListings(): Promise<OwnListing[]> {
         priceAzn: row.price,
         city: row.city,
         district: row.district,
+        metro: row.metro,
         rooms: row.rooms,
         type: row.type,
         housingKind: row.housing_kind,
@@ -426,6 +430,7 @@ export async function listSavedListings(): Promise<SavedListing[]> {
           priceAzn: row.price,
           city: row.city,
           district: row.district,
+          metro: row.metro,
           rooms: row.rooms,
           type: row.type,
           housingKind: row.housing_kind,

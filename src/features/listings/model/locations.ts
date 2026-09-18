@@ -2,6 +2,8 @@ export const BAKU_CITY = "Bakı" as const;
 
 export const ANY_DISTRICT = "Fərqi yoxdur";
 
+export const ANY_METRO = "Fərqi yoxdur";
+
 export const BAKU_DISTRICTS = [
   "Binəqədi",
   "Qaradağ",
@@ -15,6 +17,36 @@ export const BAKU_DISTRICTS = [
   "Səbail",
   "Suraxanı",
   "Yasamal",
+] as const;
+
+/** Bakı metrosu stansiyaları (əlifba sırası). */
+export const BAKU_METRO_STATIONS = [
+  "20 Yanvar",
+  "28 May",
+  "8 Noyabr",
+  "Avtovağzal",
+  "Azadlıq prospekti",
+  "Bakmil",
+  "Cəfər Cabbarlı",
+  "Dərnəgül",
+  "Elmlər Akademiyası",
+  "Gənclik",
+  "Həzi Aslanov",
+  "İçərişəhər",
+  "İnşaatçılar",
+  "Koroğlu",
+  "Memar Əcəmi",
+  "Nəriman Nərimanov",
+  "Nəsimi",
+  "Neftçilər",
+  "Nizami",
+  "Qara Qarayev",
+  "Sahil",
+  "Şah İsmail Xətai",
+  "Ulduz",
+  "Xalqlar Dostluğu",
+  "Xocəsən",
+  "Əhmədli",
 ] as const;
 
 /** Azərbaycanın şəhərləri (Bakı birinci). */
@@ -95,8 +127,10 @@ export const AZ_CITIES = [
 
 export type AzCity = (typeof AZ_CITIES)[number];
 export type BakuDistrict = (typeof BAKU_DISTRICTS)[number];
+export type BakuMetroStation = (typeof BAKU_METRO_STATIONS)[number];
 
 export const LISTING_DISTRICTS = [...BAKU_DISTRICTS, ANY_DISTRICT] as const;
+export const LISTING_METROS = [...BAKU_METRO_STATIONS, ANY_METRO] as const;
 
 export function isBakuCity(city: string): city is typeof BAKU_CITY {
   return city === BAKU_CITY;
@@ -108,6 +142,10 @@ export function isAzCity(city: string): city is AzCity {
 
 export function isBakuDistrict(district: string): district is BakuDistrict {
   return (BAKU_DISTRICTS as readonly string[]).includes(district);
+}
+
+export function isBakuMetroStation(metro: string): metro is BakuMetroStation {
+  return (BAKU_METRO_STATIONS as readonly string[]).includes(metro);
 }
 
 export function listingLocationFactLabel(city: string): "Rayon" | "Şəhər" {
@@ -132,4 +170,8 @@ export function listingLocationDetailText(city: string, district: string): strin
     return `${city} · Fərqi yoxdur`;
   }
   return `${city}, ${district}`;
+}
+
+export function listingMetroText(metro: string): string {
+  return metro === ANY_METRO || !metro ? "Fərqi yoxdur" : metro;
 }
