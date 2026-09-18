@@ -27,26 +27,20 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
   let metro: ListingFormValues["metro"] = ANY_METRO;
 
   if (isBakuCity(city)) {
-    if (
-      listing.district === ANY_DISTRICT &&
-      listing.type !== ListingType.RoommateSeek
-    ) {
+    if (listing.district === ANY_DISTRICT) {
       district = ANY_DISTRICT;
     } else if (isBakuDistrict(listing.district)) {
       district = listing.district;
     } else {
-      district = "Yasamal";
+      district = ANY_DISTRICT;
     }
 
-    if (
-      listing.metro === ANY_METRO &&
-      listing.type === ListingType.HomeSeek
-    ) {
+    if (listing.metro === ANY_METRO) {
       metro = ANY_METRO;
     } else if (isBakuMetroStation(listing.metro)) {
       metro = listing.metro;
     } else {
-      metro = "Elmlər Akademiyası";
+      metro = ANY_METRO;
     }
   }
 

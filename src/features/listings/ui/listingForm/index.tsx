@@ -93,8 +93,8 @@ export function ListingForm({
       title: "",
       body: "",
       city: "Bakı",
-      district: "Yasamal",
-      metro: tab === FeedTab.Seek ? ANY_METRO : "Elmlər Akademiyası",
+      district: ANY_DISTRICT,
+      metro: ANY_METRO,
       price: 500,
       rooms: 2,
       genderPref: "any",
@@ -245,14 +245,6 @@ export function ListingForm({
               ) {
                 form.setValue("buildingAge", "new");
               }
-              if (!SEEK_TYPES.includes(type) || type === ListingType.RoommateSeek) {
-                if (isBakuCity(form.getValues("city")) && form.getValues("district") === ANY_DISTRICT) {
-                  form.setValue("district", "Yasamal");
-                }
-                if (isBakuCity(form.getValues("city")) && form.getValues("metro") === ANY_METRO) {
-                  form.setValue("metro", "Elmlər Akademiyası");
-                }
-              }
               if (type === ListingType.RoommateSeek) {
                 if (form.getValues("price") <= 0) {
                   form.setValue("price", 500);
@@ -301,11 +293,6 @@ export function ListingForm({
               if (!isBakuCity(city)) {
                 form.setValue("district", ANY_DISTRICT);
                 form.setValue("metro", ANY_METRO);
-              } else if (form.getValues("district") === ANY_DISTRICT && !seekType) {
-                form.setValue("district", "Yasamal");
-                if (form.getValues("metro") === ANY_METRO) {
-                  form.setValue("metro", "Elmlər Akademiyası");
-                }
               }
             },
           })}
@@ -354,9 +341,7 @@ export function ListingForm({
             <label className="flex flex-col gap-2 text-sm font-medium">
               Rayon
               <select className={selectClass} {...form.register("district")}>
-                {allowAnySelect ? (
-                  <option value={ANY_DISTRICT}>{ANY_DISTRICT}</option>
-                ) : null}
+                <option value={ANY_DISTRICT}>Seçilməyib</option>
                 {BAKU_DISTRICTS.map((district) => (
                   <option key={district} value={district}>
                     {district}
@@ -372,9 +357,7 @@ export function ListingForm({
             <label className="flex flex-col gap-2 text-sm font-medium">
               Metro
               <select className={selectClass} {...form.register("metro")}>
-                {allowAnySelect ? (
-                  <option value={ANY_METRO}>{ANY_METRO}</option>
-                ) : null}
+                <option value={ANY_METRO}>Seçilməyib</option>
                 {BAKU_METRO_STATIONS.map((station) => (
                   <option key={station} value={station}>
                     {station}

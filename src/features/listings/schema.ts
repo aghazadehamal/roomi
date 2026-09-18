@@ -106,30 +106,6 @@ export const listingFormSchema = z
       });
     }
 
-    if (
-      data.type === ListingType.RoommateSeek &&
-      isBakuCity(data.city) &&
-      data.district === ANY_DISTRICT
-    ) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["district"],
-        message: "Rayon seç.",
-      });
-    }
-
-    if (
-      isBakuCity(data.city) &&
-      (offer || data.type === ListingType.RoommateSeek) &&
-      data.metro === ANY_METRO
-    ) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["metro"],
-        message: "Metro stansiyası seç.",
-      });
-    }
-
     if (data.type === ListingType.RoommateSeek) {
       if (data.price < 1) {
         ctx.addIssue({
@@ -212,14 +188,6 @@ export const listingFormSchema = z
 
     if (seek) {
       return;
-    }
-
-    if (isBakuCity(data.city) && data.district === ANY_DISTRICT) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["district"],
-        message: "Rayon seç.",
-      });
     }
 
     if (data.price < 1) {
