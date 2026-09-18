@@ -27,6 +27,7 @@ import {
   OFFER_TYPES,
   SEEK_TYPES,
   isBakuCity,
+  listingGenderPrefFieldLabel,
   listingShowsBuildingDetails,
   listingShowsBuildingFloors,
   listingShowsGender,
@@ -86,10 +87,11 @@ export function ListingForm({
   const types = tab === FeedTab.Seek ? SEEK_TYPES : OFFER_TYPES;
   const [photos, setPhotos] = useState<File[]>([]);
   const [savedPhotos, setSavedPhotos] = useState(existingPhotos);
+  const initialType = defaultValues?.type ?? listingTypeForFeedTab(tab);
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(listingFormSchema),
     defaultValues: defaultValues ?? {
-      type: listingTypeForFeedTab(tab),
+      type: initialType,
       title: "",
       body: "",
       city: "Bakı",
@@ -97,7 +99,7 @@ export function ListingForm({
       metro: ANY_METRO,
       price: 500,
       rooms: 2,
-      genderPref: "any",
+      genderPref: initialType === ListingType.HomeSeek ? "female" : "any",
       housingKind: "apartment",
       buildingAge: tab === FeedTab.Seek ? "any" : "new",
       floor: tab === FeedTab.Seek ? 0 : 3,
@@ -220,8 +222,12 @@ export function ListingForm({
                 form.setValue("genderPref", "any");
               } else if (
                 type === ListingType.RoommateSeek &&
-                (form.getValues("genderPref") === "family" ||
-                  form.getValues("genderPref") === "any")
+                form.getValues("genderPref") === "any"
+              ) {
+                form.setValue("genderPref", "female");
+              } else if (
+                type === ListingType.HomeSeek &&
+                form.getValues("genderPref") === "any"
               ) {
                 form.setValue("genderPref", "female");
               }
@@ -433,15 +439,30 @@ export function ListingForm({
         )}
         {listingShowsGender(selectedType) ? (
           <label className="flex flex-col gap-2 text-sm font-medium">
-            {selectedType === ListingType.RoommateSeek ? "Yoldaş" : "Kimə"}
+            {listingGenderPrefFieldLabel(selectedType)}
             <select className={selectClass} {...form.register("genderPref")}>
-              {!roommateSeek ? <option value="any">Fərqi yoxdur</option> : null}
-              <option value="female">Yalnız qadın</option>
-              <option value="male">Yalnız kişi</option>
-              {OFFER_TYPES.includes(selectedType) ? (
-                <option value="family">Ailə</option>
+              {!roommateSeek && !homeSeek ? (
+                <option value="any">Fərqi yoxdur</option>
               ) : null}
+              {homeSeek ? (
+                <>
+                  <option value="female">Qadın</option>
+                  <option value="male">Kişi</option>
+                  <option value="family">Ailə</option>
+                </>
+              ) : (
+                <>
+                  <option value="female">Yalnız qadın</option>
+                  <option value="male">Yalnız kişi</option>
+                  <option value="family">Ailə</option>
+                </>
+              )}
             </select>
+            {form.formState.errors.genderPref ? (
+              <span className="text-sm font-normal text-destructive">
+                {form.formState.errors.genderPref.message}
+              </span>
+            ) : null}
           </label>
         ) : (
           <input type="hidden" {...form.register("genderPref")} />

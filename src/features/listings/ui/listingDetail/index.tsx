@@ -2,8 +2,6 @@ import { BedDouble, Building2, Layers, MapPin, Ruler, TrainFront, UserRound, Wal
 
 import {
   ANY_METRO,
-  GENDER_PREF_LABELS,
-  HOUSING_KIND_LABELS,
   LISTING_TYPE_LABELS,
   ListingType,
   SEEK_TYPES,
@@ -13,6 +11,8 @@ import {
   listingBuildingFloorsText,
   listingFloorLabel,
   listingFloorText,
+  listingGenderPrefFieldLabel,
+  listingGenderPrefLabel,
   listingLocationDetailText,
   listingLocationFactLabel,
   listingMetroText,
@@ -24,6 +24,7 @@ import {
   listingShowsHousingKind,
   listingShowsPhotos,
   listingShowsRooms,
+  HOUSING_KIND_LABELS,
 } from "@/features/listings/model";
 
 import { ListingPhotoGallery } from "./listingPhotoGallery";
@@ -107,8 +108,8 @@ function listingFacts(listing: ListingDetailViewProps["listing"]): Fact[] {
   if (listingShowsGender(listing.type)) {
     facts.push({
       icon: UserRound,
-      label: listing.type === ListingType.RoommateSeek ? "Yoldaş" : "Kimə",
-      value: GENDER_PREF_LABELS[listing.genderPref],
+      label: listingGenderPrefFieldLabel(listing.type),
+      value: listingGenderPrefLabel(listing.type, listing.genderPref),
     });
   }
 

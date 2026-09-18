@@ -68,19 +68,19 @@ export const listingFormSchema = z
     const offer =
       data.type === ListingType.HomeOffer || data.type === ListingType.RoomOffer;
 
-    if (data.type === ListingType.RoommateSeek && data.genderPref === "family") {
-      ctx.addIssue({
-        code: "custom",
-        path: ["genderPref"],
-        message: "Otaq yoldaşı üçün ailə seçilmir.",
-      });
-    }
-
     if (data.type === ListingType.RoommateSeek && data.genderPref === "any") {
       ctx.addIssue({
         code: "custom",
         path: ["genderPref"],
-        message: "Yoldaş seç: qadın və ya kişi.",
+        message: "Yoldaş seç: qadın, kişi və ya ailə.",
+      });
+    }
+
+    if (data.type === ListingType.HomeSeek && data.genderPref === "any") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["genderPref"],
+        message: "Kim olduğunu seç: qadın, kişi və ya ailə.",
       });
     }
 

@@ -7,6 +7,8 @@ export {
   ListingType,
   OFFER_TYPES,
   SEEK_TYPES,
+  listingGenderPrefFieldLabel,
+  listingGenderPrefLabel,
   listingShowsBuildingDetails,
   listingShowsGender,
   listingShowsHousingKind,

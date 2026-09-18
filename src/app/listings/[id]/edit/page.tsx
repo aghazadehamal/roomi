@@ -60,8 +60,9 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
       : listing.buildingAge;
 
   const genderPref =
-    listing.type === ListingType.RoommateSeek &&
-    (listing.genderPref === "any" || listing.genderPref === "family")
+    ((listing.type === ListingType.RoommateSeek ||
+      listing.type === ListingType.HomeSeek) &&
+      listing.genderPref === "any")
       ? "female"
       : listing.genderPref;
 

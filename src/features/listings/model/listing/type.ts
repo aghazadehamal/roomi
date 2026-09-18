@@ -74,6 +74,36 @@ export const GENDER_PREF_LABELS: Record<ListingDetail["genderPref"], string> = {
   family: "Ailə",
 };
 
+/** Ev axtaran özünü qeyd edir (qadın / kişi / ailə). */
+export const HOME_SEEK_GENDER_LABELS: Record<
+  Exclude<ListingDetail["genderPref"], "any">,
+  string
+> = {
+  female: "Qadın",
+  male: "Kişi",
+  family: "Ailə",
+};
+
+export function listingGenderPrefLabel(
+  type: ListingType,
+  genderPref: ListingDetail["genderPref"],
+): string {
+  if (type === ListingType.HomeSeek && genderPref !== "any") {
+    return HOME_SEEK_GENDER_LABELS[genderPref];
+  }
+  return GENDER_PREF_LABELS[genderPref];
+}
+
+export function listingGenderPrefFieldLabel(type: ListingType): string {
+  if (type === ListingType.RoommateSeek) {
+    return "Yoldaş";
+  }
+  if (type === ListingType.HomeSeek) {
+    return "Kim";
+  }
+  return "Kimə";
+}
+
 export const HOUSING_KIND_LABELS: Record<HousingKind, string> = {
   apartment: "Bina evi",
   house: "Həyət evi",
@@ -100,8 +130,8 @@ export function listingShowsRooms(type: ListingType): boolean {
   return type !== ListingType.RoommateSeek;
 }
 
-export function listingShowsGender(type: ListingType): boolean {
-  return type !== ListingType.HomeSeek;
+export function listingShowsGender(_type: ListingType): boolean {
+  return true;
 }
 
 export function listingShowsHousingKind(_type: ListingType): boolean {
