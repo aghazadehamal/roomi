@@ -130,6 +130,31 @@ export const listingFormSchema = z
       });
     }
 
+    if (data.type === ListingType.RoommateSeek) {
+      if (data.price < 1) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["price"],
+          message: "Büdcəni yaz.",
+        });
+      }
+      if (data.floor < 1) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["floor"],
+          message:
+            data.housingKind === "house" ? "Mərtəbə sayını yaz." : "Mərtəbəni yaz.",
+        });
+      }
+      if (data.areaSqm < 1) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["areaSqm"],
+          message: "Sahəni yaz (m²).",
+        });
+      }
+    }
+
     if (
       data.housingKind === "apartment" &&
       (offer || data.type === ListingType.RoommateSeek)

@@ -146,7 +146,13 @@ export function listingBuildingFloorsText(buildingFloors: number): string {
   return buildingFloors <= 0 ? "Fərqi yoxdur" : `${buildingFloors} mərtəbəli`;
 }
 
-export function listingShowsBuildingFloors(housingKind: HousingKind): boolean {
+export function listingShowsBuildingFloors(
+  housingKind: HousingKind,
+  type?: ListingType,
+): boolean {
+  if (type === ListingType.HomeSeek) {
+    return false;
+  }
   return housingKind === "apartment";
 }
 

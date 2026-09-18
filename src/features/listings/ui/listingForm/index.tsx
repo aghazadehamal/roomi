@@ -134,15 +134,18 @@ export function ListingForm({
   const homeSeek = selectedType === ListingType.HomeSeek;
   const allowAnySelect = seekType && !roommateSeek;
   const bakuSelected = isBakuCity(selectedCity);
-  const anyPrice = seekType && price <= 0;
+  const anyPrice = allowAnySelect && price <= 0;
   const anyRooms = homeSeek && rooms <= 0;
-  const anyFloor = seekType && floor <= 0;
-  const anyArea = seekType && areaSqm <= 0;
+  const anyFloor = allowAnySelect && floor <= 0;
+  const anyArea = allowAnySelect && areaSqm <= 0;
   const apartmentSelected = selectedHousingKind === "apartment";
   const houseSelected = selectedHousingKind === "house";
-  const showBuildingFloors = listingShowsBuildingFloors(
-    apartmentSelected ? "apartment" : houseSelected ? "house" : "any",
-  );
+  const showBuildingFloors =
+    !homeSeek &&
+    listingShowsBuildingFloors(
+      apartmentSelected ? "apartment" : houseSelected ? "house" : "any",
+      selectedType,
+    );
   const floorLabel = listingFloorLabel(houseSelected ? "house" : "apartment");
   const floorDefault = houseSelected ? 2 : 3;
 
@@ -227,6 +230,9 @@ export function ListingForm({
               } else if (type !== ListingType.HomeSeek && form.getValues("rooms") <= 0) {
                 form.setValue("rooms", 2);
               }
+              if (type === ListingType.HomeSeek) {
+                form.setValue("buildingFloors", 0);
+              }
               if (
                 (!SEEK_TYPES.includes(type) || type === ListingType.RoommateSeek) &&
                 form.getValues("housingKind") === "any"
@@ -245,6 +251,23 @@ export function ListingForm({
                 }
                 if (isBakuCity(form.getValues("city")) && form.getValues("metro") === ANY_METRO) {
                   form.setValue("metro", "Elmlər Akademiyası");
+                }
+              }
+              if (type === ListingType.RoommateSeek) {
+                if (form.getValues("price") <= 0) {
+                  form.setValue("price", 500);
+                }
+                if (form.getValues("floor") <= 0) {
+                  form.setValue("floor", 3);
+                }
+                if (form.getValues("areaSqm") <= 0) {
+                  form.setValue("areaSqm", 80);
+                }
+                if (
+                  form.getValues("housingKind") === "apartment" &&
+                  form.getValues("buildingFloors") <= 0
+                ) {
+                  form.setValue("buildingFloors", 9);
                 }
               }
               if (!SEEK_TYPES.includes(type)) {
@@ -378,7 +401,7 @@ export function ListingForm({
           ) : (
             <Input type="number" min={1} step={1} {...form.register("price", { valueAsNumber: true })} />
           )}
-          {seekType ? (
+          {allowAnySelect ? (
             <label className="flex items-center gap-2 font-normal text-muted-foreground">
               <input
                 type="checkbox"
@@ -509,7 +532,7 @@ export function ListingForm({
                   {...form.register("floor", { valueAsNumber: true })}
                 />
               )}
-              {seekType ? (
+              {allowAnySelect ? (
                 <label className="flex items-center gap-2 font-normal text-muted-foreground">
                   <input
                     type="checkbox"
@@ -564,7 +587,7 @@ export function ListingForm({
                   {...form.register("areaSqm", { valueAsNumber: true })}
                 />
               )}
-              {seekType ? (
+              {allowAnySelect ? (
                 <label className="flex items-center gap-2 font-normal text-muted-foreground">
                   <input
                     type="checkbox"

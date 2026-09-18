@@ -101,7 +101,7 @@ function listingFacts(listing: ListingCardProps["listing"]): Fact[] {
 
   if (
     listingShowsBuildingDetails(listing.type) &&
-    listingShowsBuildingFloors(listing.housingKind) &&
+    listingShowsBuildingFloors(listing.housingKind, listing.type) &&
     listing.buildingFloors > 0
   ) {
     facts.push({

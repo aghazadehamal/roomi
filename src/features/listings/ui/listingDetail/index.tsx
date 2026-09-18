@@ -72,7 +72,7 @@ function listingFacts(listing: ListingDetailViewProps["listing"]): Fact[] {
       value: listingFloorText(listing.floor, listing.housingKind),
     });
     if (
-      listingShowsBuildingFloors(listing.housingKind) &&
+      listingShowsBuildingFloors(listing.housingKind, listing.type) &&
       listing.buildingFloors > 0
     ) {
       facts.push({
