@@ -64,7 +64,7 @@ function isListingStatus(value: string): value is ListingDetail["status"] {
 }
 
 function isGenderPref(value: string): value is ListingDetail["genderPref"] {
-  return value === "any" || value === "female" || value === "male";
+  return value === "any" || value === "female" || value === "male" || value === "family";
 }
 
 function isHousingKind(value: string): value is ListingDetail["housingKind"] {

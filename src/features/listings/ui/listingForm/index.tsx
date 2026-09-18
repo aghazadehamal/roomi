@@ -125,9 +125,12 @@ export function ListingForm({
   const floor = form.watch("floor");
   const areaSqm = form.watch("areaSqm");
   const seekType = SEEK_TYPES.includes(selectedType);
+  const roommateSeek = selectedType === ListingType.RoommateSeek;
+  const homeSeek = selectedType === ListingType.HomeSeek;
+  const allowAnySelect = seekType && !roommateSeek;
   const bakuSelected = isBakuCity(selectedCity);
   const anyPrice = seekType && price <= 0;
-  const anyRooms = selectedType === ListingType.HomeSeek && rooms <= 0;
+  const anyRooms = homeSeek && rooms <= 0;
   const anyFloor = seekType && floor <= 0;
   const anyArea = seekType && areaSqm <= 0;
   const houseSelected = selectedHousingKind === "house";
@@ -203,6 +206,12 @@ export function ListingForm({
               form.setValue("type", type);
               if (!listingShowsGender(type)) {
                 form.setValue("genderPref", "any");
+              } else if (
+                type === ListingType.RoommateSeek &&
+                (form.getValues("genderPref") === "family" ||
+                  form.getValues("genderPref") === "any")
+              ) {
+                form.setValue("genderPref", "female");
               }
               if (!listingShowsRooms(type)) {
                 form.setValue("rooms", 1);
@@ -210,21 +219,23 @@ export function ListingForm({
                 form.setValue("rooms", 2);
               }
               if (
-                !SEEK_TYPES.includes(type) &&
+                (!SEEK_TYPES.includes(type) || type === ListingType.RoommateSeek) &&
                 form.getValues("housingKind") === "any"
               ) {
                 form.setValue("housingKind", "apartment");
               }
               if (
-                !SEEK_TYPES.includes(type) &&
+                (!SEEK_TYPES.includes(type) || type === ListingType.RoommateSeek) &&
                 form.getValues("buildingAge") === "any"
               ) {
                 form.setValue("buildingAge", "new");
               }
-              if (!SEEK_TYPES.includes(type)) {
+              if (!SEEK_TYPES.includes(type) || type === ListingType.RoommateSeek) {
                 if (isBakuCity(form.getValues("city")) && form.getValues("district") === ANY_DISTRICT) {
                   form.setValue("district", "Yasamal");
                 }
+              }
+              if (!SEEK_TYPES.includes(type)) {
                 if (form.getValues("price") <= 0) {
                   form.setValue("price", 500);
                 }
@@ -300,7 +311,7 @@ export function ListingForm({
           <label className="flex flex-col gap-2 text-sm font-medium">
             Rayon
             <select className={selectClass} {...form.register("district")}>
-              {seekType ? (
+              {allowAnySelect ? (
                 <option value={ANY_DISTRICT}>{ANY_DISTRICT}</option>
               ) : null}
               {BAKU_DISTRICTS.map((district) => (
@@ -376,9 +387,12 @@ export function ListingForm({
           <label className="flex flex-col gap-2 text-sm font-medium">
             {selectedType === ListingType.RoommateSeek ? "Yoldaş" : "Kimə"}
             <select className={selectClass} {...form.register("genderPref")}>
-              <option value="any">Fərqi yoxdur</option>
+              {!roommateSeek ? <option value="any">Fərqi yoxdur</option> : null}
               <option value="female">Yalnız qadın</option>
               <option value="male">Yalnız kişi</option>
+              {OFFER_TYPES.includes(selectedType) ? (
+                <option value="family">Ailə</option>
+              ) : null}
             </select>
           </label>
         ) : (
@@ -398,7 +412,7 @@ export function ListingForm({
                 },
               })}
             >
-              {seekType ? (
+              {allowAnySelect ? (
                 <option value="any">{HOUSING_KIND_LABELS.any}</option>
               ) : null}
               <option value="apartment">{HOUSING_KIND_LABELS.apartment}</option>
@@ -418,7 +432,7 @@ export function ListingForm({
             <label className="flex flex-col gap-2 text-sm font-medium">
               Tikili
               <select className={selectClass} {...form.register("buildingAge")}>
-                {seekType ? (
+                {allowAnySelect ? (
                   <option value="any">{BUILDING_AGE_LABELS.any}</option>
                 ) : null}
                 <option value="new">{BUILDING_AGE_LABELS.new}</option>

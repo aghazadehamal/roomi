@@ -42,7 +42,7 @@ export const listingFormSchema = z
     district: z.enum(LISTING_DISTRICTS),
     price: z.number().int().min(0).max(100_000),
     rooms: z.number().int().min(0).max(20),
-    genderPref: z.enum(["any", "female", "male"]),
+    genderPref: z.enum(["any", "female", "male", "family"]),
     housingKind: z.enum(["apartment", "house", "any"]),
     buildingAge: z.enum(["old", "new", "any"]),
     floor: z.number().int().min(0).max(50),
@@ -54,7 +54,26 @@ export const listingFormSchema = z
     const offer =
       data.type === ListingType.HomeOffer || data.type === ListingType.RoomOffer;
 
-    if (offer && data.housingKind === "any") {
+    if (data.type === ListingType.RoommateSeek && data.genderPref === "family") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["genderPref"],
+        message: "Otaq yoldaşı üçün ailə seçilmir.",
+      });
+    }
+
+    if (data.type === ListingType.RoommateSeek && data.genderPref === "any") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["genderPref"],
+        message: "Yoldaş seç: qadın və ya kişi.",
+      });
+    }
+
+    if (
+      (offer || data.type === ListingType.RoommateSeek) &&
+      data.housingKind === "any"
+    ) {
       ctx.addIssue({
         code: "custom",
         path: ["housingKind"],
@@ -62,11 +81,26 @@ export const listingFormSchema = z
       });
     }
 
-    if (offer && data.buildingAge === "any") {
+    if (
+      (offer || data.type === ListingType.RoommateSeek) &&
+      data.buildingAge === "any"
+    ) {
       ctx.addIssue({
         code: "custom",
         path: ["buildingAge"],
         message: "Tikili növünü seç: köhnə və ya yeni.",
+      });
+    }
+
+    if (
+      data.type === ListingType.RoommateSeek &&
+      isBakuCity(data.city) &&
+      data.district === ANY_DISTRICT
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["district"],
+        message: "Rayon seç.",
       });
     }
 

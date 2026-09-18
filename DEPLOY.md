@@ -65,6 +65,7 @@ Sıra ilə **Run** (əvvəl run etməmisənsə):
 11. `…000010_guest_listings_select.sql` ← qonaq feed üçün
 12. `…000011_listing_housing_kind.sql` ← bina / həyət evi
 13. `…000020_listing_building_details.sql` ← köhnə/yeni tikili, mərtəbə, sahə
+14. `…000021_listing_gender_pref_family.sql` ← kimə: ailə
 
 Storage: `listing-photos` bucket + migration-dakı policy-lər.
 

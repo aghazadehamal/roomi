@@ -36,7 +36,7 @@ export type ListingSummary = {
 export type ListingDetail = ListingSummary & {
   body: string;
   userId: string;
-  genderPref: "any" | "female" | "male";
+  genderPref: "any" | "female" | "male" | "family";
   photoUrls: string[];
   photos: { id: string; url: string }[];
   status: "active" | "archived" | "closed";
@@ -69,6 +69,7 @@ export const GENDER_PREF_LABELS: Record<ListingDetail["genderPref"], string> = {
   any: "Fərqi yoxdur",
   female: "Yalnız qadın",
   male: "Yalnız kişi",
+  family: "Ailə",
 };
 
 export const HOUSING_KIND_LABELS: Record<HousingKind, string> = {

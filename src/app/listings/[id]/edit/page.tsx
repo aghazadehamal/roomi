@@ -24,7 +24,10 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
   let district: ListingFormValues["district"] = ANY_DISTRICT;
 
   if (isBakuCity(city)) {
-    if (listing.district === ANY_DISTRICT) {
+    if (
+      listing.district === ANY_DISTRICT &&
+      listing.type !== ListingType.RoommateSeek
+    ) {
       district = ANY_DISTRICT;
     } else if (isBakuDistrict(listing.district)) {
       district = listing.district;
@@ -33,17 +36,26 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
     }
   }
 
+  const requiresConcreteHousing =
+    listing.type === ListingType.HomeOffer ||
+    listing.type === ListingType.RoomOffer ||
+    listing.type === ListingType.RoommateSeek;
+
   const housingKind =
-    listing.housingKind === "any" &&
-    (listing.type === ListingType.HomeOffer || listing.type === ListingType.RoomOffer)
+    listing.housingKind === "any" && requiresConcreteHousing
       ? "apartment"
       : listing.housingKind;
 
   const buildingAge =
-    listing.buildingAge === "any" &&
-    (listing.type === ListingType.HomeOffer || listing.type === ListingType.RoomOffer)
+    listing.buildingAge === "any" && requiresConcreteHousing
       ? "new"
       : listing.buildingAge;
+
+  const genderPref =
+    listing.type === ListingType.RoommateSeek &&
+    (listing.genderPref === "any" || listing.genderPref === "family")
+      ? "female"
+      : listing.genderPref;
 
   return {
     type: listing.type,
@@ -53,7 +65,7 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
     district,
     price: listing.priceAzn,
     rooms: listing.rooms,
-    genderPref: listing.genderPref,
+    genderPref,
     housingKind,
     buildingAge,
     floor: listing.floor,
