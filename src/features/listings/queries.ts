@@ -44,6 +44,9 @@ type ListingSummaryRow = {
   rooms: number;
   type: string;
   housing_kind: string;
+  building_age: string;
+  floor: number;
+  area_sqm: number;
   expires_at: string;
   listing_photos: NestedListingPhoto | NestedListingPhoto[] | null;
 };
@@ -68,8 +71,16 @@ function isHousingKind(value: string): value is ListingDetail["housingKind"] {
   return value === "apartment" || value === "house" || value === "any";
 }
 
+function isBuildingAge(value: string): value is ListingDetail["buildingAge"] {
+  return value === "old" || value === "new" || value === "any";
+}
+
 function mapSummaryRow(row: ListingSummaryRow): ListingSummary | null {
-  if (!isListingType(row.type) || !isHousingKind(row.housing_kind)) {
+  if (
+    !isListingType(row.type) ||
+    !isHousingKind(row.housing_kind) ||
+    !isBuildingAge(row.building_age)
+  ) {
     return null;
   }
 
@@ -83,6 +94,9 @@ function mapSummaryRow(row: ListingSummaryRow): ListingSummary | null {
     rooms: row.rooms,
     type: row.type,
     housingKind: row.housing_kind,
+    buildingAge: row.building_age,
+    floor: row.floor,
+    areaSqm: row.area_sqm,
     daysLeft: daysLeft(row.expires_at),
     photoUrl: coverPhotoUrl(row.listing_photos),
   };
@@ -181,6 +195,7 @@ export const getListing = cache(async (id: string): Promise<ListingDetail | null
     !isListingType(row.type) ||
     !isGenderPref(row.gender_pref) ||
     !isHousingKind(row.housing_kind) ||
+    !isBuildingAge(row.building_age) ||
     !isListingStatus(row.status)
   ) {
     return null;
@@ -200,6 +215,9 @@ export const getListing = cache(async (id: string): Promise<ListingDetail | null
     rooms: row.rooms,
     type: row.type,
     housingKind: row.housing_kind,
+    buildingAge: row.building_age,
+    floor: row.floor,
+    areaSqm: row.area_sqm,
     genderPref: row.gender_pref,
     daysLeft: row.status === "active" ? daysLeft(row.expires_at) : 0,
     photoUrl: photoUrls[0] ?? null,
@@ -271,7 +289,8 @@ export async function listOwnListings(): Promise<OwnListing[]> {
     if (
       !isListingType(row.type) ||
       !isListingStatus(row.status) ||
-      !isHousingKind(row.housing_kind)
+      !isHousingKind(row.housing_kind) ||
+      !isBuildingAge(row.building_age)
     ) {
       return [];
     }
@@ -287,6 +306,9 @@ export async function listOwnListings(): Promise<OwnListing[]> {
         rooms: row.rooms,
         type: row.type,
         housingKind: row.housing_kind,
+        buildingAge: row.building_age,
+        floor: row.floor,
+        areaSqm: row.area_sqm,
         daysLeft: row.status === "active" ? daysLeft(row.expires_at) : 0,
         photoUrl: coverPhotoUrl(row.listing_photos),
         status: row.status,
@@ -386,7 +408,8 @@ export async function listSavedListings(): Promise<SavedListing[]> {
       if (
         !isListingType(row.type) ||
         !isListingStatus(row.status) ||
-        !isHousingKind(row.housing_kind)
+        !isHousingKind(row.housing_kind) ||
+        !isBuildingAge(row.building_age)
       ) {
         return [];
       }
@@ -402,6 +425,9 @@ export async function listSavedListings(): Promise<SavedListing[]> {
           rooms: row.rooms,
           type: row.type,
           housingKind: row.housing_kind,
+          buildingAge: row.building_age,
+          floor: row.floor,
+          areaSqm: row.area_sqm,
           daysLeft: row.status === "active" ? daysLeft(row.expires_at) : 0,
           photoUrl: coverPhotoUrl(row.listing_photos),
           status: row.status,

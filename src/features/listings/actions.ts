@@ -109,6 +109,9 @@ export async function createListing(input: unknown): Promise<CreateListingResult
       rooms: parsed.data.rooms,
       gender_pref: parsed.data.genderPref,
       housing_kind: parsed.data.housingKind,
+      building_age: parsed.data.buildingAge,
+      floor: parsed.data.floor,
+      area_sqm: parsed.data.areaSqm,
       status: "active",
       expires_at: expiresAt,
     })
@@ -189,6 +192,9 @@ export async function updateListing(
       rooms: parsed.data.rooms,
       gender_pref: parsed.data.genderPref,
       housing_kind: parsed.data.housingKind,
+      building_age: parsed.data.buildingAge,
+      floor: parsed.data.floor,
+      area_sqm: parsed.data.areaSqm,
     })
     .eq("id", listing.id)
     .eq("user_id", ensured.user.id);

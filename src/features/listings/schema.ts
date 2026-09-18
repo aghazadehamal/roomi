@@ -44,6 +44,9 @@ export const listingFormSchema = z
     rooms: z.number().int().min(0).max(20),
     genderPref: z.enum(["any", "female", "male"]),
     housingKind: z.enum(["apartment", "house", "any"]),
+    buildingAge: z.enum(["old", "new", "any"]),
+    floor: z.number().int().min(0).max(50),
+    areaSqm: z.number().int().min(0).max(10_000),
   })
   .superRefine((data, ctx) => {
     const seek =
@@ -51,19 +54,19 @@ export const listingFormSchema = z
     const offer =
       data.type === ListingType.HomeOffer || data.type === ListingType.RoomOffer;
 
-    if (data.type === ListingType.RoommateSeek && data.housingKind !== "any") {
-      ctx.addIssue({
-        code: "custom",
-        path: ["housingKind"],
-        message: "Otaq yoldaşı elanında ev növü lazım deyil.",
-      });
-    }
-
     if (offer && data.housingKind === "any") {
       ctx.addIssue({
         code: "custom",
         path: ["housingKind"],
         message: "Ev növünü seç: bina və ya həyət.",
+      });
+    }
+
+    if (offer && data.buildingAge === "any") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["buildingAge"],
+        message: "Tikili növünü seç: köhnə və ya yeni.",
       });
     }
 
@@ -119,6 +122,20 @@ export const listingFormSchema = z
         code: "custom",
         path: ["rooms"],
         message: "Otaq sayı seç.",
+      });
+    }
+    if (data.floor < 1) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["floor"],
+        message: "Mərtəbəni yaz.",
+      });
+    }
+    if (data.areaSqm < 1) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["areaSqm"],
+        message: "Sahəni yaz (m²).",
       });
     }
   });

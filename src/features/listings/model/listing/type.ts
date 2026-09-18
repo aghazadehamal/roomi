@@ -14,6 +14,8 @@ export enum ListingType {
 
 export type HousingKind = "apartment" | "house" | "any";
 
+export type BuildingAge = "old" | "new" | "any";
+
 export type ListingSummary = {
   id: string;
   userId: string;
@@ -24,6 +26,9 @@ export type ListingSummary = {
   rooms: number;
   type: ListingType;
   housingKind: HousingKind;
+  buildingAge: BuildingAge;
+  floor: number;
+  areaSqm: number;
   daysLeft: number;
   photoUrl: string | null;
 };
@@ -72,6 +77,12 @@ export const HOUSING_KIND_LABELS: Record<HousingKind, string> = {
   any: "Fərqi yoxdur",
 };
 
+export const BUILDING_AGE_LABELS: Record<BuildingAge, string> = {
+  old: "Köhnə tikili",
+  new: "Yeni tikili",
+  any: "Fərqi yoxdur",
+};
+
 export const OFFER_TYPES: ListingType[] = [
   ListingType.HomeOffer,
   ListingType.RoomOffer,
@@ -90,8 +101,12 @@ export function listingShowsGender(type: ListingType): boolean {
   return type !== ListingType.HomeSeek;
 }
 
-export function listingShowsHousingKind(type: ListingType): boolean {
-  return type !== ListingType.RoommateSeek;
+export function listingShowsHousingKind(_type: ListingType): boolean {
+  return true;
+}
+
+export function listingShowsBuildingDetails(_type: ListingType): boolean {
+  return true;
 }
 
 export function listingShowsPhotos(type: ListingType): boolean {
@@ -104,6 +119,18 @@ export function listingPriceText(priceAzn: number): string {
 
 export function listingRoomsText(rooms: number): string {
   return rooms <= 0 ? "Fərqi yoxdur" : `${rooms} otaq`;
+}
+
+export function listingBuildingAgeText(buildingAge: BuildingAge): string {
+  return BUILDING_AGE_LABELS[buildingAge];
+}
+
+export function listingFloorText(floor: number): string {
+  return floor <= 0 ? "Fərqi yoxdur" : `${floor}. mərtəbə`;
+}
+
+export function listingAreaText(areaSqm: number): string {
+  return areaSqm <= 0 ? "Fərqi yoxdur" : `${areaSqm} m²`;
 }
 
 type ListingProfileMetaInput = {

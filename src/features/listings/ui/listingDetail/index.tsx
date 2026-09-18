@@ -1,4 +1,4 @@
-import { BedDouble, Building2, MapPin, UserRound, Wallet } from "lucide-react";
+import { BedDouble, Building2, Layers, MapPin, Ruler, UserRound, Wallet } from "lucide-react";
 
 import {
   GENDER_PREF_LABELS,
@@ -6,10 +6,14 @@ import {
   LISTING_TYPE_LABELS,
   ListingType,
   SEEK_TYPES,
+  listingAreaText,
+  listingBuildingAgeText,
+  listingFloorText,
   listingLocationDetailText,
   listingLocationFactLabel,
   listingPriceText,
   listingRoomsText,
+  listingShowsBuildingDetails,
   listingShowsGender,
   listingShowsHousingKind,
   listingShowsPhotos,
@@ -40,6 +44,24 @@ function listingFacts(listing: ListingDetailViewProps["listing"]): Fact[] {
       icon: Building2,
       label: "Ev növü",
       value: HOUSING_KIND_LABELS[listing.housingKind],
+    });
+  }
+
+  if (listingShowsBuildingDetails(listing.type)) {
+    facts.push({
+      icon: Building2,
+      label: "Tikili",
+      value: listingBuildingAgeText(listing.buildingAge),
+    });
+    facts.push({
+      icon: Layers,
+      label: "Mərtəbə",
+      value: listingFloorText(listing.floor),
+    });
+    facts.push({
+      icon: Ruler,
+      label: "Sahə",
+      value: listingAreaText(listing.areaSqm),
     });
   }
 

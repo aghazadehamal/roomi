@@ -20,12 +20,14 @@ import {
 } from "@/features/listings/helpers/newListing";
 import {
   FeedTab,
+  BUILDING_AGE_LABELS,
   HOUSING_KIND_LABELS,
   LISTING_TYPE_LABELS,
   ListingType,
   OFFER_TYPES,
   SEEK_TYPES,
   isBakuCity,
+  listingShowsBuildingDetails,
   listingShowsGender,
   listingShowsHousingKind,
   listingShowsPhotos,
@@ -92,6 +94,9 @@ export function ListingForm({
       rooms: 2,
       genderPref: "any",
       housingKind: "apartment",
+      buildingAge: tab === FeedTab.Seek ? "any" : "new",
+      floor: tab === FeedTab.Seek ? 0 : 3,
+      areaSqm: tab === FeedTab.Seek ? 0 : 80,
     },
   });
 
@@ -115,10 +120,14 @@ export function ListingForm({
   const selectedCity = form.watch("city");
   const price = form.watch("price");
   const rooms = form.watch("rooms");
+  const floor = form.watch("floor");
+  const areaSqm = form.watch("areaSqm");
   const seekType = SEEK_TYPES.includes(selectedType);
   const bakuSelected = isBakuCity(selectedCity);
   const anyPrice = seekType && price <= 0;
   const anyRooms = selectedType === ListingType.HomeSeek && rooms <= 0;
+  const anyFloor = seekType && floor <= 0;
+  const anyArea = seekType && areaSqm <= 0;
 
   async function onSubmit(values: ListingFormValues) {
     const result = listingId
@@ -195,13 +204,17 @@ export function ListingForm({
               } else if (type !== ListingType.HomeSeek && form.getValues("rooms") <= 0) {
                 form.setValue("rooms", 2);
               }
-              if (!listingShowsHousingKind(type)) {
-                form.setValue("housingKind", "any");
-              } else if (
-                type !== ListingType.HomeSeek &&
+              if (
+                !SEEK_TYPES.includes(type) &&
                 form.getValues("housingKind") === "any"
               ) {
                 form.setValue("housingKind", "apartment");
+              }
+              if (
+                !SEEK_TYPES.includes(type) &&
+                form.getValues("buildingAge") === "any"
+              ) {
+                form.setValue("buildingAge", "new");
               }
               if (!SEEK_TYPES.includes(type)) {
                 if (isBakuCity(form.getValues("city")) && form.getValues("district") === ANY_DISTRICT) {
@@ -209,6 +222,12 @@ export function ListingForm({
                 }
                 if (form.getValues("price") <= 0) {
                   form.setValue("price", 500);
+                }
+                if (form.getValues("floor") <= 0) {
+                  form.setValue("floor", 3);
+                }
+                if (form.getValues("areaSqm") <= 0) {
+                  form.setValue("areaSqm", 80);
                 }
               }
             }}
@@ -364,7 +383,7 @@ export function ListingForm({
           <label className="flex flex-col gap-2 text-sm font-medium">
             Ev növü
             <select className={selectClass} {...form.register("housingKind")}>
-              {selectedType === ListingType.HomeSeek ? (
+              {seekType ? (
                 <option value="any">{HOUSING_KIND_LABELS.any}</option>
               ) : null}
               <option value="apartment">{HOUSING_KIND_LABELS.apartment}</option>
@@ -378,6 +397,97 @@ export function ListingForm({
           </label>
         ) : (
           <input type="hidden" {...form.register("housingKind")} />
+        )}
+        {listingShowsBuildingDetails(selectedType) ? (
+          <>
+            <label className="flex flex-col gap-2 text-sm font-medium">
+              Tikili
+              <select className={selectClass} {...form.register("buildingAge")}>
+                {seekType ? (
+                  <option value="any">{BUILDING_AGE_LABELS.any}</option>
+                ) : null}
+                <option value="new">{BUILDING_AGE_LABELS.new}</option>
+                <option value="old">{BUILDING_AGE_LABELS.old}</option>
+              </select>
+              {form.formState.errors.buildingAge ? (
+                <span className="font-normal text-destructive">
+                  {form.formState.errors.buildingAge.message}
+                </span>
+              ) : null}
+            </label>
+            <div className="flex flex-col gap-2 text-sm font-medium">
+              Mərtəbə
+              {anyFloor ? (
+                <input type="hidden" {...form.register("floor", { valueAsNumber: true })} />
+              ) : (
+                <Input
+                  type="number"
+                  min={1}
+                  max={50}
+                  step={1}
+                  {...form.register("floor", { valueAsNumber: true })}
+                />
+              )}
+              {seekType ? (
+                <label className="flex items-center gap-2 font-normal text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={anyFloor}
+                    onChange={(event) => {
+                      form.setValue("floor", event.target.checked ? 0 : 3, {
+                        shouldValidate: true,
+                      });
+                    }}
+                  />
+                  Fərqi yoxdur
+                </label>
+              ) : null}
+              {form.formState.errors.floor ? (
+                <span className="font-normal text-destructive">
+                  {form.formState.errors.floor.message}
+                </span>
+              ) : null}
+            </div>
+            <div className="flex flex-col gap-2 text-sm font-medium">
+              Sahə (m²)
+              {anyArea ? (
+                <input type="hidden" {...form.register("areaSqm", { valueAsNumber: true })} />
+              ) : (
+                <Input
+                  type="number"
+                  min={1}
+                  max={10000}
+                  step={1}
+                  {...form.register("areaSqm", { valueAsNumber: true })}
+                />
+              )}
+              {seekType ? (
+                <label className="flex items-center gap-2 font-normal text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    checked={anyArea}
+                    onChange={(event) => {
+                      form.setValue("areaSqm", event.target.checked ? 0 : 80, {
+                        shouldValidate: true,
+                      });
+                    }}
+                  />
+                  Fərqi yoxdur
+                </label>
+              ) : null}
+              {form.formState.errors.areaSqm ? (
+                <span className="font-normal text-destructive">
+                  {form.formState.errors.areaSqm.message}
+                </span>
+              ) : null}
+            </div>
+          </>
+        ) : (
+          <>
+            <input type="hidden" {...form.register("buildingAge")} />
+            <input type="hidden" {...form.register("floor", { valueAsNumber: true })} />
+            <input type="hidden" {...form.register("areaSqm", { valueAsNumber: true })} />
+          </>
         )}
       </div>
 

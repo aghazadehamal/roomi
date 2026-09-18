@@ -1,14 +1,17 @@
 import Link from "next/link";
-import { ArrowUpRight, BedDouble, Building2, MapPin, Wallet } from "lucide-react";
+import { ArrowUpRight, BedDouble, Building2, Layers, MapPin, Ruler, Wallet } from "lucide-react";
 
 import {
   HOUSING_KIND_LABELS,
   LISTING_TYPE_LABELS,
   SEEK_TYPES,
+  listingAreaText,
+  listingBuildingAgeText,
   listingLocationFactLabel,
   listingLocationText,
   listingPriceText,
   listingRoomsText,
+  listingShowsBuildingDetails,
   listingShowsHousingKind,
   listingShowsPhotos,
   listingShowsRooms,
@@ -42,6 +45,14 @@ function listingFacts(listing: ListingCardProps["listing"]): Fact[] {
     });
   }
 
+  if (listingShowsBuildingDetails(listing.type) && listing.buildingAge !== "any") {
+    facts.push({
+      icon: Building2,
+      label: "Tikili",
+      value: listingBuildingAgeText(listing.buildingAge),
+    });
+  }
+
   if (isSeek) {
     facts.push({
       icon: Wallet,
@@ -55,6 +66,22 @@ function listingFacts(listing: ListingCardProps["listing"]): Fact[] {
       icon: BedDouble,
       label: "Otaq",
       value: listingRoomsText(listing.rooms),
+    });
+  }
+
+  if (listingShowsBuildingDetails(listing.type) && listing.areaSqm > 0) {
+    facts.push({
+      icon: Ruler,
+      label: "Sahə",
+      value: listingAreaText(listing.areaSqm),
+    });
+  }
+
+  if (listingShowsBuildingDetails(listing.type) && listing.floor > 0) {
+    facts.push({
+      icon: Layers,
+      label: "Mərtəbə",
+      value: String(listing.floor),
     });
   }
 

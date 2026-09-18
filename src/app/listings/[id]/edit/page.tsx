@@ -34,12 +34,16 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
   }
 
   const housingKind =
-    listing.type === ListingType.RoommateSeek
-      ? "any"
-      : listing.housingKind === "any" &&
-          (listing.type === ListingType.HomeOffer || listing.type === ListingType.RoomOffer)
-        ? "apartment"
-        : listing.housingKind;
+    listing.housingKind === "any" &&
+    (listing.type === ListingType.HomeOffer || listing.type === ListingType.RoomOffer)
+      ? "apartment"
+      : listing.housingKind;
+
+  const buildingAge =
+    listing.buildingAge === "any" &&
+    (listing.type === ListingType.HomeOffer || listing.type === ListingType.RoomOffer)
+      ? "new"
+      : listing.buildingAge;
 
   return {
     type: listing.type,
@@ -51,6 +55,9 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
     rooms: listing.rooms,
     genderPref: listing.genderPref,
     housingKind,
+    buildingAge,
+    floor: listing.floor,
+    areaSqm: listing.areaSqm,
   };
 }
 
