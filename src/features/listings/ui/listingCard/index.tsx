@@ -7,6 +7,8 @@ import {
   SEEK_TYPES,
   listingAreaText,
   listingBuildingAgeText,
+  listingFloorLabel,
+  listingFloorText,
   listingLocationFactLabel,
   listingLocationText,
   listingPriceText,
@@ -80,8 +82,8 @@ function listingFacts(listing: ListingCardProps["listing"]): Fact[] {
   if (listingShowsBuildingDetails(listing.type) && listing.floor > 0) {
     facts.push({
       icon: Layers,
-      label: "Mərtəbə",
-      value: String(listing.floor),
+      label: listingFloorLabel(listing.housingKind),
+      value: listingFloorText(listing.floor, listing.housingKind),
     });
   }
 

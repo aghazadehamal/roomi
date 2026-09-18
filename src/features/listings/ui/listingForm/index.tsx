@@ -32,6 +32,7 @@ import {
   listingShowsHousingKind,
   listingShowsPhotos,
   listingShowsRooms,
+  listingFloorLabel,
 } from "@/features/listings/model";
 import {
   ANY_DISTRICT,
@@ -118,6 +119,7 @@ export function ListingForm({
 
   const selectedType = form.watch("type");
   const selectedCity = form.watch("city");
+  const selectedHousingKind = form.watch("housingKind");
   const price = form.watch("price");
   const rooms = form.watch("rooms");
   const floor = form.watch("floor");
@@ -128,6 +130,9 @@ export function ListingForm({
   const anyRooms = selectedType === ListingType.HomeSeek && rooms <= 0;
   const anyFloor = seekType && floor <= 0;
   const anyArea = seekType && areaSqm <= 0;
+  const houseSelected = selectedHousingKind === "house";
+  const floorLabel = listingFloorLabel(houseSelected ? "house" : "apartment");
+  const floorDefault = houseSelected ? 2 : 3;
 
   async function onSubmit(values: ListingFormValues) {
     const result = listingId
@@ -382,7 +387,17 @@ export function ListingForm({
         {listingShowsHousingKind(selectedType) ? (
           <label className="flex flex-col gap-2 text-sm font-medium">
             Ev növü
-            <select className={selectClass} {...form.register("housingKind")}>
+            <select
+              className={selectClass}
+              {...form.register("housingKind", {
+                onChange: (event) => {
+                  const kind = event.target.value;
+                  if (kind === "house" && form.getValues("floor") > 5) {
+                    form.setValue("floor", 2, { shouldValidate: true });
+                  }
+                },
+              })}
+            >
               {seekType ? (
                 <option value="any">{HOUSING_KIND_LABELS.any}</option>
               ) : null}
@@ -416,14 +431,14 @@ export function ListingForm({
               ) : null}
             </label>
             <div className="flex flex-col gap-2 text-sm font-medium">
-              Mərtəbə
+              {floorLabel}
               {anyFloor ? (
                 <input type="hidden" {...form.register("floor", { valueAsNumber: true })} />
               ) : (
                 <Input
                   type="number"
                   min={1}
-                  max={50}
+                  max={houseSelected ? 5 : 50}
                   step={1}
                   {...form.register("floor", { valueAsNumber: true })}
                 />
@@ -434,7 +449,7 @@ export function ListingForm({
                     type="checkbox"
                     checked={anyFloor}
                     onChange={(event) => {
-                      form.setValue("floor", event.target.checked ? 0 : 3, {
+                      form.setValue("floor", event.target.checked ? 0 : floorDefault, {
                         shouldValidate: true,
                       });
                     }}

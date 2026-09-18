@@ -8,6 +8,7 @@ import {
   SEEK_TYPES,
   listingAreaText,
   listingBuildingAgeText,
+  listingFloorLabel,
   listingFloorText,
   listingLocationDetailText,
   listingLocationFactLabel,
@@ -55,8 +56,8 @@ function listingFacts(listing: ListingDetailViewProps["listing"]): Fact[] {
     });
     facts.push({
       icon: Layers,
-      label: "Mərtəbə",
-      value: listingFloorText(listing.floor),
+      label: listingFloorLabel(listing.housingKind),
+      value: listingFloorText(listing.floor, listing.housingKind),
     });
     facts.push({
       icon: Ruler,

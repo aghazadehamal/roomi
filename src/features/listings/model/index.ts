@@ -15,6 +15,7 @@ export {
   listingAreaText,
   listingBuildingAgeText,
   listingFloorText,
+  listingFloorLabel,
   listingPriceText,
   listingProfileMeta,
   listingRoomsText,

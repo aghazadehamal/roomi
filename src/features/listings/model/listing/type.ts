@@ -125,8 +125,18 @@ export function listingBuildingAgeText(buildingAge: BuildingAge): string {
   return BUILDING_AGE_LABELS[buildingAge];
 }
 
-export function listingFloorText(floor: number): string {
-  return floor <= 0 ? "Fərqi yoxdur" : `${floor}. mərtəbə`;
+export function listingFloorText(floor: number, housingKind: HousingKind = "apartment"): string {
+  if (floor <= 0) {
+    return "Fərqi yoxdur";
+  }
+  if (housingKind === "house") {
+    return `${floor} mərtəbəli`;
+  }
+  return `${floor}. mərtəbə`;
+}
+
+export function listingFloorLabel(housingKind: HousingKind): string {
+  return housingKind === "house" ? "Mərtəbə sayı" : "Mərtəbə";
 }
 
 export function listingAreaText(areaSqm: number): string {

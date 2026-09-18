@@ -128,7 +128,8 @@ export const listingFormSchema = z
       ctx.addIssue({
         code: "custom",
         path: ["floor"],
-        message: "Mərtəbəni yaz.",
+        message:
+          data.housingKind === "house" ? "Mərtəbə sayını yaz." : "Mərtəbəni yaz.",
       });
     }
     if (data.areaSqm < 1) {
