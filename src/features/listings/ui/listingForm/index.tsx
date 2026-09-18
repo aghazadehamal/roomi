@@ -28,6 +28,7 @@ import {
   SEEK_TYPES,
   isBakuCity,
   listingShowsBuildingDetails,
+  listingShowsBuildingFloors,
   listingShowsGender,
   listingShowsHousingKind,
   listingShowsPhotos,
@@ -97,6 +98,7 @@ export function ListingForm({
       housingKind: "apartment",
       buildingAge: tab === FeedTab.Seek ? "any" : "new",
       floor: tab === FeedTab.Seek ? 0 : 3,
+      buildingFloors: tab === FeedTab.Seek ? 0 : 9,
       areaSqm: tab === FeedTab.Seek ? 0 : 80,
     },
   });
@@ -133,7 +135,11 @@ export function ListingForm({
   const anyRooms = homeSeek && rooms <= 0;
   const anyFloor = seekType && floor <= 0;
   const anyArea = seekType && areaSqm <= 0;
+  const apartmentSelected = selectedHousingKind === "apartment";
   const houseSelected = selectedHousingKind === "house";
+  const showBuildingFloors = listingShowsBuildingFloors(
+    apartmentSelected ? "apartment" : houseSelected ? "house" : "any",
+  );
   const floorLabel = listingFloorLabel(houseSelected ? "house" : "apartment");
   const floorDefault = houseSelected ? 2 : 3;
 
@@ -241,6 +247,9 @@ export function ListingForm({
                 }
                 if (form.getValues("floor") <= 0) {
                   form.setValue("floor", 3);
+                }
+                if (form.getValues("buildingFloors") <= 0) {
+                  form.setValue("buildingFloors", 9);
                 }
                 if (form.getValues("areaSqm") <= 0) {
                   form.setValue("areaSqm", 80);
@@ -406,8 +415,18 @@ export function ListingForm({
               {...form.register("housingKind", {
                 onChange: (event) => {
                   const kind = event.target.value;
-                  if (kind === "house" && form.getValues("floor") > 5) {
-                    form.setValue("floor", 2, { shouldValidate: true });
+                  if (kind === "house") {
+                    if (form.getValues("floor") > 5) {
+                      form.setValue("floor", 2, { shouldValidate: true });
+                    }
+                    form.setValue("buildingFloors", 0, { shouldValidate: true });
+                  } else if (kind === "any") {
+                    form.setValue("buildingFloors", 0, { shouldValidate: true });
+                  } else if (
+                    kind === "apartment" &&
+                    form.getValues("buildingFloors") <= 0
+                  ) {
+                    form.setValue("buildingFloors", 9, { shouldValidate: true });
                   }
                 },
               })}
@@ -477,6 +496,28 @@ export function ListingForm({
                 </span>
               ) : null}
             </div>
+            {showBuildingFloors ? (
+              <div className="flex flex-col gap-2 text-sm font-medium">
+                Binanın mərtəbə sayı
+                <Input
+                  type="number"
+                  min={1}
+                  max={50}
+                  step={1}
+                  {...form.register("buildingFloors", { valueAsNumber: true })}
+                />
+                {form.formState.errors.buildingFloors ? (
+                  <span className="font-normal text-destructive">
+                    {form.formState.errors.buildingFloors.message}
+                  </span>
+                ) : null}
+              </div>
+            ) : (
+              <input
+                type="hidden"
+                {...form.register("buildingFloors", { valueAsNumber: true })}
+              />
+            )}
             <div className="flex flex-col gap-2 text-sm font-medium">
               Sahə (m²)
               {anyArea ? (
@@ -515,6 +556,10 @@ export function ListingForm({
           <>
             <input type="hidden" {...form.register("buildingAge")} />
             <input type="hidden" {...form.register("floor", { valueAsNumber: true })} />
+            <input
+              type="hidden"
+              {...form.register("buildingFloors", { valueAsNumber: true })}
+            />
             <input type="hidden" {...form.register("areaSqm", { valueAsNumber: true })} />
           </>
         )}

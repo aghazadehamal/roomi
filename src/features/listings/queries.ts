@@ -46,6 +46,7 @@ type ListingSummaryRow = {
   housing_kind: string;
   building_age: string;
   floor: number;
+  building_floors: number;
   area_sqm: number;
   expires_at: string;
   listing_photos: NestedListingPhoto | NestedListingPhoto[] | null;
@@ -96,6 +97,7 @@ function mapSummaryRow(row: ListingSummaryRow): ListingSummary | null {
     housingKind: row.housing_kind,
     buildingAge: row.building_age,
     floor: row.floor,
+    buildingFloors: row.building_floors,
     areaSqm: row.area_sqm,
     daysLeft: daysLeft(row.expires_at),
     photoUrl: coverPhotoUrl(row.listing_photos),
@@ -217,6 +219,7 @@ export const getListing = cache(async (id: string): Promise<ListingDetail | null
     housingKind: row.housing_kind,
     buildingAge: row.building_age,
     floor: row.floor,
+    buildingFloors: row.building_floors,
     areaSqm: row.area_sqm,
     genderPref: row.gender_pref,
     daysLeft: row.status === "active" ? daysLeft(row.expires_at) : 0,
@@ -308,6 +311,7 @@ export async function listOwnListings(): Promise<OwnListing[]> {
         housingKind: row.housing_kind,
         buildingAge: row.building_age,
         floor: row.floor,
+        buildingFloors: row.building_floors,
         areaSqm: row.area_sqm,
         daysLeft: row.status === "active" ? daysLeft(row.expires_at) : 0,
         photoUrl: coverPhotoUrl(row.listing_photos),
@@ -427,6 +431,7 @@ export async function listSavedListings(): Promise<SavedListing[]> {
           housingKind: row.housing_kind,
           buildingAge: row.building_age,
           floor: row.floor,
+          buildingFloors: row.building_floors,
           areaSqm: row.area_sqm,
           daysLeft: row.status === "active" ? daysLeft(row.expires_at) : 0,
           photoUrl: coverPhotoUrl(row.listing_photos),

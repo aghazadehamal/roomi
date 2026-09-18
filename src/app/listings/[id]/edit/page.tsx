@@ -69,6 +69,12 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
     housingKind,
     buildingAge,
     floor: listing.floor,
+    buildingFloors:
+      listing.housingKind === "apartment" || housingKind === "apartment"
+        ? listing.buildingFloors > 0
+          ? listing.buildingFloors
+          : 9
+        : 0,
     areaSqm: listing.areaSqm,
   };
 }

@@ -7,6 +7,7 @@ import {
   SEEK_TYPES,
   listingAreaText,
   listingBuildingAgeText,
+  listingBuildingFloorsText,
   listingFloorLabel,
   listingFloorText,
   listingLocationFactLabel,
@@ -14,6 +15,7 @@ import {
   listingPriceText,
   listingRoomsText,
   listingShowsBuildingDetails,
+  listingShowsBuildingFloors,
   listingShowsHousingKind,
   listingShowsPhotos,
   listingShowsRooms,
@@ -84,6 +86,18 @@ function listingFacts(listing: ListingCardProps["listing"]): Fact[] {
       icon: Layers,
       label: listingFloorLabel(listing.housingKind),
       value: listingFloorText(listing.floor, listing.housingKind),
+    });
+  }
+
+  if (
+    listingShowsBuildingDetails(listing.type) &&
+    listingShowsBuildingFloors(listing.housingKind) &&
+    listing.buildingFloors > 0
+  ) {
+    facts.push({
+      icon: Building2,
+      label: "Bina",
+      value: listingBuildingFloorsText(listing.buildingFloors),
     });
   }
 

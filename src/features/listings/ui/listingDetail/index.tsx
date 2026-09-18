@@ -8,6 +8,7 @@ import {
   SEEK_TYPES,
   listingAreaText,
   listingBuildingAgeText,
+  listingBuildingFloorsText,
   listingFloorLabel,
   listingFloorText,
   listingLocationDetailText,
@@ -15,6 +16,7 @@ import {
   listingPriceText,
   listingRoomsText,
   listingShowsBuildingDetails,
+  listingShowsBuildingFloors,
   listingShowsGender,
   listingShowsHousingKind,
   listingShowsPhotos,
@@ -59,6 +61,16 @@ function listingFacts(listing: ListingDetailViewProps["listing"]): Fact[] {
       label: listingFloorLabel(listing.housingKind),
       value: listingFloorText(listing.floor, listing.housingKind),
     });
+    if (
+      listingShowsBuildingFloors(listing.housingKind) &&
+      listing.buildingFloors > 0
+    ) {
+      facts.push({
+        icon: Building2,
+        label: "Binanın mərtəbə sayı",
+        value: listingBuildingFloorsText(listing.buildingFloors),
+      });
+    }
     facts.push({
       icon: Ruler,
       label: "Sahə",

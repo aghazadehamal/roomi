@@ -48,10 +48,10 @@ export function applyCoverPhotoLimit<T extends {
 }
 
 export const LISTING_SUMMARY_SELECT =
-  "id, user_id, title, price, city, district, rooms, type, housing_kind, building_age, floor, area_sqm, expires_at, listing_photos ( url, sort_order )";
+  "id, user_id, title, price, city, district, rooms, type, housing_kind, building_age, floor, building_floors, area_sqm, expires_at, listing_photos ( url, sort_order )";
 
 export const LISTING_DETAIL_SELECT =
-  "id, user_id, title, body, price, city, district, rooms, type, gender_pref, housing_kind, building_age, floor, area_sqm, expires_at, status, listing_photos ( id, url, sort_order )";
+  "id, user_id, title, body, price, city, district, rooms, type, gender_pref, housing_kind, building_age, floor, building_floors, area_sqm, expires_at, status, listing_photos ( id, url, sort_order )";
 
 export const LISTING_OWN_SELECT =
-  "id, user_id, title, price, city, district, rooms, type, housing_kind, building_age, floor, area_sqm, expires_at, status, listing_photos ( url, sort_order )";
+  "id, user_id, title, price, city, district, rooms, type, housing_kind, building_age, floor, building_floors, area_sqm, expires_at, status, listing_photos ( url, sort_order )";

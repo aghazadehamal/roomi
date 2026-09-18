@@ -46,6 +46,7 @@ export const listingFormSchema = z
     housingKind: z.enum(["apartment", "house", "any"]),
     buildingAge: z.enum(["old", "new", "any"]),
     floor: z.number().int().min(0).max(50),
+    buildingFloors: z.number().int().min(0).max(50),
     areaSqm: z.number().int().min(0).max(10_000),
   })
   .superRefine((data, ctx) => {
@@ -102,6 +103,25 @@ export const listingFormSchema = z
         path: ["district"],
         message: "Rayon seç.",
       });
+    }
+
+    if (
+      data.housingKind === "apartment" &&
+      (offer || data.type === ListingType.RoommateSeek)
+    ) {
+      if (data.buildingFloors < 1) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["buildingFloors"],
+          message: "Binanın ümumi mərtəbə sayını yaz.",
+        });
+      } else if (data.floor > data.buildingFloors) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["floor"],
+          message: "Mərtəbə binanın ümumi mərtəbəsindən çox ola bilməz.",
+        });
+      }
     }
 
     if (!isBakuCity(data.city) && data.district !== ANY_DISTRICT) {

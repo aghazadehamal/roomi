@@ -111,6 +111,7 @@ export async function createListing(input: unknown): Promise<CreateListingResult
       housing_kind: parsed.data.housingKind,
       building_age: parsed.data.buildingAge,
       floor: parsed.data.floor,
+      building_floors: parsed.data.buildingFloors,
       area_sqm: parsed.data.areaSqm,
       status: "active",
       expires_at: expiresAt,
@@ -194,6 +195,7 @@ export async function updateListing(
       housing_kind: parsed.data.housingKind,
       building_age: parsed.data.buildingAge,
       floor: parsed.data.floor,
+      building_floors: parsed.data.buildingFloors,
       area_sqm: parsed.data.areaSqm,
     })
     .eq("id", listing.id)

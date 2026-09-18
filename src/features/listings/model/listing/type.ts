@@ -28,6 +28,7 @@ export type ListingSummary = {
   housingKind: HousingKind;
   buildingAge: BuildingAge;
   floor: number;
+  buildingFloors: number;
   areaSqm: number;
   daysLeft: number;
   photoUrl: string | null;
@@ -138,6 +139,14 @@ export function listingFloorText(floor: number, housingKind: HousingKind = "apar
 
 export function listingFloorLabel(housingKind: HousingKind): string {
   return housingKind === "house" ? "Mərtəbə sayı" : "Mərtəbə";
+}
+
+export function listingBuildingFloorsText(buildingFloors: number): string {
+  return buildingFloors <= 0 ? "Fərqi yoxdur" : `${buildingFloors} mərtəbəli`;
+}
+
+export function listingShowsBuildingFloors(housingKind: HousingKind): boolean {
+  return housingKind === "apartment";
 }
 
 export function listingAreaText(areaSqm: number): string {
