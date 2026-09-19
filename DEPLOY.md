@@ -74,9 +74,16 @@ Storage: `listing-photos` bucket + migration-dakı policy-lər.
 
 ## 5. Cron (elan müddəti)
 
-`vercel.json` hər gün **03:00 UTC**-də çağırır:
+> **Müvəqqəti söndürülüb:** `vercel.json` crons boşdur və `AUTO_ARCHIVE_EXPIRED_LISTINGS = false`.
+> Bərpa: flag-i `true` et + aşağıdakı cron schedule-i `vercel.json`-a qoy.
+
+Normalda `vercel.json` hər gün **03:00 UTC**-də çağırır:
 
 `GET /api/cron/expire-listings`
+
+```json
+{ "crons": [{ "path": "/api/cron/expire-listings", "schedule": "0 3 * * *" }] }
+```
 
 Vercel avtomatik `Authorization: Bearer <CRON_SECRET>` göndərir. `CRON_SECRET` env-də olmalıdır.
 
@@ -87,7 +94,7 @@ curl -s -H "Authorization: Bearer SƏNİN_CRON_SECRET" \
   https://<project>.vercel.app/api/cron/expire-listings
 ```
 
-Gözlənilən: `{"archived":0}` və ya arxivlənən say.
+Gözlənilən: `{"archived":0}` və ya arxivlənən say (söndürüləndə `skipped: true`).
 
 ## 6. Deploy sonrası checklist
 

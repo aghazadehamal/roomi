@@ -16,6 +16,9 @@ import {
 
 export const LISTING_TTL_DAYS = 21;
 
+/** Müvəqqəti: 21 gün sonra avtomatik arxiv söndürülüb. Əl ilə arxiv qalır. */
+export const AUTO_ARCHIVE_EXPIRED_LISTINGS = false;
+
 export const listingIdSchema = z.object({
   listingId: z.string().uuid(),
 });

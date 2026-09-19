@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { AUTO_ARCHIVE_EXPIRED_LISTINGS } from "@/features/listings/schema";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -8,6 +9,14 @@ export async function GET(request: Request) {
 
   if (!secret || auth !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!AUTO_ARCHIVE_EXPIRED_LISTINGS) {
+    return NextResponse.json({
+      archived: 0,
+      skipped: true,
+      reason: "AUTO_ARCHIVE_EXPIRED_LISTINGS is false",
+    });
   }
 
   const supabase = await createClient();
