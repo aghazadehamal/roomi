@@ -31,10 +31,10 @@ export const metadata: Metadata = {
     : {}),
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "48x48" },
-      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.ico?v=10", sizes: "48x48" },
+      { url: "/icon.png?v=10", type: "image/png", sizes: "512x512" },
     ],
-    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [{ url: "/apple-icon.png?v=10", sizes: "180x180", type: "image/png" }],
   },
   title: {
     default: "Azərbaycanda kirayə ev və otaq platforması",

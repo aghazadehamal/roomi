@@ -11,12 +11,13 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 md:px-10 md:py-4">
         <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
           <Image
-            src="/brand-mark.png"
+            src="/brand-mark.png?v=10"
             alt="kirayesin.az"
-            width={48}
-            height={48}
-            className="size-10 shrink-0 rounded-2xl sm:size-12"
+            width={256}
+            height={256}
+            className="size-10 shrink-0 rounded-sm object-contain sm:size-12"
             priority
+            unoptimized
           />
           <span className="font-heading truncate text-xl tracking-tight sm:text-2xl">
             kirayesin.az
