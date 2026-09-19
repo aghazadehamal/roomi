@@ -68,6 +68,7 @@ Sıra ilə **Run** (əvvəl run etməmisənsə):
 14. `…000021_listing_gender_pref_family.sql` ← kimə: ailə
 15. `…000022_listing_building_floors.sql` ← binanın ümumi mərtəbə sayı
 16. `…000023_listing_metro.sql` ← metro stansiyası
+17. `…000024_listing_rental_term.sql` ← günlük / uzunmüddətli
 
 Storage: `listing-photos` bucket + migration-dakı policy-lər.
 

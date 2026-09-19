@@ -1,9 +1,10 @@
-import { BedDouble, Building2, Layers, MapPin, Ruler, TrainFront, UserRound, Wallet } from "lucide-react";
+import { BedDouble, Building2, CalendarDays, Layers, MapPin, Ruler, TrainFront, UserRound, Wallet } from "lucide-react";
 
 import {
   ANY_METRO,
   LISTING_TYPE_LABELS,
   ListingType,
+  RENTAL_TERM_LABELS,
   SEEK_TYPES,
   isBakuCity,
   listingAreaText,
@@ -23,6 +24,7 @@ import {
   listingShowsGender,
   listingShowsHousingKind,
   listingShowsPhotos,
+  listingShowsRentalTerm,
   listingShowsRooms,
   HOUSING_KIND_LABELS,
 } from "@/features/listings/model";
@@ -41,7 +43,7 @@ function listingFacts(listing: ListingDetailViewProps["listing"]): Fact[] {
   const facts: Fact[] = [
     {
       icon: MapPin,
-      label: listingLocationFactLabel(listing.city),
+      label: listingLocationFactLabel(listing.city, listing.district),
       value: listingLocationDetailText(listing.city, listing.district),
     },
   ];
@@ -58,6 +60,14 @@ function listingFacts(listing: ListingDetailViewProps["listing"]): Fact[] {
       icon: Building2,
       label: "Ev növü",
       value: HOUSING_KIND_LABELS[listing.housingKind],
+    });
+  }
+
+  if (listingShowsRentalTerm(listing.type)) {
+    facts.push({
+      icon: CalendarDays,
+      label: "Müddət",
+      value: RENTAL_TERM_LABELS[listing.rentalTerm],
     });
   }
 

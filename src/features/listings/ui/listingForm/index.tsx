@@ -33,8 +33,10 @@ import {
   listingShowsGender,
   listingShowsHousingKind,
   listingShowsPhotos,
+  listingShowsRentalTerm,
   listingShowsRooms,
   listingFloorLabel,
+  RENTAL_TERM_LABELS,
 } from "@/features/listings/model";
 import {
   ANY_DISTRICT,
@@ -102,6 +104,7 @@ export function ListingForm({
       genderPref: initialType === ListingType.HomeSeek ? "female" : "any",
       housingKind: "apartment",
       buildingAge: tab === FeedTab.Seek ? "any" : "new",
+      rentalTerm: "long_term",
       floor: tab === FeedTab.Seek ? 0 : 3,
       buildingFloors: tab === FeedTab.Seek ? 0 : 9,
       areaSqm: tab === FeedTab.Seek ? 0 : 80,
@@ -239,6 +242,9 @@ export function ListingForm({
               if (type === ListingType.HomeSeek) {
                 form.setValue("buildingFloors", 0);
               }
+              if (type === ListingType.RoommateSeek) {
+                form.setValue("rentalTerm", "long_term");
+              }
               if (
                 (!SEEK_TYPES.includes(type) || type === ListingType.RoommateSeek) &&
                 form.getValues("housingKind") === "any"
@@ -296,8 +302,11 @@ export function ListingForm({
           {...form.register("city", {
             onChange: (event) => {
               const city = event.target.value;
-              if (!isBakuCity(city)) {
+              if (isBakuCity(city)) {
                 form.setValue("district", ANY_DISTRICT);
+                form.setValue("metro", ANY_METRO);
+              } else {
+                form.setValue("district", "");
                 form.setValue("metro", ANY_METRO);
               }
             },
@@ -310,6 +319,60 @@ export function ListingForm({
           ))}
         </select>
       </label>
+
+      {bakuSelected ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-2 text-sm font-medium">
+            Rayon
+            <select className={selectClass} {...form.register("district")}>
+              <option value={ANY_DISTRICT}>Seçilməyib</option>
+              {BAKU_DISTRICTS.map((district) => (
+                <option key={district} value={district}>
+                  {district}
+                </option>
+              ))}
+            </select>
+            {form.formState.errors.district ? (
+              <span className="font-normal text-destructive">
+                {form.formState.errors.district.message}
+              </span>
+            ) : null}
+          </label>
+          <label className="flex flex-col gap-2 text-sm font-medium">
+            Metro
+            <select className={selectClass} {...form.register("metro")}>
+              <option value={ANY_METRO}>Seçilməyib</option>
+              {BAKU_METRO_STATIONS.map((station) => (
+                <option key={station} value={station}>
+                  {station}
+                </option>
+              ))}
+            </select>
+            {form.formState.errors.metro ? (
+              <span className="font-normal text-destructive">
+                {form.formState.errors.metro.message}
+              </span>
+            ) : null}
+          </label>
+        </div>
+      ) : (
+        <>
+          <label className="flex flex-col gap-2 text-sm font-medium">
+            Ünvan
+            <Input
+              placeholder="Məs: Kapaz qəsəbəsi, 5-ci mikrorayon"
+              aria-invalid={Boolean(form.formState.errors.district)}
+              {...form.register("district")}
+            />
+            {form.formState.errors.district ? (
+              <span className="font-normal text-destructive">
+                {form.formState.errors.district.message}
+              </span>
+            ) : null}
+          </label>
+          <input type="hidden" {...form.register("metro")} />
+        </>
+      )}
 
       <label className="flex flex-col gap-2 text-sm font-medium">
         Başlıq
@@ -342,47 +405,6 @@ export function ListingForm({
       </label>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {bakuSelected ? (
-          <>
-            <label className="flex flex-col gap-2 text-sm font-medium">
-              Rayon
-              <select className={selectClass} {...form.register("district")}>
-                <option value={ANY_DISTRICT}>Seçilməyib</option>
-                {BAKU_DISTRICTS.map((district) => (
-                  <option key={district} value={district}>
-                    {district}
-                  </option>
-                ))}
-              </select>
-              {form.formState.errors.district ? (
-                <span className="font-normal text-destructive">
-                  {form.formState.errors.district.message}
-                </span>
-              ) : null}
-            </label>
-            <label className="flex flex-col gap-2 text-sm font-medium">
-              Metro
-              <select className={selectClass} {...form.register("metro")}>
-                <option value={ANY_METRO}>Seçilməyib</option>
-                {BAKU_METRO_STATIONS.map((station) => (
-                  <option key={station} value={station}>
-                    {station}
-                  </option>
-                ))}
-              </select>
-              {form.formState.errors.metro ? (
-                <span className="font-normal text-destructive">
-                  {form.formState.errors.metro.message}
-                </span>
-              ) : null}
-            </label>
-          </>
-        ) : (
-          <>
-            <input type="hidden" {...form.register("district")} />
-            <input type="hidden" {...form.register("metro")} />
-          </>
-        )}
         <div className="flex flex-col gap-2 text-sm font-medium">
           {tab === FeedTab.Seek ? "Büdcə (AZN)" : "Qiymət (AZN)"}
           {anyPrice ? (
@@ -466,6 +488,22 @@ export function ListingForm({
           </label>
         ) : (
           <input type="hidden" {...form.register("genderPref")} />
+        )}
+        {listingShowsRentalTerm(selectedType) ? (
+          <label className="flex flex-col gap-2 text-sm font-medium">
+            Müddət
+            <select className={selectClass} {...form.register("rentalTerm")}>
+              <option value="long_term">{RENTAL_TERM_LABELS.long_term}</option>
+              <option value="daily">{RENTAL_TERM_LABELS.daily}</option>
+            </select>
+            {form.formState.errors.rentalTerm ? (
+              <span className="text-sm font-normal text-destructive">
+                {form.formState.errors.rentalTerm.message}
+              </span>
+            ) : null}
+          </label>
+        ) : (
+          <input type="hidden" {...form.register("rentalTerm")} />
         )}
         {listingShowsHousingKind(selectedType) ? (
           <label className="flex flex-col gap-2 text-sm font-medium">

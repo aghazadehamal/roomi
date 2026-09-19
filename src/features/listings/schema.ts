@@ -51,13 +51,17 @@ export const listingFormSchema = z
       .min(20, "Təsvir ən azı 20 simvol olmalıdır.")
       .max(2000),
     city: z.enum(AZ_CITIES),
-    district: z.enum(LISTING_DISTRICTS),
+    district: z
+      .string()
+      .trim()
+      .max(80, "Ünvan ən çoxu 80 simvol ola bilər."),
     metro: z.enum(LISTING_METROS),
     price: z.number().int().min(0).max(100_000),
     rooms: z.number().int().min(0).max(20),
     genderPref: z.enum(["any", "female", "male", "family"]),
     housingKind: z.enum(["apartment", "house", "any"]),
     buildingAge: z.enum(["old", "new", "any"]),
+    rentalTerm: z.enum(["daily", "long_term"]),
     floor: z.number().int().min(0).max(50),
     buildingFloors: z.number().int().min(0).max(50),
     areaSqm: z.number().int().min(0).max(10_000),
@@ -81,6 +85,14 @@ export const listingFormSchema = z
         code: "custom",
         path: ["genderPref"],
         message: "Kim olduğunu seç: qadın, kişi və ya ailə.",
+      });
+    }
+
+    if (data.type === ListingType.RoommateSeek && data.rentalTerm !== "long_term") {
+      ctx.addIssue({
+        code: "custom",
+        path: ["rentalTerm"],
+        message: "Otaq yoldaşı elanında müddət seçilmir.",
       });
     }
 
@@ -150,20 +162,39 @@ export const listingFormSchema = z
       }
     }
 
-    if (!isBakuCity(data.city) && data.district !== ANY_DISTRICT) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["district"],
-        message: "Bakıdan kənar şəhərlərdə rayon seçilmir.",
-      });
-    }
+    if (isBakuCity(data.city)) {
+      if (!(LISTING_DISTRICTS as readonly string[]).includes(data.district)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["district"],
+          message: "Bakı rayonunu seç.",
+        });
+      }
+    } else {
+      if (data.district.length < 2) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["district"],
+          message: "Ünvanı yaz (məhəllə və ya ərazi).",
+        });
+      } else {
+        const districtContact = contactInfoIssue(data.district, ["district"]);
+        if (districtContact) {
+          ctx.addIssue(districtContact);
+        }
+        const districtProfanity = profanityIssue(data.district, ["district"]);
+        if (districtProfanity) {
+          ctx.addIssue(districtProfanity);
+        }
+      }
 
-    if (!isBakuCity(data.city) && data.metro !== ANY_METRO) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["metro"],
-        message: "Bakıdan kənar şəhərlərdə metro seçilmir.",
-      });
+      if (data.metro !== ANY_METRO) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["metro"],
+          message: "Bakıdan kənar şəhərlərdə metro seçilmir.",
+        });
+      }
     }
 
     const titleIssue = contactInfoIssue(data.title, ["title"]);

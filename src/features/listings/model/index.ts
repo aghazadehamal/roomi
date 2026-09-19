@@ -4,6 +4,7 @@ export {
   GENDER_PREF_LABELS,
   HOUSING_KIND_LABELS,
   LISTING_TYPE_LABELS,
+  RENTAL_TERM_LABELS,
   ListingType,
   OFFER_TYPES,
   SEEK_TYPES,
@@ -13,6 +14,7 @@ export {
   listingShowsGender,
   listingShowsHousingKind,
   listingShowsPhotos,
+  listingShowsRentalTerm,
   listingShowsRooms,
   listingAreaText,
   listingBuildingAgeText,
@@ -28,6 +30,7 @@ export {
   type ListingDetail,
   type ListingSummary,
   type OwnListing,
+  type RentalTerm,
   type SavedListing,
   type ListingFeedFilters,
 } from "./listing/type";

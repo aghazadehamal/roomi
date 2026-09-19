@@ -42,6 +42,12 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
     } else {
       metro = ANY_METRO;
     }
+  } else {
+    district =
+      listing.district === ANY_DISTRICT || !listing.district
+        ? ""
+        : listing.district;
+    metro = ANY_METRO;
   }
 
   const requiresConcreteHousing =
@@ -78,6 +84,7 @@ function toListingFormValues(listing: ListingDetail): ListingFormValues {
     genderPref,
     housingKind,
     buildingAge,
+    rentalTerm: listing.type === ListingType.RoommateSeek ? "long_term" : listing.rentalTerm,
     floor: listing.floor,
     buildingFloors:
       listing.housingKind === "apartment" || housingKind === "apartment"

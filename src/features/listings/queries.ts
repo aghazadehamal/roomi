@@ -23,7 +23,7 @@ import {
   sortedListingPhotos,
   type NestedListingPhoto,
 } from "@/features/listings/helpers/listingPhotoRows";
-import { ANY_DISTRICT, BAKU_CITY } from "@/features/listings/model/locations";
+import { ANY_DISTRICT, ANY_METRO, BAKU_CITY } from "@/features/listings/model/locations";
 import { getBlockStatus } from "@/features/moderation/queries";
 import { createClient } from "@/lib/supabase/server";
 
@@ -46,6 +46,7 @@ type ListingSummaryRow = {
   type: string;
   housing_kind: string;
   building_age: string;
+  rental_term: string;
   floor: number;
   building_floors: number;
   area_sqm: number;
@@ -77,11 +78,16 @@ function isBuildingAge(value: string): value is ListingDetail["buildingAge"] {
   return value === "old" || value === "new" || value === "any";
 }
 
+function isRentalTerm(value: string): value is ListingDetail["rentalTerm"] {
+  return value === "daily" || value === "long_term";
+}
+
 function mapSummaryRow(row: ListingSummaryRow): ListingSummary | null {
   if (
     !isListingType(row.type) ||
     !isHousingKind(row.housing_kind) ||
-    !isBuildingAge(row.building_age)
+    !isBuildingAge(row.building_age) ||
+    !isRentalTerm(row.rental_term)
   ) {
     return null;
   }
@@ -98,6 +104,7 @@ function mapSummaryRow(row: ListingSummaryRow): ListingSummary | null {
     type: row.type,
     housingKind: row.housing_kind,
     buildingAge: row.building_age,
+    rentalTerm: row.rental_term,
     floor: row.floor,
     buildingFloors: row.building_floors,
     areaSqm: row.area_sqm,
@@ -139,6 +146,11 @@ export async function listListings(
     query = query.in("district", [filters.district, ANY_DISTRICT]);
   }
 
+  if (filters.metro) {
+    query = query.eq("city", BAKU_CITY);
+    query = query.in("metro", [filters.metro, ANY_METRO]);
+  }
+
   if (filters.maxPrice !== null) {
     query = query.or(`price.lte.${filters.maxPrice},price.eq.0`);
   }
@@ -154,6 +166,14 @@ export async function listListings(
 
   if (filters.housingKind) {
     query = query.in("housing_kind", [filters.housingKind, "any"]);
+  }
+
+  if (filters.genderPref) {
+    query = query.in("gender_pref", [filters.genderPref, "any"]);
+  }
+
+  if (filters.rentalTerm) {
+    query = query.eq("rental_term", filters.rentalTerm);
   }
 
   query = applyCoverPhotoLimit(query);
@@ -200,6 +220,7 @@ export const getListing = cache(async (id: string): Promise<ListingDetail | null
     !isGenderPref(row.gender_pref) ||
     !isHousingKind(row.housing_kind) ||
     !isBuildingAge(row.building_age) ||
+    !isRentalTerm(row.rental_term) ||
     !isListingStatus(row.status)
   ) {
     return null;
@@ -221,6 +242,7 @@ export const getListing = cache(async (id: string): Promise<ListingDetail | null
     type: row.type,
     housingKind: row.housing_kind,
     buildingAge: row.building_age,
+    rentalTerm: row.rental_term,
     floor: row.floor,
     buildingFloors: row.building_floors,
     areaSqm: row.area_sqm,
@@ -296,7 +318,8 @@ export async function listOwnListings(): Promise<OwnListing[]> {
       !isListingType(row.type) ||
       !isListingStatus(row.status) ||
       !isHousingKind(row.housing_kind) ||
-      !isBuildingAge(row.building_age)
+      !isBuildingAge(row.building_age) ||
+      !isRentalTerm(row.rental_term)
     ) {
       return [];
     }
@@ -314,6 +337,7 @@ export async function listOwnListings(): Promise<OwnListing[]> {
         type: row.type,
         housingKind: row.housing_kind,
         buildingAge: row.building_age,
+        rentalTerm: row.rental_term,
         floor: row.floor,
         buildingFloors: row.building_floors,
         areaSqm: row.area_sqm,
@@ -417,7 +441,8 @@ export async function listSavedListings(): Promise<SavedListing[]> {
         !isListingType(row.type) ||
         !isListingStatus(row.status) ||
         !isHousingKind(row.housing_kind) ||
-        !isBuildingAge(row.building_age)
+        !isBuildingAge(row.building_age) ||
+        !isRentalTerm(row.rental_term)
       ) {
         return [];
       }
@@ -435,6 +460,7 @@ export async function listSavedListings(): Promise<SavedListing[]> {
           type: row.type,
           housingKind: row.housing_kind,
           buildingAge: row.building_age,
+          rentalTerm: row.rental_term,
           floor: row.floor,
           buildingFloors: row.building_floors,
           areaSqm: row.area_sqm,

@@ -10,7 +10,13 @@ import {
   listingFeedHref,
   PRICE_FILTER_OPTIONS,
 } from "@/features/listings/helpers/listingFeedFilters";
-import { AZ_CITIES, BAKU_DISTRICTS, isBakuCity } from "@/features/listings/model/locations";
+import {
+  AZ_CITIES,
+  BAKU_DISTRICTS,
+  BAKU_METRO_STATIONS,
+  isBakuCity,
+} from "@/features/listings/model/locations";
+import { RENTAL_TERM_LABELS } from "@/features/listings/model";
 import { cn } from "@/lib/utils";
 
 import type { ListingFiltersProps } from "./type";
@@ -20,7 +26,8 @@ const selectClass =
 
 export function ListingFilters({ tab, filters, action }: ListingFiltersProps) {
   const router = useRouter();
-  const showDistrictFilter = !filters.city || isBakuCity(filters.city);
+  const showBakuLocationFilters = !filters.city || isBakuCity(filters.city);
+  const genderLabel = tab === FeedTab.Seek ? "Kim" : "Kimə";
 
   function update(next: Partial<typeof filters>) {
     router.push(listingFeedHref(tab, { ...filters, ...next }));
@@ -62,9 +69,11 @@ export function ListingFilters({ tab, filters, action }: ListingFiltersProps) {
           aria-label="Şəhər"
           onChange={(event) => {
             const city = event.target.value || null;
+            const leaveBaku = Boolean(city && !isBakuCity(city));
             update({
               city,
-              district: city && !isBakuCity(city) ? null : filters.district,
+              district: leaveBaku ? null : filters.district,
+              metro: leaveBaku ? null : filters.metro,
             });
           }}
         >
@@ -75,22 +84,39 @@ export function ListingFilters({ tab, filters, action }: ListingFiltersProps) {
             </option>
           ))}
         </select>
-        {showDistrictFilter ? (
-          <select
-            className={selectClass}
-            value={filters.district ?? ""}
-            aria-label="Rayon"
-            onChange={(event) => {
-              update({ district: event.target.value || null });
-            }}
-          >
-            <option value="">Bütün rayonlar</option>
-            {BAKU_DISTRICTS.map((district) => (
-              <option key={district} value={district}>
-                {district}
-              </option>
-            ))}
-          </select>
+        {showBakuLocationFilters ? (
+          <>
+            <select
+              className={selectClass}
+              value={filters.district ?? ""}
+              aria-label="Rayon"
+              onChange={(event) => {
+                update({ district: event.target.value || null });
+              }}
+            >
+              <option value="">Bütün rayonlar</option>
+              {BAKU_DISTRICTS.map((district) => (
+                <option key={district} value={district}>
+                  {district}
+                </option>
+              ))}
+            </select>
+            <select
+              className={selectClass}
+              value={filters.metro ?? ""}
+              aria-label="Metro"
+              onChange={(event) => {
+                update({ metro: event.target.value || null });
+              }}
+            >
+              <option value="">Bütün metrolar</option>
+              {BAKU_METRO_STATIONS.map((station) => (
+                <option key={station} value={station}>
+                  {station}
+                </option>
+              ))}
+            </select>
+          </>
         ) : null}
         <select
           className={selectClass}
@@ -137,6 +163,51 @@ export function ListingFilters({ tab, filters, action }: ListingFiltersProps) {
           <option value="">Ev: hamısı</option>
           <option value="apartment">Bina evi</option>
           <option value="house">Həyət evi</option>
+        </select>
+        <select
+          className={selectClass}
+          value={filters.genderPref ?? ""}
+          aria-label={genderLabel}
+          onChange={(event) => {
+            const value = event.target.value;
+            update({
+              genderPref:
+                value === "female" || value === "male" || value === "family"
+                  ? value
+                  : null,
+            });
+          }}
+        >
+          <option value="">{genderLabel}: hamısı</option>
+          {tab === FeedTab.Seek ? (
+            <>
+              <option value="female">Qadın</option>
+              <option value="male">Kişi</option>
+              <option value="family">Ailə</option>
+            </>
+          ) : (
+            <>
+              <option value="female">Yalnız qadın</option>
+              <option value="male">Yalnız kişi</option>
+              <option value="family">Ailə</option>
+            </>
+          )}
+        </select>
+        <select
+          className={selectClass}
+          value={filters.rentalTerm ?? ""}
+          aria-label="Müddət"
+          onChange={(event) => {
+            const value = event.target.value;
+            update({
+              rentalTerm:
+                value === "daily" || value === "long_term" ? value : null,
+            });
+          }}
+        >
+          <option value="">Müddət: hamısı</option>
+          <option value="long_term">{RENTAL_TERM_LABELS.long_term}</option>
+          <option value="daily">{RENTAL_TERM_LABELS.daily}</option>
         </select>
         {listingFeedFiltersActive(filters) ? (
           <Link

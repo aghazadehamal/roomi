@@ -29,6 +29,7 @@ type ListingRow = {
   gender_pref: string
   housing_kind: string
   building_age: string
+  rental_term: string
   floor: number
   building_floors: number
   area_sqm: number
@@ -118,6 +119,7 @@ export type Database = {
           gender_pref?: string
           housing_kind?: string
           building_age?: string
+          rental_term?: string
           floor?: number
           building_floors?: number
           area_sqm?: number

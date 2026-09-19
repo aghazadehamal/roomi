@@ -17,9 +17,12 @@ type HomePageProps = {
     tab?: string;
     city?: string;
     district?: string;
+    metro?: string;
     maxPrice?: string;
     rooms?: string;
     housingKind?: string;
+    genderPref?: string;
+    rentalTerm?: string;
   }>;
 };
 

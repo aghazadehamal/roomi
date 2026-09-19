@@ -16,6 +16,8 @@ export type HousingKind = "apartment" | "house" | "any";
 
 export type BuildingAge = "old" | "new" | "any";
 
+export type RentalTerm = "daily" | "long_term";
+
 export type ListingSummary = {
   id: string;
   userId: string;
@@ -28,6 +30,7 @@ export type ListingSummary = {
   type: ListingType;
   housingKind: HousingKind;
   buildingAge: BuildingAge;
+  rentalTerm: RentalTerm;
   floor: number;
   buildingFloors: number;
   areaSqm: number;
@@ -55,9 +58,12 @@ export type SavedListing = ListingSummary & {
 export type ListingFeedFilters = {
   city: string | null;
   district: string | null;
+  metro: string | null;
   maxPrice: number | null;
   rooms: number | null;
   housingKind: "apartment" | "house" | null;
+  genderPref: "female" | "male" | "family" | null;
+  rentalTerm: RentalTerm | null;
 };
 
 export const LISTING_TYPE_LABELS: Record<ListingType, string> = {
@@ -116,6 +122,11 @@ export const BUILDING_AGE_LABELS: Record<BuildingAge, string> = {
   any: "Fərqi yoxdur",
 };
 
+export const RENTAL_TERM_LABELS: Record<RentalTerm, string> = {
+  daily: "Gündəlik",
+  long_term: "Uzunmüddətli",
+};
+
 export const OFFER_TYPES: ListingType[] = [
   ListingType.HomeOffer,
   ListingType.RoomOffer,
@@ -132,6 +143,10 @@ export function listingShowsRooms(type: ListingType): boolean {
 
 export function listingShowsGender(_type: ListingType): boolean {
   return true;
+}
+
+export function listingShowsRentalTerm(type: ListingType): boolean {
+  return type !== ListingType.RoommateSeek;
 }
 
 export function listingShowsHousingKind(_type: ListingType): boolean {
@@ -200,6 +215,9 @@ type ListingProfileMetaInput = {
 
 function listingProfileLocation(city: string, district: string): string {
   if (!isBakuCity(city)) {
+    if (district && district !== ANY_DISTRICT) {
+      return `${city}, ${district}`;
+    }
     return city;
   }
   if (district === ANY_DISTRICT) {

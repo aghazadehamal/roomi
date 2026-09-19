@@ -148,12 +148,24 @@ export function isBakuMetroStation(metro: string): metro is BakuMetroStation {
   return (BAKU_METRO_STATIONS as readonly string[]).includes(metro);
 }
 
-export function listingLocationFactLabel(city: string): "Rayon" | "Şəhər" {
-  return isBakuCity(city) ? "Rayon" : "Şəhər";
+export function listingLocationFactLabel(
+  city: string,
+  district?: string,
+): "Rayon" | "Şəhər" | "Ünvan" {
+  if (isBakuCity(city)) {
+    return "Rayon";
+  }
+  if (district && district !== ANY_DISTRICT) {
+    return "Ünvan";
+  }
+  return "Şəhər";
 }
 
 export function listingLocationText(city: string, district: string): string {
   if (!isBakuCity(city)) {
+    if (district && district !== ANY_DISTRICT) {
+      return `${city}, ${district}`;
+    }
     return city;
   }
   if (district === ANY_DISTRICT) {
@@ -164,6 +176,9 @@ export function listingLocationText(city: string, district: string): string {
 
 export function listingLocationDetailText(city: string, district: string): string {
   if (!isBakuCity(city)) {
+    if (district && district !== ANY_DISTRICT) {
+      return `${city}, ${district}`;
+    }
     return city;
   }
   if (district === ANY_DISTRICT) {

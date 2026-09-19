@@ -1,34 +1,52 @@
 import { FeedTab, type ListingFeedFilters } from "@/features/listings/model";
 import {
-  AZ_CITIES,
-  BAKU_CITY,
   BAKU_DISTRICTS,
+  BAKU_METRO_STATIONS,
   isAzCity,
   isBakuCity,
 } from "@/features/listings/model/locations";
 
 export const PRICE_FILTER_OPTIONS = [300, 500, 800, 1000, 1500, 2000] as const;
 
+export const GENDER_FILTER_OPTIONS = ["female", "male", "family"] as const;
+
+export type GenderFilterOption = (typeof GENDER_FILTER_OPTIONS)[number];
+
 export function emptyListingFeedFilters(): ListingFeedFilters {
-  return { city: null, district: null, maxPrice: null, rooms: null, housingKind: null };
+  return {
+    city: null,
+    district: null,
+    metro: null,
+    maxPrice: null,
+    rooms: null,
+    housingKind: null,
+    genderPref: null,
+    rentalTerm: null,
+  };
 }
 
 export function listingFeedFiltersActive(filters: ListingFeedFilters): boolean {
   return (
     filters.city !== null ||
     filters.district !== null ||
+    filters.metro !== null ||
     filters.maxPrice !== null ||
     filters.rooms !== null ||
-    filters.housingKind !== null
+    filters.housingKind !== null ||
+    filters.genderPref !== null ||
+    filters.rentalTerm !== null
   );
 }
 
 export function parseListingFeedFilters(params: {
   city?: string | string[];
   district?: string | string[];
+  metro?: string | string[];
   maxPrice?: string | string[];
   rooms?: string | string[];
   housingKind?: string | string[];
+  genderPref?: string | string[];
+  rentalTerm?: string | string[];
 }): ListingFeedFilters {
   const cityValue = firstParam(params.city);
   const city = cityValue && isAzCity(cityValue) ? cityValue : null;
@@ -39,6 +57,14 @@ export function parseListingFeedFilters(params: {
     (BAKU_DISTRICTS as readonly string[]).includes(districtValue) &&
     (!city || isBakuCity(city))
       ? districtValue
+      : null;
+
+  const metroValue = firstParam(params.metro);
+  const metro =
+    metroValue &&
+    (BAKU_METRO_STATIONS as readonly string[]).includes(metroValue) &&
+    (!city || isBakuCity(city))
+      ? metroValue
       : null;
 
   const maxPriceValue = Number(firstParam(params.maxPrice));
@@ -56,7 +82,30 @@ export function parseListingFeedFilters(params: {
       ? housingKindValue
       : null;
 
-  return { city, district, maxPrice, rooms, housingKind };
+  const genderPrefValue = firstParam(params.genderPref);
+  const genderPref =
+    genderPrefValue === "female" ||
+    genderPrefValue === "male" ||
+    genderPrefValue === "family"
+      ? genderPrefValue
+      : null;
+
+  const rentalTermValue = firstParam(params.rentalTerm);
+  const rentalTerm =
+    rentalTermValue === "daily" || rentalTermValue === "long_term"
+      ? rentalTermValue
+      : null;
+
+  return {
+    city,
+    district,
+    metro,
+    maxPrice,
+    rooms,
+    housingKind,
+    genderPref,
+    rentalTerm,
+  };
 }
 
 export function listingFeedHref(tab: FeedTab, filters: ListingFeedFilters): string {
@@ -70,6 +119,9 @@ export function listingFeedHref(tab: FeedTab, filters: ListingFeedFilters): stri
   if (filters.district && (!filters.city || isBakuCity(filters.city))) {
     params.set("district", filters.district);
   }
+  if (filters.metro && (!filters.city || isBakuCity(filters.city))) {
+    params.set("metro", filters.metro);
+  }
   if (filters.maxPrice !== null) {
     params.set("maxPrice", String(filters.maxPrice));
   }
@@ -78,6 +130,12 @@ export function listingFeedHref(tab: FeedTab, filters: ListingFeedFilters): stri
   }
   if (filters.housingKind) {
     params.set("housingKind", filters.housingKind);
+  }
+  if (filters.genderPref) {
+    params.set("genderPref", filters.genderPref);
+  }
+  if (filters.rentalTerm) {
+    params.set("rentalTerm", filters.rentalTerm);
   }
   const query = params.toString();
   return query ? `/?${query}` : "/";

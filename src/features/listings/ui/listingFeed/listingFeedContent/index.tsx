@@ -23,7 +23,7 @@ export async function ListingFeedContent({ tab, filters }: ListingFeedContentPro
 
   return (
     <ListingFeedGrid
-      key={`${tab}:${filters.city ?? ""}:${filters.district ?? ""}:${filters.maxPrice ?? ""}:${filters.rooms ?? ""}:${filters.housingKind ?? ""}`}
+      key={`${tab}:${filters.city ?? ""}:${filters.district ?? ""}:${filters.metro ?? ""}:${filters.maxPrice ?? ""}:${filters.rooms ?? ""}:${filters.housingKind ?? ""}:${filters.genderPref ?? ""}:${filters.rentalTerm ?? ""}`}
       tab={tab}
       filters={filters}
       listings={listings}
